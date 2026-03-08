@@ -21,11 +21,11 @@ def _db_ping() -> list[str]:
         failures.append(f"DB check failed: core.SiteConfig query ({exc})")
 
     try:
-        from products.models import Category
+        from catalog.models import Category
 
         Category.objects.count()
     except Exception as exc:
-        failures.append(f"DB check failed: products.Category query ({exc})")
+        failures.append(f"DB check failed: catalog.Category query ({exc})")
 
     try:
         from orders.models import Order

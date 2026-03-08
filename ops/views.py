@@ -4,10 +4,13 @@ from datetime import timedelta
 import datetime
 import json
 import csv
+import re
+from io import StringIO
 
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
+from django.core.management import call_command
 from django.http import JsonResponse
 from django.conf import settings
 
@@ -16,6 +19,7 @@ from django.db import models
 from django.db.models import Count, Sum, Max, Exists, OuterRef
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
@@ -31,11 +35,13 @@ from qa.models import ProductQuestionReport
 from refunds.models import RefundRequest
 from notifications.models import EmailDeliveryAttempt, Notification
 from notifications.services import resend_notification_email
+from products.permissions import can_run_high_risk_action
 
 from .decorators import ops_required
 from .models import AuditLog, AuditAction, ErrorEvent
 from .services import audit
 from .utils import user_is_ops
+from .alerts import build_alert_summary
 
 
 User = get_user_model()
@@ -495,8 +501,17 @@ def orders_list(request: HttpRequest) -> HttpResponse:
 
     status = (request.GET.get("status") or "").strip()
     q = (request.GET.get("q") or "").strip()
+    company = (request.GET.get("company") or "").strip()
     if status:
         qs = qs.filter(status=status)
+    if company:
+        if company.isdigit():
+            qs = qs.filter(items__seller_id=int(company)).distinct()
+        else:
+            qs = qs.filter(
+                models.Q(items__seller__profile__shop_name__icontains=company)
+                | models.Q(items__seller__username__icontains=company)
+            ).distinct()
     if q:
         qs = qs.filter(
             models.Q(id__icontains=q)
@@ -509,7 +524,11 @@ def orders_list(request: HttpRequest) -> HttpResponse:
 
     paginator = Paginator(qs, 50)
     page = paginator.get_page(request.GET.get("page") or 1)
-    return render(request, "ops/orders_list.html", {"page_obj": page, "status": status, "q": q})
+    return render(
+        request,
+        "ops/orders_list.html",
+        {"page_obj": page, "status": status, "q": q, "company": company},
+    )
 
 
 @ops_required
@@ -554,6 +573,9 @@ def webhooks_list(request: HttpRequest) -> HttpResponse:
 
     qs = qs.annotate(delivery_count=Count("deliveries"))
 
+    replayable_qs = qs.filter(status__in=["received", "error"])
+    replayable_count = replayable_qs.count()
+
     paginator = Paginator(qs, 50)
     page = paginator.get_page(request.GET.get("page") or 1)
 
@@ -564,6 +586,7 @@ def webhooks_list(request: HttpRequest) -> HttpResponse:
         "session_id": session_id,
         "order_id": order_id,
         "days": days,
+        "replayable_count": replayable_count,
     }
     return render(request, "ops/webhooks_list.html", ctx)
 
@@ -589,6 +612,10 @@ def webhook_detail(request: HttpRequest, pk: int) -> HttpResponse:
 @require_POST
 @ops_required
 def webhook_reprocess(request: HttpRequest, pk: int) -> HttpResponse:
+    if not can_run_high_risk_action(request.user, "orders.can_reprocess_webhooks"):
+        messages.error(request, "You do not have permission to reprocess Stripe webhooks.")
+        return redirect("ops:webhooks_list")
+
     webhook = get_object_or_404(StripeWebhookEvent, pk=pk)
     event = webhook.raw_json if isinstance(webhook.raw_json, dict) else {}
 
@@ -611,7 +638,83 @@ def webhook_reprocess(request: HttpRequest, pk: int) -> HttpResponse:
 
 @require_POST
 @ops_required
+def webhooks_reprocess_filtered(request: HttpRequest) -> HttpResponse:
+    """Bulk reprocess filtered webhook rows from the list page (idempotent)."""
+    if not can_run_high_risk_action(request.user, "orders.can_reprocess_webhooks"):
+        messages.error(request, "You do not have permission to bulk reprocess Stripe webhooks.")
+        return redirect("ops:webhooks_list")
+
+    status = (request.POST.get("status") or "").strip() or "error"
+    event_type = (request.POST.get("event_type") or "").strip()
+    session_id = (request.POST.get("session_id") or "").strip()
+    order_id = (request.POST.get("order_id") or "").strip()
+    try:
+        days = int(request.POST.get("days") or 14)
+    except Exception:
+        days = 14
+    days = max(1, min(days, 365))
+
+    try:
+        limit = int(request.POST.get("limit") or 50)
+    except Exception:
+        limit = 50
+    limit = max(1, min(limit, 200))
+
+    since = timezone.now() - timedelta(days=days)
+    qs = StripeWebhookEvent.objects.filter(created_at__gte=since).order_by("-created_at")
+    if status and status != "all":
+        qs = qs.filter(status=status)
+    if event_type:
+        qs = qs.filter(event_type=event_type)
+    if session_id:
+        qs = qs.filter(deliveries__stripe_session_id=session_id).distinct()
+    if order_id:
+        qs = qs.filter(deliveries__order_id=order_id).distinct()
+
+    qs = qs.filter(status__in=["received", "error"])
+
+    selected = list(qs[:limit])
+    replayed = 0
+    failed = 0
+    last_error = ""
+    for webhook in selected:
+        event = webhook.raw_json if isinstance(webhook.raw_json, dict) else {}
+        try:
+            process_stripe_event_dict(event=event, webhook_event=webhook, source="ops_reprocess")
+            replayed += 1
+        except Exception as e:
+            failed += 1
+            last_error = str(e)
+
+    audit(
+        request=request,
+        action=AuditAction.OTHER,
+        verb="Bulk reprocessed Stripe webhooks",
+        reason=f"status={status} event_type={event_type} session={session_id} order={order_id} days={days} limit={limit}",
+        after={"selected": len(selected), "replayed": replayed, "failed": failed},
+    )
+
+    if failed:
+        messages.warning(
+            request,
+            f"Reprocessed {replayed}/{len(selected)} webhook(s); {failed} failed."
+            + (f" Last error: {last_error}" if last_error else ""),
+        )
+    else:
+        messages.success(request, f"Reprocessed {replayed} webhook(s) (idempotent).")
+
+    return redirect(
+        f"{reverse('ops:webhooks_list')}?status={status}&event_type={event_type}&session_id={session_id}&order_id={order_id}&days={days}"
+    )
+
+
+@require_POST
+@ops_required
 def order_retry_transfers(request: HttpRequest, pk) -> HttpResponse:
+    if not can_run_high_risk_action(request.user, "orders.can_retry_payouts"):
+        messages.error(request, "You do not have permission to retry payout transfers.")
+        return redirect("ops:orders_list")
+
     order = get_object_or_404(Order, pk=pk)
 
     try:
@@ -920,12 +1023,21 @@ def qa_report_resolve(request: HttpRequest, pk: int) -> HttpResponse:
 def refund_requests_queue(request: HttpRequest) -> HttpResponse:
     qs = RefundRequest.objects.select_related("order", "buyer", "seller").order_by("-created_at")
     status = (request.GET.get("status") or RefundRequest.Status.REQUESTED).strip()
+    company = (request.GET.get("company") or "").strip()
     if status:
         qs = qs.filter(status=status)
+    if company:
+        if company.isdigit():
+            qs = qs.filter(seller_id=int(company))
+        else:
+            qs = qs.filter(
+                models.Q(seller__profile__shop_name__icontains=company)
+                | models.Q(seller__username__icontains=company)
+            )
 
     paginator = Paginator(qs, 50)
     page = paginator.get_page(request.GET.get("page") or 1)
-    return render(request, "ops/refund_requests_queue.html", {"page_obj": page, "status": status})
+    return render(request, "ops/refund_requests_queue.html", {"page_obj": page, "status": status, "company": company})
 
 @ops_required
 def runbook(request: HttpRequest) -> HttpResponse:
@@ -933,13 +1045,352 @@ def runbook(request: HttpRequest) -> HttpResponse:
 
     This is intentionally a human-facing page for daily operations and incident response.
     """
+    command_defs = [
+        {
+            "verb": "Run reconciliation_check",
+            "command": "reconciliation_check",
+            "defaults": {"reconciliation_days": 30, "reconciliation_limit": 500},
+            "aliases": {"days": "reconciliation_days", "limit": "reconciliation_limit"},
+            "action_url": reverse("ops:runbook_run_reconciliation_check"),
+        },
+        {
+            "verb": "Run alert_summary",
+            "command": "alert_summary",
+            "defaults": {"alert_hours": 24, "alert_reconciliation_days": 7},
+            "aliases": {"hours": "alert_hours", "reconciliation_days": "alert_reconciliation_days"},
+            "action_url": reverse("ops:runbook_run_alert_summary"),
+        },
+        {
+            "verb": "Run launch_gate",
+            "command": "launch_gate",
+            "defaults": {
+                "money_loop_limit": 200,
+                "reconciliation_days": 30,
+                "reconciliation_limit": 500,
+                "alert_hours": 24,
+                "alert_reconciliation_days": 7,
+                "fail_on_warning": 0,
+            },
+            "aliases": {},
+            "action_url": reverse("ops:runbook_run_launch_gate"),
+        },
+    ]
+    kv_re = re.compile(r"([a-zA-Z_]+)=([0-9]+)")
+
+    def _extract_params(reason: str, defaults: dict[str, int], aliases: dict[str, str]) -> dict[str, int]:
+        params = dict(defaults)
+        for key, raw in kv_re.findall(reason or ""):
+            key = aliases.get(key, key)
+            if key in params:
+                try:
+                    params[key] = int(raw)
+                except Exception:
+                    continue
+        return params
+
+    recent_rows = (
+        AuditLog.objects.filter(verb__in=[cfg["verb"] for cfg in command_defs])
+        .select_related("actor")
+        .order_by("-created_at", "-id")[:30]
+    )
+    latest_by_verb: dict[str, AuditLog] = {}
+    for row in recent_rows:
+        if row.verb not in latest_by_verb:
+            latest_by_verb[row.verb] = row
+
+    runbook_last_runs = []
+    for cfg in command_defs:
+        verb = cfg["verb"]
+        command_name = cfg["command"]
+        row = latest_by_verb.get(verb)
+        rerun_params = dict(cfg["defaults"])
+        if not row:
+            runbook_last_runs.append(
+                {
+                    "command": command_name,
+                    "label": verb,
+                    "has_run": False,
+                    "status": "n/a",
+                    "status_badge": "secondary",
+                    "summary": "No runs recorded yet.",
+                    "ran_at": None,
+                    "actor_label": "",
+                    "rerun_params": rerun_params,
+                    "rerun_params_text": " ".join([f"{k}={v}" for k, v in rerun_params.items()]),
+                    "action_url": cfg["action_url"],
+                }
+            )
+            continue
+
+        after = row.after_json or {}
+        ok_flag = after.get("ok", None)
+        result = after.get("result", {}) if isinstance(after, dict) else {}
+        rerun_params = _extract_params(row.reason, cfg["defaults"], cfg.get("aliases", {}))
+        if ok_flag is True:
+            status = "ok"
+            status_badge = "success"
+        elif ok_flag is False:
+            status = "issue"
+            status_badge = "danger"
+        else:
+            status = "unknown"
+            status_badge = "warning"
+
+        if command_name == "reconciliation_check":
+            summary = f"inspected={int(result.get('inspected_orders', 0) or 0)} mismatches={int(result.get('mismatches_total', 0) or 0)}"
+        elif command_name == "alert_summary":
+            summary = f"status={str(result.get('status') or 'n/a')}"
+        elif command_name == "launch_gate":
+            summary = (
+                f"status={str(result.get('status') or 'n/a')} "
+                f"critical={int(result.get('critical_count', 0) or 0)} "
+                f"warning={int(result.get('warning_count', 0) or 0)}"
+            )
+        else:
+            summary = ""
+
+        runbook_last_runs.append(
+            {
+                "command": command_name,
+                "label": verb,
+                "has_run": True,
+                "status": status,
+                "status_badge": status_badge,
+                "summary": summary,
+                "ran_at": row.created_at,
+                "actor_label": (row.actor.email if row.actor and getattr(row.actor, "email", "") else (row.actor.username if row.actor else "system")),
+                "rerun_params": rerun_params,
+                "rerun_params_text": " ".join([f"{k}={v}" for k, v in rerun_params.items()]),
+                "action_url": cfg["action_url"],
+            }
+        )
+
     ctx = {
         "use_s3": bool(getattr(settings, "USE_S3", False)),
         "email_backend": str(getattr(settings, "EMAIL_BACKEND", "")),
         "default_from_email": str(getattr(settings, "DEFAULT_FROM_EMAIL", "")),
         "stripe_configured": bool(getattr(settings, "STRIPE_SECRET_KEY", "")),
+        "runbook_last_runs": runbook_last_runs,
     }
     return render(request, "ops/runbook.html", ctx)
+
+
+@require_POST
+@ops_required
+def runbook_run_reconciliation_check(request: HttpRequest) -> HttpResponse:
+    """Run reconciliation_check from Ops UI and record result in AuditLog."""
+    try:
+        days = int((request.POST.get("reconciliation_days") or "30").strip())
+    except Exception:
+        days = 30
+    try:
+        limit = int((request.POST.get("reconciliation_limit") or "500").strip())
+    except Exception:
+        limit = 500
+    days = max(1, min(days, 365))
+    limit = max(1, min(limit, 2000))
+
+    out = StringIO()
+    payload = {}
+    ok = True
+    err = ""
+    try:
+        call_command("reconciliation_check", days=days, limit=limit, json=True, stdout=out)
+        payload = json.loads(out.getvalue() or "{}")
+        ok = bool(payload.get("ok", False))
+    except Exception as e:
+        ok = False
+        err = str(e)
+
+    audit(
+        request=request,
+        action=AuditAction.OTHER,
+        verb="Run reconciliation_check",
+        reason=f"days={days} limit={limit}",
+        after={
+            "ok": ok,
+            "error": err,
+            "result": payload,
+        },
+    )
+
+    if ok:
+        messages.success(
+            request,
+            f"reconciliation_check OK. inspected={payload.get('inspected_orders', 0)} mismatches={payload.get('mismatches_total', 0)}",
+        )
+    else:
+        messages.error(
+            request,
+            "reconciliation_check reported issues."
+            + (f" {err}" if err else ""),
+        )
+    return redirect("ops:runbook")
+
+
+@require_POST
+@ops_required
+def runbook_run_alert_summary(request: HttpRequest) -> HttpResponse:
+    """Run alert_summary from Ops UI and record result in AuditLog."""
+    try:
+        hours = int((request.POST.get("alert_hours") or "24").strip())
+    except Exception:
+        hours = 24
+    try:
+        reconciliation_days = int((request.POST.get("alert_reconciliation_days") or "7").strip())
+    except Exception:
+        reconciliation_days = 7
+    hours = max(1, min(hours, 720))
+    reconciliation_days = max(1, min(reconciliation_days, 365))
+
+    out = StringIO()
+    payload = {}
+    ok = True
+    err = ""
+    try:
+        call_command(
+            "alert_summary",
+            hours=hours,
+            reconciliation_days=reconciliation_days,
+            json=True,
+            stdout=out,
+        )
+        payload = json.loads(out.getvalue() or "{}")
+        ok = str(payload.get("status") or "ok") == "ok"
+    except Exception as e:
+        ok = False
+        err = str(e)
+
+    audit(
+        request=request,
+        action=AuditAction.OTHER,
+        verb="Run alert_summary",
+        reason=f"hours={hours} reconciliation_days={reconciliation_days}",
+        after={
+            "ok": ok,
+            "error": err,
+            "result": payload,
+        },
+    )
+
+    if ok:
+        messages.success(request, "alert_summary OK.")
+    else:
+        messages.warning(
+            request,
+            "alert_summary returned warning/critical."
+            + (f" {err}" if err else ""),
+        )
+    return redirect("ops:runbook")
+
+
+@require_POST
+@ops_required
+def runbook_run_launch_gate(request: HttpRequest) -> HttpResponse:
+    """Run launch_gate from Ops UI and record result in AuditLog."""
+    try:
+        money_loop_limit = int((request.POST.get("money_loop_limit") or "200").strip())
+    except Exception:
+        money_loop_limit = 200
+    try:
+        reconciliation_days = int((request.POST.get("reconciliation_days") or "30").strip())
+    except Exception:
+        reconciliation_days = 30
+    try:
+        reconciliation_limit = int((request.POST.get("reconciliation_limit") or "500").strip())
+    except Exception:
+        reconciliation_limit = 500
+    try:
+        alert_hours = int((request.POST.get("alert_hours") or "24").strip())
+    except Exception:
+        alert_hours = 24
+    try:
+        alert_reconciliation_days = int((request.POST.get("alert_reconciliation_days") or "7").strip())
+    except Exception:
+        alert_reconciliation_days = 7
+
+    fail_on_warning = (request.POST.get("fail_on_warning") or "").strip().lower() in {"1", "true", "on", "yes"}
+
+    money_loop_limit = max(1, min(money_loop_limit, 2000))
+    reconciliation_days = max(1, min(reconciliation_days, 365))
+    reconciliation_limit = max(1, min(reconciliation_limit, 5000))
+    alert_hours = max(1, min(alert_hours, 720))
+    alert_reconciliation_days = max(1, min(alert_reconciliation_days, 365))
+
+    out = StringIO()
+    payload = {}
+    err = ""
+    status = "ok"
+    ok = True
+    try:
+        call_command(
+            "launch_gate",
+            json=True,
+            fail_on_warning=fail_on_warning,
+            money_loop_limit=money_loop_limit,
+            reconciliation_days=reconciliation_days,
+            reconciliation_limit=reconciliation_limit,
+            alert_hours=alert_hours,
+            alert_reconciliation_days=alert_reconciliation_days,
+            stdout=out,
+        )
+    except SystemExit as e:
+        err = f"exit={getattr(e, 'code', None)}"
+    except Exception as e:
+        err = str(e)
+
+    try:
+        payload = json.loads(out.getvalue() or "{}")
+        status = str(payload.get("status") or "critical")
+    except Exception:
+        payload = {}
+        status = "critical"
+        if not err:
+            err = "Invalid launch_gate JSON payload."
+
+    ok = status == "ok"
+
+    audit(
+        request=request,
+        action=AuditAction.OTHER,
+        verb="Run launch_gate",
+        reason=(
+            f"money_loop_limit={money_loop_limit} reconciliation_days={reconciliation_days} "
+            f"reconciliation_limit={reconciliation_limit} alert_hours={alert_hours} "
+            f"alert_reconciliation_days={alert_reconciliation_days} fail_on_warning={1 if fail_on_warning else 0}"
+        ),
+        after={
+            "ok": ok,
+            "status": status,
+            "error": err,
+            "result": payload,
+        },
+    )
+
+    if status == "ok":
+        messages.success(request, "launch_gate OK.")
+    elif status == "warning":
+        messages.warning(request, "launch_gate returned warning state.")
+    else:
+        messages.error(request, "launch_gate returned critical state.")
+
+    return redirect("ops:runbook")
+
+
+@ops_required
+def alerts_summary(request: HttpRequest) -> JsonResponse:
+    """Ops-only JSON alert summary for polling and runbooks."""
+    try:
+        hours = int((request.GET.get("hours") or "24").strip())
+    except Exception:
+        hours = 24
+    try:
+        reconciliation_days = int((request.GET.get("reconciliation_days") or "7").strip())
+    except Exception:
+        reconciliation_days = 7
+
+    payload = build_alert_summary(hours=hours, reconciliation_days=reconciliation_days)
+    return JsonResponse(payload, status=200)
 
 
 @ops_required
@@ -1049,8 +1500,17 @@ def reconciliation_list(request: HttpRequest) -> HttpResponse:
     qs = annotate_order_reconciliation(Order.objects.select_related("buyer")).order_by("-created_at")
 
     status = (request.GET.get("status") or "").strip()
+    company = (request.GET.get("company") or "").strip()
     if status:
         qs = qs.filter(status=status)
+    if company:
+        if company.isdigit():
+            qs = qs.filter(items__seller_id=int(company)).distinct()
+        else:
+            qs = qs.filter(
+                models.Q(items__seller__profile__shop_name__icontains=company)
+                | models.Q(items__seller__username__icontains=company)
+            ).distinct()
 
     only_issues = (request.GET.get("issues") or "").strip().lower() in {"1", "true", "yes", "on"}
     if only_issues:
@@ -1071,6 +1531,7 @@ def reconciliation_list(request: HttpRequest) -> HttpResponse:
     ctx = {
         "page_obj": page,
         "status": status,
+        "company": company,
         "only_issues": only_issues,
     }
     return render(request, "ops/reconciliation_list.html", ctx)
@@ -1089,8 +1550,17 @@ def reconciliation_mismatches(request: HttpRequest) -> HttpResponse:
 
     # optional status filter
     status = (request.GET.get("status") or "").strip()
+    company = (request.GET.get("company") or "").strip()
     if status:
         qs = qs.filter(status=status)
+    if company:
+        if company.isdigit():
+            qs = qs.filter(items__seller_id=int(company)).distinct()
+        else:
+            qs = qs.filter(
+                models.Q(items__seller__profile__shop_name__icontains=company)
+                | models.Q(items__seller__username__icontains=company)
+            ).distinct()
 
     counts = {
         "totals_mismatch": qs.filter(totals_mismatch=True).count(),
@@ -1109,6 +1579,7 @@ def reconciliation_mismatches(request: HttpRequest) -> HttpResponse:
     ctx = {
         "page_obj": page,
         "status": status,
+        "company": company,
         "counts": counts,
     }
     return render(request, "ops/reconciliation_mismatches.html", ctx)

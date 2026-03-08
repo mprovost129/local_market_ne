@@ -16,12 +16,12 @@
   {% block meta_title_og %}<meta property="og:title" content="Local Market NE">{% endblock %}
   <meta property="og:description" content="{{ block.super }}">
   <meta property="og:url" content="{{ request.build_absolute_uri }}">
-  <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'images/localmarketne_navbar.svg' %}">
+  <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'images/local_market_logo.png' %}">
 
   <meta name="twitter:card" content="summary_large_image">
   {% block meta_title %}<meta name="twitter:title" content="Local Market NE">{% endblock %}>
   <meta name="twitter:description" content="{{ block.super }}">
-  <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'images/localmarketne_navbar.svg' %}">
+  <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'images/local_market_logo.png' %}">
   {% endblock %}>
 
   {% if ga_measurement_id %}

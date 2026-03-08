@@ -96,7 +96,7 @@ class Order(models.Model):
     )
     platform_fee_cents_snapshot = models.PositiveIntegerField(
         default=0,
-        help_text="Legacy flat fee snapshot (NOT USED). Keep at 0.",
+        help_text="Flat marketplace service fee snapshot captured at order creation time.",
     )
 
     # Stripe
@@ -134,6 +134,9 @@ class Order(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+        permissions = (
+            ("can_retry_payouts", "Can retry payout transfers"),
+        )
         indexes = [
             models.Index(fields=["status", "created_at"]),
             models.Index(fields=["stripe_session_id"]),
@@ -174,7 +177,8 @@ class Order(models.Model):
         self.subtotal_cents = max(0, subtotal)
         self.shipping_cents = max(0, shipping)
         self.tax_cents = max(0, tax)
-        self.total_cents = max(0, self.subtotal_cents + self.shipping_cents + self.tax_cents)
+        platform_fee = max(0, int(self.platform_fee_cents_snapshot or 0))
+        self.total_cents = max(0, self.subtotal_cents + self.shipping_cents + self.tax_cents + platform_fee)
 
     # ------------------------------------------------------------------
     # Pack AH: invariants + status transition guardrails
@@ -279,7 +283,7 @@ class Order(models.Model):
         if self.buyer and self.buyer_email:
             notify_email_and_in_app(
                 user=self.buyer,
-                kind="order_paid",
+                kind="ORDER",
                 email_subject="Order paid",
                 email_template_html="emails/order_paid.html",
                 context={"order": self, "buyer_email": self.buyer_email},
@@ -513,6 +517,9 @@ class StripeWebhookEvent(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+        permissions = (
+            ("can_reprocess_webhooks", "Can reprocess Stripe webhooks"),
+        )
         indexes = [
             models.Index(fields=["status", "created_at"]),
             models.Index(fields=["event_type", "created_at"]),

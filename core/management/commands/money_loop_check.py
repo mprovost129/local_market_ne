@@ -40,7 +40,7 @@ class Command(BaseCommand):
         sample = list(
             Order.objects.filter(status=Order.Status.PAID)
             .order_by("-paid_at")
-            .only("id", "subtotal_cents", "tax_cents", "shipping_cents", "total_cents")[:limit]
+            .only("id", "subtotal_cents", "tax_cents", "shipping_cents", "platform_fee_cents_snapshot", "total_cents")[:limit]
         )
 
         bad_orders: list[str] = []
@@ -66,7 +66,8 @@ class Command(BaseCommand):
                 for i in items
             )
             tax = sum(int(i.tax_cents or 0) for i in items)
-            total = max(0, int(subtotal) + int(shipping) + int(tax))
+            platform_fee = int(o.platform_fee_cents_snapshot or 0)
+            total = max(0, int(subtotal) + int(shipping) + int(tax) + int(platform_fee))
 
             if (
                 int(o.subtotal_cents or 0) != subtotal

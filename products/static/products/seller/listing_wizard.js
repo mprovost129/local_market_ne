@@ -41,6 +41,18 @@
       if (cardBody) cardBody.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
+    function focusFirstErrorField() {
+      var fieldName = (form.getAttribute('data-first-error-field') || '').trim();
+      if (!fieldName) return;
+      var target = form.querySelector('[name="' + fieldName + '"]');
+      if (!target) return;
+      try {
+        target.focus({ preventScroll: true });
+      } catch (e) {
+        target.focus();
+      }
+    }
+
     function next() {
       if (current < steps.length) setActive(current + 1);
     }
@@ -88,6 +100,7 @@
         initialStep = 1;
       }
       setActive(initialStep);
+      focusFirstErrorField();
     } else {
       setActive(1);
     }

@@ -1,6 +1,7 @@
 # orders/stripe_service.py
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from django.conf import settings
@@ -11,6 +12,8 @@ import stripe
 from .models import Order, OrderEvent, OrderItem
 from .emails import send_payout_email
 from products.permissions import is_owner_user
+
+logger = logging.getLogger(__name__)
 
 
 def _stripe() -> Any:
@@ -88,6 +91,17 @@ def create_checkout_session_for_order(
                 "quantity": 1,
             }
         )
+    if int(order.platform_fee_cents_snapshot or 0) > 0:
+        line_items.append(
+            {
+                "price_data": {
+                    "currency": order.currency or "usd",
+                    "unit_amount": int(order.platform_fee_cents_snapshot),
+                    "product_data": {"name": "Marketplace service fee"},
+                },
+                "quantity": 1,
+            }
+        )
 
     session = s.checkout.Session.create(
         mode="payment",
@@ -123,6 +137,38 @@ def create_transfers_for_paid_order(*, order: Order, payment_intent_id: str = ""
         order.stripe_payment_intent_id = str(payment_intent_id).strip()
         order.save(update_fields=["stripe_payment_intent_id", "updated_at"])
 
+    source_transaction = ""
+    pi_or_charge = (order.stripe_payment_intent_id or "").strip()
+    if pi_or_charge.startswith("ch_"):
+        source_transaction = pi_or_charge
+    elif pi_or_charge.startswith("pi_"):
+        payment_intent_api = getattr(s, "PaymentIntent", None)
+        if payment_intent_api and hasattr(payment_intent_api, "retrieve"):
+            try:
+                pi = payment_intent_api.retrieve(pi_or_charge, expand=["latest_charge"])
+                latest_charge = ""
+                if isinstance(pi, dict):
+                    raw = pi.get("latest_charge")
+                    if isinstance(raw, dict):
+                        latest_charge = str(raw.get("id") or "").strip()
+                    else:
+                        latest_charge = str(raw or "").strip()
+                else:
+                    raw = getattr(pi, "latest_charge", "")
+                    if isinstance(raw, dict):
+                        latest_charge = str(raw.get("id") or "").strip()
+                    else:
+                        latest_charge = str(getattr(raw, "id", "") or raw or "").strip()
+                if latest_charge.startswith("ch_"):
+                    source_transaction = latest_charge
+            except Exception:
+                logger.warning(
+                    "Could not resolve charge id from payment_intent for order=%s pi=%s",
+                    order.pk,
+                    pi_or_charge,
+                    exc_info=True,
+                )
+
     # Sum seller nets by seller
     per_seller: dict[int, int] = {}
     for item in order.items.select_related("seller").all():
@@ -141,20 +187,34 @@ def create_transfers_for_paid_order(*, order: Order, payment_intent_id: str = ""
             continue
 
         stripe_account = getattr(seller, "stripe_connect", None)
-        if not stripe_account or not getattr(stripe_account, "stripe_account_id", ""):
+        stripe_account_id = str(getattr(stripe_account, "stripe_account_id", "") or "").strip()
+        is_ready = bool(getattr(stripe_account, "is_ready", False))
+        if not stripe_account_id or not is_ready:
+            try:
+                OrderEvent.objects.create(
+                    order=order,
+                    type=OrderEvent.Type.WARNING,
+                    message=f"transfer skipped seller={seller_id} (not ready)",
+                    meta={"seller_id": int(seller_id)},
+                )
+            except Exception:
+                pass
             continue
 
         # Idempotency key: order + seller
         idem = f"order_{order.pk}_seller_{seller_id}_transfer"
 
-        transfer = s.Transfer.create(
-            amount=int(payout_cents),
-            currency=order.currency or "usd",
-            destination=stripe_account.stripe_account_id,
-            source_transaction=(order.stripe_payment_intent_id or None),
-            metadata={"order_id": str(order.pk), "seller_id": str(seller_id)},
-            idempotency_key=idem,
-        )
+        transfer_payload = {
+            "amount": int(payout_cents),
+            "currency": order.currency or "usd",
+            "destination": stripe_account_id,
+            "metadata": {"order_id": str(order.pk), "seller_id": str(seller_id)},
+            "idempotency_key": idem,
+        }
+        if source_transaction:
+            transfer_payload["source_transaction"] = source_transaction
+
+        transfer = s.Transfer.create(**transfer_payload)
 
         try:
             OrderEvent.objects.create(

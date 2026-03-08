@@ -9,6 +9,7 @@ import urllib.request
 from django.conf import settings
 from django.core.management import BaseCommand, call_command
 from django.db import connection
+from ops.alerts import build_alert_summary
 
 
 class Command(BaseCommand):
@@ -36,11 +37,64 @@ class Command(BaseCommand):
             action="store_true",
             help="Reduce output noise.",
         )
+        parser.add_argument(
+            "--skip-money-loop",
+            action="store_true",
+            help="Skip paid-order money loop invariants check.",
+        )
+        parser.add_argument(
+            "--money-loop-limit",
+            type=int,
+            default=200,
+            help="Recent paid-order sample size for money loop check (default: 200).",
+        )
+        parser.add_argument(
+            "--skip-reconciliation",
+            action="store_true",
+            help="Skip order/Stripe reconciliation mismatch check.",
+        )
+        parser.add_argument(
+            "--reconciliation-days",
+            type=int,
+            default=30,
+            help="Lookback window (days) for reconciliation check (default: 30).",
+        )
+        parser.add_argument(
+            "--reconciliation-limit",
+            type=int,
+            default=500,
+            help="Max orders inspected by reconciliation check (default: 500).",
+        )
+        parser.add_argument(
+            "--skip-alert-summary",
+            action="store_true",
+            help="Skip alert summary evaluation.",
+        )
+        parser.add_argument(
+            "--alert-hours",
+            type=int,
+            default=24,
+            help="Lookback window in hours for alert summary (default: 24).",
+        )
+        parser.add_argument(
+            "--alert-reconciliation-days",
+            type=int,
+            default=7,
+            help="Reconciliation lookback days for alert summary (default: 7).",
+        )
 
     def handle(self, *args, **opts):
         base_url = (opts.get("base_url") or "").strip().rstrip("/")
         as_json = bool(opts.get("json"))
         quiet = bool(opts.get("quiet"))
+        skip_money_loop = bool(opts.get("skip_money_loop"))
+        money_loop_limit = int(opts.get("money_loop_limit") or 200)
+        skip_reconciliation = bool(opts.get("skip_reconciliation"))
+        reconciliation_days = int(opts.get("reconciliation_days") or 30)
+        reconciliation_limit = int(opts.get("reconciliation_limit") or 500)
+        skip_alert_summary = bool(opts.get("skip_alert_summary"))
+        alert_hours = int(opts.get("alert_hours") or 24)
+        alert_reconciliation_days = int(opts.get("alert_reconciliation_days") or 7)
 
         results: dict[str, object] = {
             "ok": True,
@@ -128,6 +182,66 @@ class Command(BaseCommand):
             warn(f"stripe_config_check exited early: {e}")
         except Exception as e:
             warn(f"stripe_config_check failed: {e}")
+
+        if not skip_money_loop:
+            try:
+                call_command("money_loop_check", limit=money_loop_limit, json=False, verbosity=0)
+                results["info"].update({"money_loop_check": "ok", "money_loop_limit": money_loop_limit})
+            except SystemExit as e:
+                fatal(f"money_loop_check failed (exit={e}).")
+            except Exception as e:
+                fatal(f"money_loop_check failed: {e}")
+
+        if not skip_reconciliation:
+            try:
+                call_command(
+                    "reconciliation_check",
+                    days=reconciliation_days,
+                    limit=reconciliation_limit,
+                    fail_on_mismatch=True,
+                    json=False,
+                    verbosity=0,
+                )
+                results["info"].update(
+                    {
+                        "reconciliation_check": "ok",
+                        "reconciliation_days": reconciliation_days,
+                        "reconciliation_limit": reconciliation_limit,
+                    }
+                )
+            except SystemExit as e:
+                fatal(f"reconciliation_check found mismatches (exit={e}).")
+            except Exception as e:
+                fatal(f"reconciliation_check failed: {e}")
+
+        if not skip_alert_summary:
+            try:
+                alert_payload = build_alert_summary(
+                    hours=alert_hours,
+                    reconciliation_days=alert_reconciliation_days,
+                )
+                alert_status = str(alert_payload.get("status") or "ok")
+                results["info"].update(
+                    {
+                        "alert_summary_status": alert_status,
+                        "alert_summary_hours": alert_hours,
+                        "alert_summary_reconciliation_days": alert_reconciliation_days,
+                        "alert_summary_critical_reasons": list(alert_payload.get("critical_reasons") or []),
+                        "alert_summary_warning_reasons": list(alert_payload.get("warning_reasons") or []),
+                    }
+                )
+                if alert_status == "critical":
+                    fatal(
+                        "alert_summary returned critical: "
+                        + ", ".join(list(alert_payload.get("critical_reasons") or [])[:5])
+                    )
+                elif alert_status == "warning":
+                    warn(
+                        "alert_summary returned warning: "
+                        + ", ".join(list(alert_payload.get("warning_reasons") or [])[:5])
+                    )
+            except Exception as e:
+                fatal(f"alert_summary failed: {e}")
 
         # ------------------------------------------------------------------------------
         # OPTIONAL PUBLIC HTTP CHECKS

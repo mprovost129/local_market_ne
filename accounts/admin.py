@@ -66,11 +66,11 @@ class ProfileAdmin(admin.ModelAdmin):
 
         uid = int(obj.user_id)
         links = [
-            ("Products", _safe("admin:products_product_changelist", f"?seller__id__exact={uid}")),
-            ("Orders", _safe("admin:orders_order_changelist", f"?items__seller__id__exact={uid}")),
+            ("Products", _safe("admin:products_product_changelist", f"?seller_company={uid}")),
+            ("Orders", _safe("admin:orders_order_changelist", f"?seller_company={uid}")),
             ("Items", _safe("admin:orders_orderitem_changelist", f"?seller__id__exact={uid}")),
-            ("Payouts", _safe("admin:payments_sellerbalanceentry_changelist", f"?seller__id__exact={uid}")),
-            ("Refunds", _safe("admin:refunds_refundrequest_changelist", f"?seller__id__exact={uid}")),
+            ("Payouts", _safe("admin:payments_sellerbalanceentry_changelist", f"?seller_company={uid}")),
+            ("Refunds", _safe("admin:refunds_refundrequest_changelist", f"?seller_company={uid}")),
             ("Appointments", _safe("admin:appointments_appointmentrequest_changelist", f"?seller__id__exact={uid}")),
         ]
         html = " | ".join(

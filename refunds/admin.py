@@ -6,29 +6,37 @@ from django.contrib import admin, messages
 from django.urls import reverse
 from django.utils.html import format_html
 
+from core.admin_filters import SellerCompanyFilter
+from products.permissions import can_run_high_risk_action
+
 from .models import RefundRequest, RefundAttempt
 
 
 @admin.register(RefundRequest)
 class RefundRequestAdmin(admin.ModelAdmin):
+    list_select_related = ("seller", "seller__profile", "buyer", "order", "order_item")
     list_display = (
         "id",
         "status",
         "reason",
         "order_link",
         "order_item_link",
+        "seller_company",
         "seller",
         "buyer_or_guest",
         "total_refund_display",
         "created_at",
     )
-    list_filter = ("status", "reason", "created_at", "seller")
+    list_filter = ("status", "reason", "created_at", SellerCompanyFilter, "seller")
     search_fields = (
         "id",
         "order__id",
         "order_item__id",
         "seller__username",
+        "seller__profile__shop_name",
         "buyer__username",
+        "buyer__email",
+        "order__guest_email",
         "requester_email",
         "stripe_refund_id",
     )
@@ -104,10 +112,19 @@ class RefundRequestAdmin(admin.ModelAdmin):
 
     def buyer_or_guest(self, obj: RefundRequest) -> str:
         if obj.buyer_id:
-            return getattr(obj.buyer, "username", str(obj.buyer_id))
+            email = (getattr(obj.buyer, "email", "") or "").strip()
+            username = getattr(obj.buyer, "username", str(obj.buyer_id))
+            return f"{username} ({email})" if email else username
         return f"Guest ({(obj.requester_email or '').strip()})"
 
     buyer_or_guest.short_description = "Buyer"
+
+    def seller_company(self, obj: RefundRequest) -> str:
+        profile = getattr(obj.seller, "profile", None)
+        shop_name = (getattr(profile, "shop_name", "") or "").strip() if profile else ""
+        return shop_name or getattr(obj.seller, "username", str(obj.seller_id))
+
+    seller_company.short_description = "Seller company"
 
     def total_refund_display(self, obj: RefundRequest) -> str:
         cents = int(obj.total_refund_cents_snapshot or 0)
@@ -122,6 +139,14 @@ class RefundRequestAdmin(admin.ModelAdmin):
         - Only APPROVED, not already refunded
         - Uses service layer so invariants stay centralized
         """
+        if not can_run_high_risk_action(getattr(request, "user", None), "refunds.can_trigger_refunds"):
+            self.message_user(
+                request,
+                "You do not have permission to trigger refunds from admin.",
+                level=messages.ERROR,
+            )
+            return
+
         from .services import trigger_refund  # local import
 
         count_ok = 0

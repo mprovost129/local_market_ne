@@ -6,6 +6,7 @@ from django.http import JsonResponse
 from django.urls import path
 
 from catalog.models import Category
+from core.admin_filters import SellerCompanyFilter
 from .models import Product, ProductImage, ProductEngagementEvent
 
 
@@ -22,6 +23,7 @@ class ProductAdmin(admin.ModelAdmin):
         "slug",
         "slug_is_manual",
         "kind",
+        "seller_company",
         "seller",
         "category",
         "subcategory",
@@ -32,8 +34,8 @@ class ProductAdmin(admin.ModelAdmin):
         "is_trending",
         "created_at",
     )
-    list_filter = ("kind", "is_active", "is_featured", "is_trending", "category", "slug_is_manual")
-    search_fields = ("title", "slug", "seller__username", "short_description", "description")
+    list_filter = ("kind", "is_active", "is_featured", "is_trending", "category", "slug_is_manual", SellerCompanyFilter, "seller")
+    search_fields = ("title", "slug", "seller__username", "seller__profile__shop_name", "short_description", "description")
     inlines = [ProductImageInline]
     prepopulated_fields = {}
 
@@ -95,6 +97,12 @@ class ProductAdmin(admin.ModelAdmin):
             if not obj.slug:
                 obj.slug = ""
         super().save_model(request, obj, form, change)
+
+    @admin.display(description="seller company")
+    def seller_company(self, obj: Product) -> str:
+        profile = getattr(obj.seller, "profile", None)
+        shop_name = (getattr(profile, "shop_name", "") or "").strip() if profile else ""
+        return shop_name or getattr(obj.seller, "username", str(obj.seller_id))
 
 
 @admin.register(ProductImage)

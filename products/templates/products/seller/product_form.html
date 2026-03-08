@@ -44,7 +44,7 @@
 
   <div class="card shadow-sm">
     <div class="card-body">
-      <form method="post" novalidate data-wizard-form data-initial-step="{{ error_step|default:'1' }}">
+      <form method="post" novalidate data-wizard-form data-initial-step="{{ error_step|default:'1' }}" data-first-error-field="{{ error_field|default:'' }}">
         {% csrf_token %}
         <input type="hidden" name="save_mode" id="id_save_mode" value="" />
 

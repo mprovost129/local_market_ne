@@ -5,13 +5,16 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from accounts.models import Profile
 from catalog.models import Category
-from orders.models import Order, OrderItem
-from orders.stripe_service import create_checkout_session_for_order
+from core.config import get_site_config
+from orders.models import Order, OrderEvent, OrderItem, StripeWebhookEvent
+from orders.stripe_service import create_checkout_session_for_order, create_transfers_for_paid_order
+from orders.webhooks import process_stripe_event_dict
 from orders.views import _order_seller_groups
 from payments.models import SellerStripeAccount
 from products.models import Product
@@ -168,6 +171,8 @@ class CheckoutFlowTests(TestCase):
     @override_settings(RECAPTCHA_ENABLED=False)
     def test_checkout_session_uses_item_quantity_and_tip_lines(self):
         order = self._create_pending_order()
+        order.platform_fee_cents_snapshot = 199
+        order.save(update_fields=["platform_fee_cents_snapshot", "updated_at"])
         OrderItem.objects.create(
             order=order,
             product=self.prod1,
@@ -214,3 +219,155 @@ class CheckoutFlowTests(TestCase):
         self.assertEqual(by_name["Handmade Candle"], 2)
         self.assertEqual(by_name["Soap Bar"], 1)
         self.assertEqual(by_name["Tip"], 1)
+        self.assertEqual(by_name["Marketplace service fee"], 1)
+
+    def test_create_order_from_cart_snapshots_platform_fee_and_includes_in_total(self):
+        from orders.services import create_order_from_cart
+
+        cfg = get_site_config(use_cache=False)
+        cfg.platform_fee_cents = 250
+        cfg.save(update_fields=["platform_fee_cents", "updated_at"])
+
+        line = SimpleNamespace(product=self.prod1, quantity=2, unit_price=Decimal("15.00"), tip_amount=Decimal("0.00"))
+        order = create_order_from_cart(cart_items=[line], buyer=self.buyer, guest_email="")
+
+        self.assertEqual(order.platform_fee_cents_snapshot, 250)
+        self.assertEqual(order.subtotal_cents, 3000)
+        self.assertEqual(order.total_cents, 3250)
+
+
+class WebhookIdempotencyTests(TestCase):
+    def setUp(self):
+        self.buyer = User.objects.create_user(username="wh_buyer", email="wh_buyer@example.com", password="pw123456")
+        self.seller = User.objects.create_user(username="wh_seller", email="wh_seller@example.com", password="pw123456")
+
+        p, _ = Profile.objects.get_or_create(user=self.seller)
+        p.is_seller = True
+        p.email_verified = True
+        p.save(update_fields=["is_seller", "email_verified", "updated_at"])
+
+        SellerStripeAccount.objects.create(
+            user=self.seller,
+            stripe_account_id="acct_wh_seller",
+            details_submitted=True,
+            charges_enabled=True,
+            payouts_enabled=True,
+        )
+
+        cat = Category.objects.create(
+            type=Category.CategoryType.GOOD,
+            name="Webhook Goods",
+            slug="webhook-goods",
+            is_active=True,
+        )
+        product = Product.objects.create(
+            seller=self.seller,
+            kind=Product.Kind.GOOD,
+            title="Webhook Item",
+            category=cat,
+            price=Decimal("10.00"),
+            is_active=True,
+            stock_qty=10,
+            fulfillment_pickup_enabled=True,
+        )
+
+        self.order = Order.objects.create(
+            buyer=self.buyer,
+            status=Order.Status.PENDING,
+            payment_method=Order.PaymentMethod.STRIPE,
+            subtotal_cents=1000,
+            total_cents=1000,
+        )
+        OrderItem.objects.create(
+            order=self.order,
+            product=product,
+            seller=self.seller,
+            title_snapshot=product.title,
+            unit_price_cents_snapshot=1000,
+            quantity=1,
+            line_total_cents=1000,
+            marketplace_fee_cents=0,
+            seller_net_cents=1000,
+            is_service=False,
+            is_tip=False,
+            fulfillment_mode_snapshot="pickup",
+        )
+
+    def test_duplicate_checkout_completed_reprocess_creates_single_transfer(self):
+        webhook_event = StripeWebhookEvent.objects.create(
+            stripe_event_id="evt_dup_1",
+            event_type="checkout.session.completed",
+            livemode=False,
+            status="received",
+            raw_json={},
+        )
+        event_payload = {
+            "id": "evt_dup_1",
+            "type": "checkout.session.completed",
+            "livemode": False,
+            "data": {
+                "object": {
+                    "id": "cs_dup_1",
+                    "payment_intent": "pi_dup_1",
+                    "metadata": {"order_id": str(self.order.pk)},
+                }
+            },
+        }
+
+        fake_transfer = SimpleNamespace(id="tr_dup_1")
+        fake_stripe = SimpleNamespace(Transfer=SimpleNamespace(create=lambda **kwargs: fake_transfer))
+        with patch("orders.stripe_service._stripe", return_value=fake_stripe):
+            process_stripe_event_dict(event=event_payload, webhook_event=webhook_event, source="replay")
+            process_stripe_event_dict(event=event_payload, webhook_event=webhook_event, source="replay")
+
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, Order.Status.PAID)
+        self.assertEqual(
+            OrderEvent.objects.filter(order=self.order, type=OrderEvent.Type.TRANSFER_CREATED).count(),
+            1,
+        )
+
+    def test_transfer_creation_uses_latest_charge_as_source_transaction(self):
+        self.order.status = Order.Status.PAID
+        self.order.stripe_payment_intent_id = "pi_src_1"
+        self.order.save(update_fields=["status", "stripe_payment_intent_id", "updated_at"])
+
+        captured: dict = {}
+
+        class _TransferApi:
+            @staticmethod
+            def create(**kwargs):
+                captured.update(kwargs)
+                return SimpleNamespace(id="tr_src_1")
+
+        class _PaymentIntentApi:
+            @staticmethod
+            def retrieve(_pi, expand=None):
+                return {"id": "pi_src_1", "latest_charge": "ch_src_1"}
+
+        fake_stripe = SimpleNamespace(Transfer=_TransferApi, PaymentIntent=_PaymentIntentApi)
+
+        with patch("orders.stripe_service._stripe", return_value=fake_stripe):
+            create_transfers_for_paid_order(order=self.order)
+
+        self.assertEqual(captured.get("source_transaction"), "ch_src_1")
+
+    def test_transfer_creation_logs_warning_when_seller_not_ready(self):
+        # Remove seller Stripe account so payout is skipped after payment.
+        SellerStripeAccount.objects.filter(user=self.seller).delete()
+        self.order.status = Order.Status.PAID
+        self.order.stripe_payment_intent_id = "pi_skip_1"
+        self.order.save(update_fields=["status", "stripe_payment_intent_id", "updated_at"])
+
+        fake_stripe = SimpleNamespace(Transfer=SimpleNamespace(create=lambda **kwargs: SimpleNamespace(id="unused")))
+        with patch("orders.stripe_service._stripe", return_value=fake_stripe):
+            create_transfers_for_paid_order(order=self.order)
+
+        self.assertTrue(
+            OrderEvent.objects.filter(
+                Q(order=self.order)
+                & Q(type=OrderEvent.Type.WARNING)
+                & Q(message__icontains="transfer skipped")
+                & Q(message__icontains="not ready")
+            ).exists()
+        )

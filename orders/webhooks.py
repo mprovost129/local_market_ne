@@ -111,7 +111,9 @@ def process_stripe_event_dict(
             )
 
             order.mark_paid(payment_intent_id=payment_intent, session_id=session_id)
-            create_transfers_for_paid_order(order=order)
+            # Idempotency guard: only trigger seller transfers on the first paid transition.
+            if not was_paid:
+                create_transfers_for_paid_order(order=order)
             try:
                 from appointments.models import AppointmentRequest
 

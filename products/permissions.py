@@ -25,6 +25,30 @@ def is_owner_user(user) -> bool:
     return bool(getattr(profile, "is_owner", False))
 
 
+def is_high_risk_admin_user(user) -> bool:
+    """Users allowed to execute high-risk financial/ops actions."""
+    if not user or not user.is_authenticated:
+        return False
+    if getattr(user, "is_superuser", False) or getattr(user, "is_staff", False):
+        return True
+    profile = _get_profile(user)
+    return bool(getattr(profile, "is_owner", False))
+
+
+def can_run_high_risk_action(user, perm_codename: str = "") -> bool:
+    """Allow owner/staff/superuser, or users with an explicit model permission."""
+    if is_high_risk_admin_user(user):
+        return True
+    if not user or not user.is_authenticated:
+        return False
+    if perm_codename:
+        try:
+            return bool(user.has_perm(perm_codename))
+        except Exception:
+            return False
+    return False
+
+
 def is_seller_user(user) -> bool:
     if not user or not user.is_authenticated:
         return False

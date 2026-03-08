@@ -85,6 +85,7 @@ class ListingFlowTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         html = resp.content.decode("utf-8")
         self.assertIn('data-initial-step="3"', html)
+        self.assertIn('data-first-error-field="title"', html)
         self.assertIn("This field is required", html)
 
     def test_listing_create_visible_in_seller_list_and_storefront_and_buyable(self):

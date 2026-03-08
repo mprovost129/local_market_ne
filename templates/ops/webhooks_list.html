@@ -9,6 +9,28 @@
     <div class="text-muted small">Last {{ days }} days</div>
   </div>
 
+  <div class="card shadow-sm mb-3 lm-card">
+    <div class="card-body lm-card d-flex flex-wrap align-items-center justify-content-between gap-2">
+      <div class="small text-muted">
+        Replay-ready events in current filter: <strong>{{ replayable_count }}</strong>
+      </div>
+      <form method="post" action="{% url 'ops:webhooks_reprocess_filtered' %}" class="d-flex flex-wrap align-items-center gap-2">
+        {% csrf_token %}
+        <input type="hidden" name="status" value="{{ status }}">
+        <input type="hidden" name="event_type" value="{{ event_type }}">
+        <input type="hidden" name="session_id" value="{{ session_id }}">
+        <input type="hidden" name="order_id" value="{{ order_id }}">
+        <input type="hidden" name="days" value="{{ days }}">
+        <label class="small text-muted mb-0" for="id_replay_limit">Replay limit</label>
+        <input id="id_replay_limit" class="form-control form-control-sm" style="width:90px;" type="number" min="1" max="200" name="limit" value="50">
+        <button class="btn btn-sm btn-warning" type="submit" {% if replayable_count == 0 %}disabled{% endif %}
+          onclick="return confirm('Reprocess matching received/error webhook events? This is idempotent but creates new delivery rows.');">
+          Reprocess Filtered
+        </button>
+      </form>
+    </div>
+  </div>
+
   <form method="get" class="card shadow-sm mb-3 lm-card">
     <div class="card-body lm-card">
       <div class="row g-2 align-items-end">

@@ -65,7 +65,7 @@ def _send_refund_requested_email(rr: RefundRequest) -> None:
         return
 
     base = _site_base_url()
-    logo_url = _absolute_static_url("images/localmarketne_icon.svg")
+    logo_url = _absolute_static_url("images/local_market_logo.png")
     order_link = _seller_order_link(rr, base)
 
     item_title = getattr(rr.order_item.product, "title", "Item")
@@ -116,7 +116,7 @@ def _send_refund_requested_email(rr: RefundRequest) -> None:
         title=subject,
         body=body,
         action_url=reverse("orders:seller_order_detail", kwargs={"order_id": rr.order.pk}),
-        payload={"refund_request_id": rr.pk, "order_id": rr.order.pk},
+        payload={"refund_request_id": str(rr.pk), "order_id": str(rr.order.pk)},
     )
 
 
@@ -128,7 +128,7 @@ def _send_refund_decision_email(rr: RefundRequest) -> None:
     buyer_user = getattr(rr, "buyer", None)
 
     base = _site_base_url()
-    logo_url = _absolute_static_url("images/localmarketne_icon.svg")
+    logo_url = _absolute_static_url("images/local_market_logo.png")
     order_link = _order_link_for_refund(rr, base)
 
     item_title = getattr(rr.order_item.product, "title", "Item")
@@ -184,7 +184,7 @@ def _send_refund_decision_email(rr: RefundRequest) -> None:
             title=subject,
             body=body,
             action_url=reverse("orders:detail", kwargs={"order_id": rr.order.pk}),
-            payload={"refund_request_id": rr.pk, "order_id": rr.order.pk, "approved": approved},
+            payload={"refund_request_id": str(rr.pk), "order_id": str(rr.order.pk), "approved": approved},
         )
         return
 
@@ -207,7 +207,7 @@ def _send_refund_processed_email(rr: RefundRequest) -> None:
         return
 
     base = _site_base_url()
-    logo_url = _absolute_static_url("images/localmarketne_icon.svg")
+    logo_url = _absolute_static_url("images/local_market_logo.png")
     order_link = _order_link_for_refund(rr, base)
 
     item_title = getattr(rr.order_item.product, "title", "Item")
@@ -255,7 +255,7 @@ def _send_refund_processed_email(rr: RefundRequest) -> None:
             title=subject,
             body=body,
             action_url=reverse("orders:detail", kwargs={"order_id": rr.order.pk}),
-            payload={"refund_request_id": rr.pk, "order_id": rr.order.pk},
+            payload={"refund_request_id": str(rr.pk), "order_id": str(rr.order.pk)},
         )
         return
 

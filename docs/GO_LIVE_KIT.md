@@ -61,6 +61,20 @@ Typical commands:
 Notes:
 - For first deploy safety, keep `RUN_MIGRATIONS_ON_START=0` and run migrations manually from Render Shell.
 - After first successful deploy, you may set `RUN_MIGRATIONS_ON_START=1` to auto-run migrations at boot.
+- Deploy gate on startup (recommended default):
+  - `RUN_LAUNCH_GATE_ON_START=1`
+  - `LAUNCH_GATE_FAIL_ON_WARNING=1` (strict mode: warning also blocks start)
+
+### CI/Deploy gate commands
+
+Use one of these before promoting a release:
+- `python manage.py launch_gate --json`
+- strict: `python manage.py launch_gate --json --fail-on-warning`
+- shell helpers:
+  - `bash scripts/launch_gate.sh`
+  - `FAIL_ON_WARNING=1 bash scripts/launch_gate.sh`
+  - `scripts\launch_gate.bat`
+  - `set FAIL_ON_WARNING=1 && scripts\launch_gate.bat`
 
 ### After deploy (must-pass checks)
 
@@ -74,7 +88,9 @@ Notes:
 3) Launch check
 - `GET /ops/launch-check/` review warnings.
 
-4) Smoke checks (server)
+4) Launch gate + smoke checks (server)
+- `python manage.py launch_gate --json`
+- strict (optional): `python manage.py launch_gate --json --fail-on-warning`
 - `python manage.py rc_check --checks --db --quiet`
 
 5) Post-deploy validation (server)
@@ -88,6 +104,9 @@ Notes:
 ## First-live validation (Stripe)
 
 Run in Stripe **test mode** first, then **live** when you are ready.
+
+Use `docs/PRODUCTION_SIGNOFF.md` to capture pass/fail evidence and final go/no-go approval.
+For a prefilled staging execution worksheet, use `docs/PRODUCTION_SIGNOFF_STAGING.md`.
 
 1) Create a seller
 - Email verify

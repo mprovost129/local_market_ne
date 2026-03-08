@@ -85,6 +85,9 @@ class RefundRequest(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+        permissions = (
+            ("can_trigger_refunds", "Can trigger refunds"),
+        )
         indexes = [
             models.Index(fields=["status", "-created_at"]),
             models.Index(fields=["seller", "status", "-created_at"]),

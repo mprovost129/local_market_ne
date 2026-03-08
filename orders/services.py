@@ -84,6 +84,10 @@ def create_order_from_cart(
 
     cfg = get_site_config()
     default_sales_pct = Decimal(getattr(cfg, "marketplace_sales_percent", Decimal("0.00")) or Decimal("0.00"))
+    try:
+        platform_fee_cents = max(0, int(getattr(cfg, "platform_fee_cents", 0) or 0))
+    except Exception:
+        platform_fee_cents = 0
 
     order = Order.objects.create(
         buyer=buyer_obj,
@@ -91,7 +95,7 @@ def create_order_from_cart(
         currency=(currency or "usd").lower(),
         status=Order.Status.PENDING,
         marketplace_sales_percent_snapshot=default_sales_pct,
-        platform_fee_cents_snapshot=0,
+        platform_fee_cents_snapshot=platform_fee_cents,
     )
 
     if shipping:

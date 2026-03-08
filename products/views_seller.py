@@ -95,6 +95,13 @@ def _form_error_step(form: ProductForm) -> int:
     return 1
 
 
+def _first_error_field_name(form: ProductForm) -> str:
+    for field_name in form.fields.keys():
+        if field_name in form.errors:
+            return field_name
+    return ""
+
+
 @seller_required
 def seller_product_list(request):
     qs = (
@@ -191,6 +198,7 @@ def seller_product_create(request):
     context = {"form": form, "mode": "create"}
     if form.errors:
         context["error_step"] = _form_error_step(form)
+        context["error_field"] = _first_error_field_name(form)
     return render(request, "products/seller/product_form.html", context)
 
 @seller_required
@@ -228,6 +236,7 @@ def seller_product_edit(request, pk: int):
 
     ok, missing = _publish_checklist(product)
     error_step = _form_error_step(form) if form.errors else 1
+    error_field = _first_error_field_name(form) if form.errors else ""
     return render(
         request,
         "products/seller/product_form.html",
@@ -238,6 +247,7 @@ def seller_product_edit(request, pk: int):
             "publish_ok": ok,
             "publish_missing": missing,
             "error_step": error_step,
+            "error_field": error_field,
         },
     )
 

@@ -13,8 +13,12 @@ urlpatterns = [
     path("emails/failed/<int:pk>/", views.failed_email_detail, name="failed_email_detail"),
     path("emails/failed/<int:pk>/resend/", views.failed_email_resend, name="failed_email_resend"),
     path("health/", views.ops_health, name="ops_health"),
+    path("alerts/summary/", views.alerts_summary, name="alerts_summary"),
     path("launch-check/", views.launch_check, name="launch_check"),
     path("runbook/", views.runbook, name="runbook"),
+    path("runbook/run-reconciliation-check/", views.runbook_run_reconciliation_check, name="runbook_run_reconciliation_check"),
+    path("runbook/run-alert-summary/", views.runbook_run_alert_summary, name="runbook_run_alert_summary"),
+    path("runbook/run-launch-gate/", views.runbook_run_launch_gate, name="runbook_run_launch_gate"),
     path("audit/", views.audit_log, name="audit_log"),
 
     path("errors/", views.error_events, name="error_events"),
@@ -29,6 +33,7 @@ urlpatterns = [
     path("reconciliation/mismatches/", views.reconciliation_mismatches, name="reconciliation_mismatches"),
 
     path("webhooks/", views.webhooks_list, name="webhooks_list"),
+    path("webhooks/reprocess-filtered/", views.webhooks_reprocess_filtered, name="webhooks_reprocess_filtered"),
     path("webhooks/<int:pk>/", views.webhook_detail, name="webhook_detail"),
     path("webhooks/<int:pk>/reprocess/", views.webhook_reprocess, name="webhook_reprocess"),
 

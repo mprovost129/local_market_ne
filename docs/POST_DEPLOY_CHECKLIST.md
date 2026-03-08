@@ -1,8 +1,21 @@
-# Local Market NE — Post-Deploy Verification Checklist
+# Local Market NE - Post-Deploy Verification Checklist
 
-Last updated: 2026-02-10 (America/New_York)
+Last updated: 2026-03-08 (America/New_York)
+
+## Go/No-Go policy
+- `critical` from `launch_gate` is a hard NO-GO.
+- `warning` from `launch_gate` is GO only with explicit operator sign-off.
+- For strict deploys/CI, treat `warning` as NO-GO by using `--fail-on-warning`.
+
+## Gate commands (copy/paste)
+- Linux/macOS: `bash scripts/launch_gate.sh`
+- Linux/macOS strict: `FAIL_ON_WARNING=1 bash scripts/launch_gate.sh`
+- Windows: `scripts\launch_gate.bat`
+- Windows strict: `set FAIL_ON_WARNING=1 && scripts\launch_gate.bat`
 
 ## 1) Site health
+- [ ] Run launch gate: `python manage.py launch_gate --json`
+- [ ] Run strict launch gate (optional): `python manage.py launch_gate --json --fail-on-warning`
 - [ ] Run server-side validation: `python manage.py post_deploy_check`
 - [ ] Optional env var audit: `python manage.py env_audit`
 - [ ] Optional HTTP validation: `python manage.py post_deploy_check --base-url https://localmarketne.com`
@@ -31,9 +44,9 @@ Last updated: 2026-02-10 (America/New_York)
 - [ ] `checkout.session.completed` webhook marks Order PAID
 - [ ] Connect transfer creation succeeds for paid order (idempotent)
 
-## 5) orders
+## 5) Orders
 - [ ] Paid service order unlocks orders button
-- [ ] orders increments bundle-level `Product.order_count`
+- [ ] Orders increments bundle-level `Product.order_count`
 - [ ] Unique orderer event created (user or guest session)
 
 ## 6) Refunds
@@ -46,3 +59,7 @@ Last updated: 2026-02-10 (America/New_York)
 - [ ] Webhook deliveries visible in admin
 - [ ] Errors show in Render logs
 - [ ] Database is backed up (snapshot created)
+
+## Signoff record
+- [ ] Complete and archive `docs/PRODUCTION_SIGNOFF.md` for this release.
+- [ ] For staging dry-runs, use `docs/PRODUCTION_SIGNOFF_STAGING.md`.

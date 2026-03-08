@@ -13,7 +13,7 @@ from django.db.models import (
     Value,
     When,
 )
-from django.db.models.functions import Cast, Coalesce
+from django.db.models.functions import Coalesce
 
 from .models import OrderEvent
 
@@ -66,13 +66,11 @@ def annotate_order_reconciliation(qs):
     )
     qs = qs.annotate(payout_skipped_unready_seller=Exists(skipped_unready_exists))
 
-    # Expected fee/net with integer math.
-    # marketplace_sales_percent_snapshot stored like 8.00 (Decimal)
-    # Convert to basis points: 8.00% => 800 bps
-    bps = Cast(F("marketplace_sales_percent_snapshot") * Value(100), IntegerField())
-
+    # Expected fee/net from the ledger identity:
+    # marketplace_fee + seller_net must equal gross.
+    # This avoids false mismatches for tip lines and seller fee-waiver windows.
     expected_fee_cents = ExpressionWrapper(
-        (F("items_gross_cents_agg") * bps + Value(5000)) / Value(10000),
+        F("items_gross_cents_agg") - F("seller_net_cents_agg"),
         output_field=IntegerField(),
     )
 
@@ -80,7 +78,7 @@ def annotate_order_reconciliation(qs):
         expected_fee_cents_agg=Coalesce(expected_fee_cents, Value(0), output_field=IntegerField()),
     ).annotate(
         expected_net_cents_agg=Coalesce(
-            F("items_gross_cents_agg") - F("expected_fee_cents_agg"),
+            F("items_gross_cents_agg") - F("marketplace_fee_cents_agg"),
             Value(0),
             output_field=IntegerField(),
         ),
@@ -108,18 +106,26 @@ def annotate_order_reconciliation(qs):
     qs = qs.annotate(
         paid_missing_stripe_ids=Case(
             When(paid_at__isnull=True, then=Value(False)),
-            When(stripe_payment_intent_id__exact="FREE", then=Value(False)),
-            When(stripe_session_id__exact="", then=Value(True)),
-            When(stripe_payment_intent_id__exact="", then=Value(True)),
+            When(payment_method__iexact="stripe", then=Case(
+                When(stripe_payment_intent_id__exact="FREE", then=Value(False)),
+                When(stripe_session_id__exact="", then=Value(True)),
+                When(stripe_payment_intent_id__exact="", then=Value(True)),
+                default=Value(False),
+                output_field=BooleanField(),
+            )),
             default=Value(False),
             output_field=BooleanField(),
         ),
         paid_missing_transfer_event=Case(
             When(paid_at__isnull=True, then=Value(False)),
-            When(stripe_payment_intent_id__exact="FREE", then=Value(False)),
-            When(has_transfer_event=True, then=Value(False)),
-            When(payout_skipped_unready_seller=True, then=Value(False)),
-            default=Value(True),
+            When(payment_method__iexact="stripe", then=Case(
+                When(stripe_payment_intent_id__exact="FREE", then=Value(False)),
+                When(has_transfer_event=True, then=Value(False)),
+                When(payout_skipped_unready_seller=True, then=Value(False)),
+                default=Value(True),
+                output_field=BooleanField(),
+            )),
+            default=Value(False),
             output_field=BooleanField(),
         ),
     )

@@ -286,7 +286,7 @@ def run_launch_checks() -> List[CheckResult]:
         sample_qs = (
             Order.objects.filter(status=Order.Status.PAID)
             .order_by("-paid_at")
-            .only("id", "subtotal_cents", "tax_cents", "shipping_cents", "total_cents")
+            .only("id", "subtotal_cents", "tax_cents", "shipping_cents", "platform_fee_cents_snapshot", "total_cents")
         )
         sample = list(sample_qs[:100])
         if not sample:
@@ -315,7 +315,8 @@ def run_launch_checks() -> List[CheckResult]:
                     for i in items
                 )
                 tax = sum(int(i.tax_cents or 0) for i in items)
-                total = max(0, int(subtotal) + int(shipping) + int(tax))
+                platform_fee = int(o.platform_fee_cents_snapshot or 0)
+                total = max(0, int(subtotal) + int(shipping) + int(tax) + int(platform_fee))
 
                 if (
                     int(o.subtotal_cents or 0) != subtotal

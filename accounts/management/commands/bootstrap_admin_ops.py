@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, Permission
 from django.core.management.base import BaseCommand
 
 from ops.utils import OPS_GROUP_NAME
@@ -17,7 +17,18 @@ class Command(BaseCommand):
         User = get_user_model()
 
         Group.objects.get_or_create(name=STAFF_GROUP_NAME)
-        Group.objects.get_or_create(name=OPS_GROUP_NAME)
+        ops_group, _ = Group.objects.get_or_create(name=OPS_GROUP_NAME)
+
+        # Grant explicit high-risk perms to ops group (least-privilege alternative to full owner/staff).
+        high_risk_perms = Permission.objects.filter(
+            codename__in=[
+                "can_reprocess_webhooks",
+                "can_retry_payouts",
+                "can_trigger_refunds",
+            ]
+        )
+        if high_risk_perms.exists():
+            ops_group.permissions.add(*list(high_risk_perms))
 
         admin_username = os.getenv("LMNE_ADMIN_USERNAME", "").strip()
         admin_password = os.getenv("LMNE_ADMIN_PASSWORD", "").strip()

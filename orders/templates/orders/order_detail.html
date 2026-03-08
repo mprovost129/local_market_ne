@@ -204,6 +204,20 @@
 
 <div class="card shadow-sm mb-3">
     <div class="card-body">
+      <div class="d-flex justify-content-between small mb-1">
+        <span class="text-muted">Subtotal</span>
+        <span>${{ order.subtotal_cents|cents_to_dollars }}</span>
+      </div>
+      <div class="d-flex justify-content-between small mb-1">
+        <span class="text-muted">Shipping/Delivery</span>
+        <span>${{ order.shipping_cents|cents_to_dollars }}</span>
+      </div>
+      {% if order.platform_fee_cents_snapshot %}
+      <div class="d-flex justify-content-between small mb-1">
+        <span class="text-muted">Marketplace service fee</span>
+        <span>${{ order.platform_fee_cents_snapshot|cents_to_dollars }}</span>
+      </div>
+      {% endif %}
       <div class="row g-3">
         <div class="col-md-6">
           <div class="text-muted small">Order ID</div>

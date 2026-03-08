@@ -38,7 +38,7 @@ def send_order_failed_email(*, order: Order, reason: str) -> bool:
         "order": order,
         "reason": reason,
         "site_base_url": _site_base_url(),
-        "logo_url": _absolute_static_url("images/localmarketne_icon.svg"),
+        "logo_url": _absolute_static_url("images/local_market_logo.png"),
     }
     return _send_email(
         to_email=to_email,
@@ -67,7 +67,7 @@ def send_payout_email(
         "balance_before_cents": int(balance_before_cents),
         "transfer_id": transfer_id,
         "site_base_url": _site_base_url(),
-        "logo_url": _absolute_static_url("images/localmarketne_icon.svg"),
+        "logo_url": _absolute_static_url("images/local_market_logo.png"),
     }
     return _send_email(
         to_email=to_email,

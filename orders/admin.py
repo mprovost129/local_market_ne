@@ -21,12 +21,13 @@ from django.db.models import (
     When,
     Q,
 )
-from django.db.models.functions import Coalesce, Cast
+from django.db.models.functions import Coalesce
 from django.urls import reverse
 from django.utils.html import format_html
 
 from payments.models import SellerStripeAccount
 from payments.services import get_seller_balance_cents
+from products.permissions import can_run_high_risk_action
 
 from .models import Order, OrderItem, OrderEvent, StripeWebhookEvent, StripeWebhookDelivery
 from .stripe_service import create_transfers_for_paid_order
@@ -331,7 +332,7 @@ class OrderAdmin(admin.ModelAdmin):
         "shipping_cents",
         "total_cents",
         "marketplace_sales_percent_snapshot",
-        "platform_fee_cents_snapshot",  # legacy; must remain 0
+        "platform_fee_cents_snapshot",
         "payout_summary_html",
     )
 
@@ -390,14 +391,11 @@ class OrderAdmin(admin.ModelAdmin):
         ).filter(message__icontains="not ready")
         qs = qs.annotate(payout_skipped_unready_seller=Exists(skipped_unready_exists))
 
-        # -------- Expected fee/net with exact ROUND_HALF_UP (percent-only) --------
-        # marketplace_sales_percent_snapshot stored like 10.00 (Decimal)
-        # Convert to integer basis points: 10.00% => 1000 bps (1 bps = 0.01%)
-        # fee = round(gross * bps / 10000) => (gross*bps + 5000)//10000
-        bps = Cast(F("marketplace_sales_percent_snapshot") * Value(100), IntegerField())
-
+        # Expected fee/net from the ledger identity:
+        # marketplace_fee + seller_net must equal gross.
+        # This avoids false positives for tip rows and seller fee-waiver windows.
         expected_fee_cents = ExpressionWrapper(
-            (F("items_gross_cents_agg") * bps + Value(5000)) / Value(10000),
+            F("items_gross_cents_agg") - F("seller_net_cents_agg"),
             output_field=IntegerField(),
         )
 
@@ -405,7 +403,7 @@ class OrderAdmin(admin.ModelAdmin):
             expected_fee_cents_agg=Coalesce(expected_fee_cents, Value(0), output_field=IntegerField()),
         ).annotate(
             expected_net_cents_agg=Coalesce(
-                F("items_gross_cents_agg") - F("expected_fee_cents_agg"),
+                F("items_gross_cents_agg") - F("marketplace_fee_cents_agg"),
                 Value(0),
                 output_field=IntegerField(),
             ),
@@ -433,19 +431,33 @@ class OrderAdmin(admin.ModelAdmin):
         qs = qs.annotate(
             paid_missing_stripe_ids=Case(
                 When(paid_at__isnull=True, then=Value(False)),
-                When(stripe_payment_intent_id__exact="FREE", then=Value(False)),
-                When(stripe_session_id__exact="", then=Value(True)),
-                When(stripe_payment_intent_id__exact="", then=Value(True)),
+                When(
+                    payment_method__iexact="stripe",
+                    then=Case(
+                        When(stripe_payment_intent_id__exact="FREE", then=Value(False)),
+                        When(stripe_session_id__exact="", then=Value(True)),
+                        When(stripe_payment_intent_id__exact="", then=Value(True)),
+                        default=Value(False),
+                        output_field=BooleanField(),
+                    ),
+                ),
                 default=Value(False),
                 output_field=BooleanField(),
             ),
             paid_missing_transfer_event=Case(
                 When(paid_at__isnull=True, then=Value(False)),
-                When(stripe_payment_intent_id__exact="FREE", then=Value(False)),
-                When(has_transfer_event=True, then=Value(False)),
-                # if skipped-unready, don't label as "missing transfer"; it's an explained state
-                When(payout_skipped_unready_seller=True, then=Value(False)),
-                default=Value(True),
+                When(
+                    payment_method__iexact="stripe",
+                    then=Case(
+                        When(stripe_payment_intent_id__exact="FREE", then=Value(False)),
+                        When(has_transfer_event=True, then=Value(False)),
+                        # if skipped-unready, don't label as "missing transfer"; it's an explained state
+                        When(payout_skipped_unready_seller=True, then=Value(False)),
+                        default=Value(True),
+                        output_field=BooleanField(),
+                    ),
+                ),
+                default=Value(False),
                 output_field=BooleanField(),
             ),
         )
@@ -672,6 +684,14 @@ class OrderAdmin(admin.ModelAdmin):
           - Skips if transfer_created already exists
           - Writes OrderEvent warnings on problems (via stripe_service)
         """
+        if not can_run_high_risk_action(getattr(request, "user", None), "orders.can_retry_payouts"):
+            self.message_user(
+                request,
+                "You do not have permission to retry payout transfers.",
+                level=messages.ERROR,
+            )
+            return
+
         attempted = 0
         succeeded = 0
         skipped = 0

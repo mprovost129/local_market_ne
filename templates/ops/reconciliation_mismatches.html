@@ -10,6 +10,7 @@
       <div class="text-muted small">Orders with reconciliation or Stripe marker issues.</div>
     </div>
     <form class="d-flex gap-2" method="get">
+      <input class="form-control form-control-sm" type="text" name="company" value="{{ company }}" placeholder="Company (id/name)">
       <select class="form-select form-select-sm" name="status">
         <option value="">All statuses</option>
         <option value="pending" {% if status == "pending" %}selected{% endif %}>pending</option>
@@ -19,7 +20,7 @@
         <option value="canceled" {% if status == "canceled" %}selected{% endif %}>canceled</option>
       </select>
       <button class="btn btn-sm btn-primary" type="submit">Filter</button>
-      <a class="btn btn-sm btn-outline-secondary" href="?{% if status %}status={{ status }}&{% endif %}format=csv">Export CSV</a>
+      <a class="btn btn-sm btn-outline-secondary" href="?{% if company %}company={{ company|urlencode }}&{% endif %}{% if status %}status={{ status }}&{% endif %}format=csv">Export CSV</a>
     </form>
   </div>
 

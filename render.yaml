@@ -28,6 +28,12 @@ services:
       # Migrations (recommended: run manually on first deploy, then enable)
       - key: RUN_MIGRATIONS_ON_START
         value: "0"
+      # Optional deploy gate (set to 1 to fail start when launch gate fails)
+      - key: RUN_LAUNCH_GATE_ON_START
+        value: "1"
+      # Optional stricter deploy gate behavior (warning becomes fail)
+      - key: LAUNCH_GATE_FAIL_ON_WARNING
+        value: "1"
 
       # Database (Render injects DATABASE_URL when linked)
       - key: DATABASE_URL

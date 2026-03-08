@@ -24,6 +24,15 @@ Optional consolidated report (includes audits + flow smoke check):
 
 - `python manage.py rc_report`
 
+Launch gate (go/no-go summary with severity):
+
+- `python manage.py launch_gate --json`
+- strict (warnings fail): `python manage.py launch_gate --json --fail-on-warning`
+- helper scripts:
+  - `bash scripts/launch_gate.sh`
+  - `FAIL_ON_WARNING=1 bash scripts/launch_gate.sh`
+  - `scripts\launch_gate.bat`
+
 Optional lightweight runtime flow smoke check (creates a tiny fixture set):
 
 - `python manage.py flow_check`
@@ -120,4 +129,3 @@ If you want to gate deploy on this:
 - [ ] Stripe keys + webhook secrets present
 - [ ] `python manage.py stripe_config_check` passes (or only warns in dev)
 - [ ] Admin/staff accounts exist
-
