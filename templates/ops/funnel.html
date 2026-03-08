@@ -1,0 +1,201 @@
+{% extends "ops/base_ops.html" %}
+{% load humanize %}
+
+{% block ops_content %}
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div>
+      <h1 class="h4 mb-1">Funnel</h1>
+      <div class="text-secondary small">Native conversion metrics (last {{ days }} day{{ days|pluralize }}).</div>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-dark" href="?days=7">7d</a>
+      <a class="btn btn-outline-dark" href="?days=30">30d</a>
+      <a class="btn btn-outline-dark" href="?days=90">90d</a>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-lg-4">
+      <div class="card shadow-sm lm-card">
+        <div class="card-body lm-card">
+          <div class="fw-semibold">Add to cart (events)</div>
+          <div class="display-6 mb-0">{{ counts.add_to_cart|intcomma }}</div>
+          <div class="text-secondary small">Logged on cart add (throttled per session+product).</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-4">
+      <div class="card shadow-sm lm-card">
+        <div class="card-body lm-card">
+          <div class="fw-semibold">Checkout started (events)</div>
+          <div class="display-6 mb-0">{{ counts.checkout_started|intcomma }}</div>
+          <div class="text-secondary small">Logged on checkout start (Stripe + off-platform).</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-4">
+      <div class="card shadow-sm lm-card">
+        <div class="card-body lm-card">
+          <div class="fw-semibold">Orders paid (events)</div>
+          <div class="display-6 mb-0">{{ counts.order_paid|intcomma }}</div>
+          <div class="text-secondary small">Logged when an order transitions to PAID.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mt-3 lm-card">
+    <div class="card-body lm-card">
+      <div class="fw-semibold mb-2">Conversion rates (event-based)</div>
+      <div class="table-responsive">
+        <div class="lm-table">
+<table class="table table-sm align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th class="text-end">Rate</th>
+              <th class="text-end">Percent</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Checkout started / Add to cart</td>
+              <td class="text-end">{{ rates.checkout_from_cart|floatformat:4 }}</td>
+              <td class="text-end">{{ rates_pct.checkout_from_cart }}</td>
+            </tr>
+            <tr>
+              <td>Paid / Checkout started</td>
+              <td class="text-end">{{ rates.paid_from_checkout|floatformat:4 }}</td>
+              <td class="text-end">{{ rates_pct.paid_from_checkout }}</td>
+            </tr>
+            <tr>
+              <td>Paid / Add to cart</td>
+              <td class="text-end">{{ rates.paid_from_cart|floatformat:4 }}</td>
+              <td class="text-end">{{ rates_pct.paid_from_cart }}</td>
+            </tr>
+          </tbody>
+        </table>
+</div>
+      </div>
+      <div class="text-secondary small mt-2">
+        Note: event-based rates can exceed 100% if multiple events are logged per session.
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mt-3 lm-card">
+    <div class="card-body lm-card">
+      <div class="fw-semibold mb-2">Unique-session funnel (hc_sid)</div>
+      <div class="row g-3">
+        <div class="col-12 col-lg-3">
+          <div class="border rounded p-3">
+            <div class="text-secondary small">Sessions with Add to cart</div>
+            <div class="h3 mb-0">{{ unique.cart_sessions|intcomma }}</div>
+          </div>
+        </div>
+        <div class="col-12 col-lg-3">
+          <div class="border rounded p-3">
+            <div class="text-secondary small">Sessions with Checkout started</div>
+            <div class="h3 mb-0">{{ unique.checkout_sessions|intcomma }}</div>
+          </div>
+        </div>
+        <div class="col-12 col-lg-3">
+          <div class="border rounded p-3">
+            <div class="text-secondary small">Sessions with Paid</div>
+            <div class="h3 mb-0">{{ unique.paid_sessions|intcomma }}</div>
+          </div>
+        </div>
+        <div class="col-12 col-lg-3">
+          <div class="border rounded p-3">
+            <div class="text-secondary small">Full funnel sessions</div>
+            <div class="h3 mb-0">{{ unique.full_funnel_sessions|intcomma }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-responsive mt-3">
+        <div class="lm-table">
+<table class="table table-sm align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th class="text-end">Sessions</th>
+              <th class="text-end">Percent</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Checkout started / Add to cart</td>
+              <td class="text-end">{{ unique.checkout_from_cart_sessions|intcomma }}</td>
+              <td class="text-end">{{ unique_pct.checkout_from_cart }}</td>
+            </tr>
+            <tr>
+              <td>Paid / Checkout started</td>
+              <td class="text-end">{{ unique.paid_from_checkout_sessions|intcomma }}</td>
+              <td class="text-end">{{ unique_pct.paid_from_checkout }}</td>
+            </tr>
+            <tr>
+              <td>Paid / Add to cart</td>
+              <td class="text-end">{{ unique.paid_from_cart_sessions|intcomma }}</td>
+              <td class="text-end">{{ unique_pct.paid_from_cart }}</td>
+            </tr>
+            <tr>
+              <td>Full funnel / Add to cart</td>
+              <td class="text-end">{{ unique.full_funnel_sessions|intcomma }}</td>
+              <td class="text-end">{{ unique_pct.full_from_cart }}</td>
+            </tr>
+          </tbody>
+        </table>
+</div>
+      </div>
+      <div class="text-secondary small mt-2">
+        Unique-session funnel uses first-party session ids and avoids double-counting within the same session.
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mt-3 lm-card">
+    <div class="card-body lm-card">
+      <div class="fw-semibold mb-2">Breakout by host + environment (unique sessions)</div>
+      <div class="table-responsive">
+        <div class="lm-table">
+<table class="table table-sm align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Host</th>
+              <th>Env</th>
+              <th class="text-end">Sessions</th>
+              <th class="text-end">Cart</th>
+              <th class="text-end">Checkout</th>
+              <th class="text-end">Paid</th>
+              <th class="text-end">Full</th>
+              <th class="text-end">Paid/Cart</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in host_env_rows %}
+              <tr>
+                <td class="text-truncate" style="max-width: 260px;">{{ row.host }}</td>
+                <td>{{ row.environment }}</td>
+                <td class="text-end">{{ row.sessions|intcomma }}</td>
+                <td class="text-end">{{ row.cart|intcomma }}</td>
+                <td class="text-end">{{ row.checkout|intcomma }}</td>
+                <td class="text-end">{{ row.paid|intcomma }}</td>
+                <td class="text-end">{{ row.full|intcomma }}</td>
+                <td class="text-end">{{ row.rate_paid_from_cart|floatformat:2 }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="8" class="py-0">{% include 'partials/empty_state.html' with title='' message='No session-based funnel data in this window.' action_route='ops:dashboard' action_label='Back to Ops' %}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+</div>
+      </div>
+      <div class="text-secondary small mt-2">
+        Use this to spot environment drift (e.g., paid events only in prod, checkout started in both, etc.).
+      </div>
+    </div>
+  </div>
+{% endblock %}

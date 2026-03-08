@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}My appointment requests{% endblock %}
+{% block content %}
+<div class="container-fluid" style="max-width: 1100px;">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h4 mb-1">My appointment requests</h1>
+      <div class="text-secondary small">Requests you sent to sellers.</div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm lm-card">
+    <div class="card-body p-0 lm-card">
+      <div class="table-responsive">
+        <div class="lm-table">
+<table class="table mb-0 align-middle">
+          <thead>
+            <tr class="text-secondary small">
+              <th>Service</th>
+              <th>Seller</th>
+              <th>Requested</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in requests %}
+              <tr>
+                <td><a href="{% url 'products:detail' r.service.pk r.service.slug %}">{{ r.service.title }}</a></td>
+                <td>{{ r.seller.username }}</td>
+                <td class="text-secondary small">{% if r.scheduled_start %}{{ r.scheduled_start|date:"M j, Y g:i A" }}{% else %}{{ r.requested_start|date:"M j, Y g:i A" }}{% endif %}</td>
+                <td><span class="badge text-bg-light">{{ r.get_status_display }}</span></td>
+                <td class="text-end">
+                  {% if r.status == 'DEPOSIT_PENDING' and r.requires_deposit and r.order %}
+                    {% if r.order.status == 'pending' %}
+                      <a class="btn btn-sm btn-dark" href="{% url 'orders:detail' r.order.pk %}">Pay deposit</a>
+                    {% else %}
+                      <span class="text-secondary small">Deposit order: {{ r.order.get_status_display }}</span>
+                    {% endif %}
+                  {% endif %}
+
+                  {% if r.status == 'AWAITING_BUYER_CONFIRMATION' %}
+                    <form method="post" action="{% url 'appointments:buyer_confirm' r.pk %}" class="d-inline">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm btn-primary">Confirm time</button>
+                    </form>
+                  {% endif %}
+
+                  {% if r.status == 'SCHEDULED' %}
+                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'appointments:ics' r.pk %}">Add to calendar</a>
+                  {% endif %}
+
+                  {% if r.status == 'REQUESTED' or r.status == 'DEPOSIT_PENDING' or r.status == 'DEPOSIT_PAID' or r.status == 'SCHEDULED' or r.status == 'AWAITING_BUYER_CONFIRMATION' %}
+                    <form method="post" action="{% url 'appointments:buyer_cancel' r.pk %}" class="d-inline">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                    </form>
+                  {% endif %}
+
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="5" class="py-0">{% include 'partials/empty_state.html' with title='' message='No requests yet.' action_route='products:list' action_label='Browse services' show_support_links=True %}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

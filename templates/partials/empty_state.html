@@ -1,0 +1,33 @@
+{# templates/partials/empty_state.html #}
+<div class="lm-empty text-center py-4">
+  {% if title %}<div class="h6 mb-1">{{ title }}</div>{% endif %}
+  <div class="text-secondary mb-3">{{ message }}</div>
+
+  <div class="d-flex justify-content-center gap-2 flex-wrap">
+    {% if action_label and action_url %}
+      <a href="{{ action_url }}" class="btn btn-sm btn-outline-dark">{{ action_label }}</a>
+    {% elif action_label and action_route %}
+      {# Django template variables cannot start with underscores #}
+      {% url action_route as action_url_resolved %}
+      {% if action_url_resolved %}<a href="{{ action_url_resolved }}" class="btn btn-sm btn-outline-dark">{{ action_label }}</a>{% endif %}
+    {% endif %}
+
+    {% if secondary_label and secondary_url %}
+      <a href="{{ secondary_url }}" class="btn btn-sm btn-outline-secondary">{{ secondary_label }}</a>
+    {% elif secondary_label and secondary_route %}
+      {% url secondary_route as secondary_url_resolved %}
+      {% if secondary_url_resolved %}<a href="{{ secondary_url_resolved }}" class="btn btn-sm btn-outline-secondary">{{ secondary_label }}</a>{% endif %}
+    {% endif %}
+  </div>
+
+  {% if show_support_links %}
+    <div class="small text-secondary mt-3">
+      Need help?
+      <a href="{% url 'core:help' %}" class="text-decoration-none">Help</a>
+      ·
+      <a href="{% url 'core:faqs' %}" class="text-decoration-none">FAQs</a>
+      ·
+      <a href="{% url 'core:contact' %}" class="text-decoration-none">Contact</a>
+    </div>
+  {% endif %}
+</div>

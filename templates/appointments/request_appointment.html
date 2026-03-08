@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Request appointment · {{ service.title }}{% endblock %}
+{% block content %}
+<div class="container-fluid" style="max-width: 900px;">
+  <div class="mb-3">
+    <h1 class="h4 mb-1">Request an appointment</h1>
+    <div class="text-secondary small">{{ service.title }}</div>
+  </div>
+
+  <div class="card shadow-sm lm-card">
+    <div class="card-body lm-card">
+      <div class="mb-3">
+        <div class="fw-semibold">Service details</div>
+        <div class="text-secondary small">
+          Duration: {{ service.service_duration_minutes }} minutes ·
+          Deposit: {% if service.service_deposit_cents %}${{ deposit_amount|floatformat:2 }}{% else %}No deposit{% endif %}
+        </div>
+      </div>
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Date</label>
+            {{ form.requested_date }}
+            {% for e in form.requested_date.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+            <div class="form-text">{{ form.requested_date.help_text }}</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Time</label>
+            {{ form.requested_time }}
+            {% for e in form.requested_time.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+            <div class="form-text">{{ form.requested_time.help_text }}</div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Message (optional)</label>
+          {{ form.message }}
+          {% for e in form.message.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+        </div>
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">
+            {% for e in form.non_field_errors %}<div>{{ e }}</div>{% endfor %}
+          </div>
+        {% endif %}
+
+        <button class="btn btn-dark">Send request</button>
+        <a class="btn btn-outline-secondary ms-2" href="{% url 'products:detail' service.pk service.slug %}">Back</a>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const dateEl = document.getElementById('id_requested_date');
+  const timeEl = document.getElementById('id_requested_time');
+  if (!dateEl || !timeEl) return;
+
+  async function refreshSlots() {
+    const d = dateEl.value;
+    timeEl.innerHTML = '';
+    if (!d) return;
+    const url = `{% url 'appointments:slots_api' service.pk %}?date=${encodeURIComponent(d)}`;
+    try {
+      const resp = await fetch(url, {headers: {'X-Requested-With':'XMLHttpRequest'}});
+      const data = await resp.json();
+      const slots = (data && data.slots) ? data.slots : [];
+      if (!slots.length) {
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = 'No available slots';
+        timeEl.appendChild(opt);
+        return;
+      }
+      const empty = document.createElement('option');
+      empty.value = '';
+      empty.textContent = 'Select a time';
+      timeEl.appendChild(empty);
+      for (const s of slots) {
+        const opt = document.createElement('option');
+        opt.value = s.value;
+        opt.textContent = s.label;
+        timeEl.appendChild(opt);
+      }
+    } catch (e) {
+      const opt = document.createElement('option');
+      opt.value = '';
+      opt.textContent = 'Could not load slots';
+      timeEl.appendChild(opt);
+    }
+  }
+
+  dateEl.addEventListener('change', refreshSlots);
+  if (dateEl.value) refreshSlots();
+})();
+</script>
+{% endblock %}

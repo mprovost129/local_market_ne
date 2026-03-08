@@ -1,0 +1,91 @@
+{% extends "ops/base_ops.html" %}
+
+{% block title %}Ops Audit Log | Local Market NE{% endblock %}
+
+{% block ops_content %}
+  <div class="mb-3">
+    <h1 class="h3 mb-0">Audit Log</h1>
+    <div class="text-muted small">Every ops action should land here.</div>
+  </div>
+
+  
+  <div class="card shadow-sm mb-3 lm-card">
+    <div class="card-body lm-card">
+      <form method="get" class="row g-2 align-items-end">
+        <div class="col-12 col-md-3">
+          <label class="form-label small text-muted">Search</label>
+          <input type="text" name="q" value="{{ q }}" class="form-control form-control-sm" placeholder="verb, reason, actor, target id">
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="form-label small text-muted">Action</label>
+          <select name="action" class="form-select form-select-sm">
+            <option value="">All</option>
+            {% for key,label in actions %}
+              <option value="{{ key }}" {% if action == key %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="form-label small text-muted">Verb</label>
+          <input type="text" name="verb" value="{{ verb }}" class="form-control form-control-sm" placeholder="contains…">
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="form-label small text-muted">Actor</label>
+          <input type="text" name="actor" value="{{ actor }}" class="form-control form-control-sm" placeholder="id or username/email">
+        </div>
+        <div class="col-6 col-md-1">
+          <label class="form-label small text-muted">From</label>
+          <input type="date" name="date_from" value="{{ date_from }}" class="form-control form-control-sm">
+        </div>
+        <div class="col-6 col-md-1">
+          <label class="form-label small text-muted">To</label>
+          <input type="date" name="date_to" value="{{ date_to }}" class="form-control form-control-sm">
+        </div>
+        <div class="col-12 col-md-1 d-grid">
+          <button class="btn btn-sm btn-primary">Filter</button>
+        </div>
+      </form>
+
+      <div class="mt-2 small">
+        <a class="link-secondary" href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if action %}action={{ action|urlencode }}&{% endif %}{% if verb %}verb={{ verb|urlencode }}&{% endif %}{% if actor %}actor={{ actor|urlencode }}&{% endif %}{% if date_from %}date_from={{ date_from|urlencode }}&{% endif %}{% if date_to %}date_to={{ date_to|urlencode }}&{% endif %}format=csv">Export CSV</a>
+        <span class="text-muted">•</span>
+        <a class="link-secondary" href="{% url 'ops:audit_log' %}">Clear</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm lm-card">
+    <div class="table-responsive">
+      <div class="lm-table">
+<table class="table table-sm mb-0">
+        <thead>
+          <tr>
+            <th>When</th>
+            <th>Actor</th>
+            <th>Action</th>
+            <th>Verb</th>
+            <th>Target</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in page_obj %}
+            <tr>
+              <td class="text-muted small">{{ a.created_at|date:"Y-m-d H:i" }}</td>
+              <td class="small">{% if a.actor %}{{ a.actor.username }}{% else %}system{% endif %}</td>
+              <td class="small">{{ a.action }}</td>
+              <td class="small fw-semibold">{{ a.verb }}</td>
+              <td class="small text-muted">{{ a.target_object_id|default:"—" }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="5" class="py-0">{% include 'partials/empty_state.html' with title='' message='No audit entries.' action_route='ops:dashboard' action_label='Back to Ops' %}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+</div>
+    </div>
+  </div>
+
+  <div class="mt-3">
+    {% include "ops/pagination.html" with page_obj=page_obj %}
+  </div>
+{% endblock %}

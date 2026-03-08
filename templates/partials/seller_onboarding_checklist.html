@@ -1,0 +1,38 @@
+{# templates/partials/seller_onboarding_checklist.html #}
+
+{% if onboarding_steps and not onboarding_done %}
+  <div class="lm-card p-3 mb-3">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+      <div>
+        <div class="h6 mb-0">Finish setting up your seller account</div>
+        <div class="text-secondary small">Complete these steps to start getting sales and payouts.</div>
+      </div>
+      <a class="btn btn-sm btn-outline-dark" href="{% url 'accounts:profile' %}">Seller profile</a>
+    </div>
+
+    <div class="lm-checklist mt-3">
+      {% for s in onboarding_steps %}
+        <div class="lm-checkitem d-flex align-items-start justify-content-between gap-3">
+          <div class="d-flex align-items-start gap-2">
+            {% if s.done %}
+              <span class="lm-checkicon lm-checkicon--done">✓</span>
+            {% else %}
+              <span class="lm-checkicon">•</span>
+            {% endif %}
+            <div>
+              <div class="fw-semibold">{{ s.label }}</div>
+              {% if not s.done %}
+                <div class="small text-secondary">Recommended next step.</div>
+              {% endif %}
+            </div>
+          </div>
+          {% if not s.done and s.url %}
+            <a class="btn btn-sm btn-outline-dark" href="{{ s.url }}">Fix</a>
+          {% else %}
+            <span class="badge text-bg-light">Done</span>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}

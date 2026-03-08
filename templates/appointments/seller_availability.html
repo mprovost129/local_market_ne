@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}Availability · Seller{% endblock %}
+{% block content %}
+<div class="container-fluid" style="max-width: 1100px;">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h4 mb-1">Availability</h1>
+      <div class="text-secondary small">Control when buyers can request service appointments.</div>
+    </div>
+    <a class="btn btn-outline-secondary" href="{% url 'appointments:seller_requests' %}">Back to requests</a>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-6">
+      <div class="card shadow-sm lm-card">
+        <div class="card-body lm-card">
+          <h2 class="h6 mb-3">Weekly rules</h2>
+
+          <form method="post" class="row g-2 align-items-end mb-3">
+            {% csrf_token %}
+            <input type="hidden" name="kind" value="rule" />
+            <div class="col-md-4">
+              <label class="form-label">Day</label>
+              <select class="form-select" name="weekday" required>
+                {% for v,l in weekday_choices %}
+                  <option value="{{ v }}">{{ l }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Start</label>
+              <input class="form-control" type="time" name="start_time" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">End</label>
+              <input class="form-control" type="time" name="end_time" required />
+            </div>
+            <div class="col-12">
+              <button class="btn btn-dark">Add rule</button>
+            </div>
+          </form>
+
+          <div class="table-responsive">
+            <div class="lm-table">
+<table class="table table-sm align-middle mb-0">
+              <thead>
+                <tr class="text-secondary small">
+                  <th>Day</th>
+                  <th>Window</th>
+                  <th class="text-end"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in rules %}
+                  <tr>
+                    <td>{{ r.get_weekday_display }}</td>
+                    <td class="text-secondary small">{{ r.start_time }} – {{ r.end_time }}</td>
+                    <td class="text-end">
+                      <a class="btn btn-sm btn-outline-danger" href="?delete_rule={{ r.id }}">Delete</a>
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr><td colspan="3" class="py-0">{% include 'partials/empty_state.html' with title='' message='No weekly rules yet.' action_route='core:help' action_label='Scheduling help' show_support_links=True %}</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card shadow-sm lm-card">
+        <div class="card-body lm-card">
+          <h2 class="h6 mb-3">Date overrides</h2>
+
+          <form method="post" class="row g-2 align-items-end mb-3">
+            {% csrf_token %}
+            <input type="hidden" name="kind" value="exception" />
+            <div class="col-md-4">
+              <label class="form-label">Date</label>
+              <input class="form-control" type="date" name="date" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Start (optional)</label>
+              <input class="form-control" type="time" name="start_time" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">End (optional)</label>
+              <input class="form-control" type="time" name="end_time" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Note</label>
+              <input class="form-control" type="text" name="note" placeholder="Optional" />
+            </div>
+            <div class="col-md-6">
+              <div class="form-check" style="margin-top: 2rem;">
+                <input class="form-check-input" type="checkbox" name="is_closed" id="id_is_closed" value="1" />
+                <label class="form-check-label" for="id_is_closed">Closed all day</label>
+              </div>
+            </div>
+            <div class="col-12">
+              <button class="btn btn-dark">Save override</button>
+            </div>
+          </form>
+
+          <div class="table-responsive">
+            <div class="lm-table">
+<table class="table table-sm align-middle mb-0">
+              <thead>
+                <tr class="text-secondary small">
+                  <th>Date</th>
+                  <th>Override</th>
+                  <th class="text-end"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for e in exceptions %}
+                  <tr>
+                    <td>{{ e.date }}</td>
+                    <td class="text-secondary small">
+                      {% if e.is_closed %}Closed{% elif e.start_time and e.end_time %}{{ e.start_time }} – {{ e.end_time }}{% else %}—{% endif %}
+                      {% if e.note %}<span class="ms-2">· {{ e.note }}</span>{% endif %}
+                    </td>
+                    <td class="text-end">
+                      <a class="btn btn-sm btn-outline-danger" href="?delete_exception={{ e.id }}">Delete</a>
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr><td colspan="3" class="py-0">{% include 'partials/empty_state.html' with title='' message='No overrides yet.' action_route='core:help' action_label='Scheduling help' show_support_links=True %}</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

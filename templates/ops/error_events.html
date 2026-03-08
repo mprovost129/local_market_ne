@@ -1,0 +1,80 @@
+{# templates/ops/error_events.html #}
+{% extends "ops/base_ops.html" %}
+
+{% block ops_content %}
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <div>
+    <div class="h4 mb-0">Error Events</div>
+    <div class="text-muted small">Captured unhandled server exceptions for ops triage.</div>
+  </div>
+</div>
+
+<div class="card shadow-sm mb-3 lm-card">
+  <div class="card-body lm-card">
+    <form method="get" class="row g-2 align-items-end">
+      <div class="col-12 col-md-6">
+        <label class="form-label">Search</label>
+        <input class="form-control" name="q" value="{{ q }}" placeholder="request id, path, exception, message" />
+      </div>
+      <div class="col-12 col-md-3">
+        <label class="form-label">Status</label>
+        <select class="form-select" name="status">
+          <option value="" {% if not status %}selected{% endif %}>All</option>
+          <option value="open" {% if status == 'open' %}selected{% endif %}>Open</option>
+          <option value="resolved" {% if status == 'resolved' %}selected{% endif %}>Resolved</option>
+        </select>
+      </div>
+      <div class="col-12 col-md-3">
+        <button class="btn btn-primary w-100" type="submit">Filter</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card shadow-sm lm-card">
+  <div class="card-body p-0 lm-card">
+    <div class="table-responsive">
+      <div class="lm-table">
+<table class="table table-sm mb-0">
+        <thead>
+          <tr>
+            <th>When</th>
+            <th>Status</th>
+            <th>Type</th>
+            <th>Path</th>
+            <th>Request ID</th>
+            <th>User</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ev in page_obj %}
+          <tr>
+            <td class="text-nowrap">{{ ev.created_at|date:"Y-m-d H:i" }}</td>
+            <td>
+              {% if ev.is_resolved %}
+                <span class="badge bg-success">Resolved</span>
+              {% else %}
+                <span class="badge bg-danger">Open</span>
+              {% endif %}
+            </td>
+            <td class="text-nowrap">{{ ev.exception_type }}</td>
+            <td>
+              <a href="{% url 'ops:error_event_detail' ev.pk %}">{{ ev.path|default:"(no path)" }}</a>
+            </td>
+            <td class="text-muted text-nowrap">{{ ev.request_id }}</td>
+            <td class="text-nowrap">{% if ev.user %}{{ ev.user }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="py-0">{% include 'partials/empty_state.html' with title='' message='No error events found.' action_route='ops:dashboard' action_label='Back to Ops' %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+</div>
+    </div>
+  </div>
+</div>
+
+{% include "ops/pagination.html" with page_obj=page_obj %}
+{% endblock %}

@@ -1,0 +1,91 @@
+{# templates/ops/health.html #}
+{% extends "ops/base_ops.html" %}
+
+{% block ops_content %}
+  <div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-3">
+    <div>
+      <h1 class="h4 mb-1">Ops Health</h1>
+      <div class="text-secondary small">Quick post-deploy checks (configuration + critical services).</div>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-secondary" href="{% url 'healthz' %}" target="_blank" rel="noopener">Public /healthz</a>
+      <a class="btn btn-outline-secondary" href="{% url 'ops:ops_health' %}?format=json" target="_blank" rel="noopener">View JSON</a>
+      <a class="btn btn-outline-primary" href="{% url 'ops:launch_check' %}"><i class="bi bi-clipboard-check me-1"></i>Launch Check</a>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-3 lm-card">
+    <div class="card-body lm-card">
+      <div class="d-flex align-items-center gap-2 mb-2">
+        {% if ok %}
+          <span class="badge text-bg-success">OK</span>
+          <div class="fw-semibold">Core configuration looks sane.</div>
+        {% else %}
+          <span class="badge text-bg-danger">Attention</span>
+          <div class="fw-semibold">One or more required settings look missing.</div>
+        {% endif %}
+      </div>
+      <div class="text-secondary small">This is a lightweight view. It does not perform external API calls.</div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-lg-6">
+      <div class="card shadow-sm h-100 lm-card">
+        <div class="card-header bg-white lm-card">
+          <div class="fw-semibold">Configuration</div>
+        </div>
+        <div class="card-body lm-card">
+          <div class="table-responsive">
+            <div class="lm-table">
+<table class="table table-sm align-middle mb-0">
+              <tbody>
+                <tr>
+                  <td class="text-secondary">DEBUG</td>
+                  <td class="text-end">{% if checks.debug %}<span class="badge text-bg-warning">True</span>{% else %}<span class="badge text-bg-success">False</span>{% endif %}</td>
+                </tr>
+                <tr>
+                  <td class="text-secondary">Email backend</td>
+                  <td class="text-end"><code class="small">{{ checks.email_backend|default:"(empty)" }}</code></td>
+                </tr>
+                <tr>
+                  <td class="text-secondary">Default from</td>
+                  <td class="text-end"><code class="small">{{ checks.default_from_email|default:"(empty)" }}</code></td>
+                </tr>
+                <tr>
+                  <td class="text-secondary">Stripe configured</td>
+                  <td class="text-end">{% if checks.stripe_configured %}<span class="badge text-bg-success">Yes</span>{% else %}<span class="badge text-bg-secondary">No</span>{% endif %}</td>
+                </tr>
+                <tr>
+                  <td class="text-secondary">Media backend</td>
+                  <td class="text-end"><span class="badge text-bg-info text-dark">{{ checks.media_backend|upper }}</span></td>
+                </tr>
+                <tr>
+                  <td class="text-secondary">reCAPTCHA v3</td>
+                  <td class="text-end">{% if checks.recaptcha_enabled %}<span class="badge text-bg-success">Enabled</span>{% else %}<span class="badge text-bg-secondary">Off</span>{% endif %}</td>
+                </tr>
+              </tbody>
+            </table>
+</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+      <div class="card shadow-sm h-100 lm-card">
+        <div class="card-header bg-white lm-card">
+          <div class="fw-semibold">Next actions</div>
+        </div>
+        <div class="card-body lm-card">
+          <ol class="mb-0">
+            <li class="mb-2">Run <code>python manage.py smoke_check --checks --db</code> after deploy.</li>
+            <li class="mb-2">Verify checkout + webhook loop: create a $1 test order and confirm PAID + transfers.</li>
+            <li class="mb-2">Confirm email loop: trigger a notification and ensure no items appear in <a href="{% url 'ops:failed_emails' %}">Failed Emails</a>.</li>
+            <li>Use <a href="{% url 'ops:webhooks_list' %}">Webhooks</a> to reprocess failures if needed (idempotent).</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

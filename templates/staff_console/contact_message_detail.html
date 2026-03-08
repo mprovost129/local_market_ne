@@ -1,0 +1,207 @@
+{# templates/staff_console/contact_message_detail.html #}
+{% extends "staff_console/base_staff.html" %}
+{% load humanize %}
+
+{% block staff_content %}
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h3 class="m-0">Support Message</h3>
+      <div class="text-muted small">Submitted {{ msg.created_at }}</div>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-secondary" href="{% url 'staff_console:contact_messages_list' %}"><i class="bi bi-arrow-left me-1"></i>Back</a>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-lg-8">
+      <div class="card shadow-sm lm-card">
+        <div class="card-body lm-card">
+          <div class="d-flex align-items-start justify-content-between">
+            <div>
+              <div class="fw-semibold">{{ msg.email }}</div>
+              {% if msg.name %}<div class="text-muted small">{{ msg.name }}</div>{% endif %}
+              <div class="mt-2"><span class="text-muted small">Subject:</span> <span class="fw-semibold">{{ msg.subject|default:"(no subject)" }}</span></div>
+            </div>
+            <div>
+              {% if msg.is_resolved %}
+                <span class="badge text-bg-success">Resolved</span>
+              {% else %}
+                <span class="badge text-bg-warning">Open</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <hr />
+
+          <div class="lm-prose">
+            <pre class="mb-0" style="white-space: pre-wrap; font-family: inherit;">{{ msg.message }}</pre>
+          </div>
+
+          <hr />
+
+          <div class="d-flex flex-wrap gap-2 align-items-center">
+            <a class="btn btn-sm btn-outline-primary" href="mailto:{{ msg.email }}?subject={{ msg.subject|urlencode }}"><i class="bi bi-reply me-1"></i>Email reply</a>
+            <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#replyBox" aria-expanded="false" aria-controls="replyBox">
+              <i class="bi bi-send me-1"></i>Reply from console
+            </button>
+            <button class="btn btn-sm {% if msg.is_resolved %}btn-outline-warning{% else %}btn-outline-success{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#resolveBox" aria-expanded="false" aria-controls="resolveBox">
+              {% if msg.is_resolved %}<i class="bi bi-arrow-counterclockwise me-1"></i>Reopen{% else %}<i class="bi bi-check2-circle me-1"></i>Mark resolved{% endif %}
+            </button>
+          </div>
+
+          <div class="collapse mt-3" id="replyBox">
+            <div class="card bg-body-tertiary border-0 lm-card">
+              <div class="card-body lm-card">
+                <form method="post" action="{% url 'staff_console:contact_message_reply' msg.id %}" data-disable-once>
+                  {% csrf_token %}
+
+                  <div class="row g-2 align-items-end">
+                    <div class="col-12 col-md-7">
+                      <label class="form-label">Template (optional)</label>
+                      <select class="form-select" onchange="if (this.value) { window.location = '?template=' + this.value; }">
+                        <option value="">(Choose a template)</option>
+                        {% for t in templates %}
+                          <option value="{{ t.id }}" {% if selected_template and selected_template.id == t.id %}selected{% endif %}>{{ t.title }}</option>
+                        {% endfor %}
+                      </select>
+                      <div class="form-text">Selecting a template reloads the page and pre-fills the reply form.</div>
+                    </div>
+                    <div class="col-12 col-md-5">
+                      <label class="form-label">Audit note (optional)</label>
+                      {{ reply_form.reason }}
+                    </div>
+                  </div>
+
+                  <div class="mt-3">
+                    <label class="form-label">Subject</label>
+                    {{ reply_form.subject }}
+                  </div>
+
+                  <div class="mt-3">
+                    <label class="form-label">Message</label>
+                    {{ reply_form.body }}
+                  </div>
+
+                  <div class="form-check mt-3">
+                    {{ reply_form.mark_resolved }}
+                    <label class="form-check-label" for="{{ reply_form.mark_resolved.id_for_label }}">Mark as resolved after sending</label>
+                  </div>
+
+                  <div class="d-flex gap-2 mt-3">
+                    <button class="btn btn-primary" type="submit"><i class="bi bi-send me-1"></i>Send reply</button>
+                    <a class="btn btn-outline-secondary" href="mailto:{{ msg.email }}?subject={{ msg.subject|urlencode }}"><i class="bi bi-envelope me-1"></i>Open email client</a>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div class="collapse mt-3" id="resolveBox">
+            <div class="card bg-body-tertiary border-0 lm-card">
+              <div class="card-body lm-card">
+                <form method="post" action="{% url 'staff_console:contact_message_toggle_resolved' msg.id %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="resolved" value="{% if msg.is_resolved %}0{% else %}1{% endif %}" />
+                  <div class="mb-2">
+                    <label class="form-label">Reason (optional)</label>
+                    <input class="form-control" name="reason" maxlength="200" placeholder="Internal note for audit log" />
+                  </div>
+                  <button class="btn btn-primary" type="submit">Confirm</button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <div class="card shadow-sm lm-card">
+        <div class="card-header bg-body-tertiary lm-card">
+          <div class="fw-semibold">Metadata</div>
+        </div>
+        <div class="card-body lm-card">
+          <div class="mb-3">
+            <div class="fw-semibold mb-2">Triage</div>
+            <form method="post" action="{% url 'staff_console:contact_message_update' msg.id %}" data-disable-once>
+              {% csrf_token %}
+              <div class="mb-2">
+                <label class="form-label">SLA</label>
+                {{ triage_form.sla_tag }}
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Internal notes</label>
+                {{ triage_form.internal_notes }}
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Audit note (optional)</label>
+                <input class="form-control" name="reason" maxlength="200" placeholder="Reason for audit log" />
+              </div>
+              <button class="btn btn-sm btn-primary" type="submit"><i class="bi bi-save me-1"></i>Save triage</button>
+            </form>
+          </div>
+
+          <div class="small">
+            <div class="mb-2"><span class="text-muted">From path:</span> {{ msg.source_path|default:"—" }}</div>
+            <div class="mb-2"><span class="text-muted">IP:</span> {{ msg.ip_address|default:"—" }}</div>
+            <div class="mb-2"><span class="text-muted">User:</span> {% if msg.user %}{{ msg.user }}{% else %}—{% endif %}</div>
+            <div class="mb-2"><span class="text-muted">User agent:</span> <span class="text-break">{{ msg.user_agent|default:"—" }}</span></div>
+          </div>
+
+          <hr />
+
+          <div class="small">
+            <div class="mb-2"><span class="text-muted">Resolved at:</span> {% if msg.resolved_at %}{{ msg.resolved_at }}{% else %}—{% endif %}</div>
+            <div class="mb-2"><span class="text-muted">Resolved by:</span> {% if msg.resolved_by %}{{ msg.resolved_by }}{% else %}—{% endif %}</div>
+            <div class="mb-2"><span class="text-muted">Last reply:</span> {% if msg.last_responded_at %}{{ msg.last_responded_at }}{% else %}—{% endif %}</div>
+            <div class="mb-2"><span class="text-muted">Replied by:</span> {% if msg.last_responded_by %}{{ msg.last_responded_by }}{% else %}—{% endif %}</div>
+            <div class="mb-2"><span class="text-muted">Reply count:</span> {{ msg.response_count|default:0 }}</div>
+          </div>
+
+          <hr />
+
+          <div>
+            <div class="fw-semibold mb-2">Outbound emails</div>
+            {% if outbound_emails %}
+              <div class="lm-table">
+                <table class="table table-sm align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>Sent</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for e in outbound_emails %}
+                      <tr>
+                        <td>
+                          <div class="fw-semibold">{{ e.sent_at }}</div>
+                          <div class="text-muted small text-break">{{ e.subject|default:"(no subject)" }}</div>
+                          <div class="text-muted small">To: {{ e.to_email }}</div>
+                          {% if e.sent_by %}<div class="text-muted small">By: {{ e.sent_by }}</div>{% endif %}
+                        </td>
+                        <td>
+                          {% if e.status == "sent" %}
+                            <span class="badge text-bg-success">Sent</span>
+                          {% else %}
+                            <span class="badge text-bg-danger">Failed</span>
+                            {% if e.error_text %}<div class="small text-muted mt-1 text-break">{{ e.error_text }}</div>{% endif %}
+                          {% endif %}
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <div class="text-muted small">No outbound emails logged yet.</div>
+            {% endif %}
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

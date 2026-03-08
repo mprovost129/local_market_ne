@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Service appointment requests{% endblock %}
+{% block content %}
+<div class="container-fluid" style="max-width: 1100px;">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h4 mb-1">Service appointment requests</h1>
+      <div class="text-secondary small">Requests from buyers for your services.</div>
+    </div>
+    <a class="btn btn-outline-dark" href="{% url 'appointments:seller_availability' %}">Manage availability</a>
+  </div>
+
+  <div class="card shadow-sm lm-card">
+    <div class="card-body p-0 lm-card">
+      <div class="table-responsive">
+        <div class="lm-table">
+<table class="table mb-0 align-middle">
+          <thead>
+            <tr class="text-secondary small">
+              <th>Service</th>
+              <th>Buyer</th>
+              <th>Requested</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in requests %}
+              <tr>
+                <td><a href="{% url 'products:detail' r.service.pk r.service.slug %}">{{ r.service.title }}</a></td>
+                <td>{{ r.buyer.username }}</td>
+                <td class="text-secondary small">{{ r.requested_start|date:"M j, Y g:i A" }}</td>
+                <td><span class="badge text-bg-light">{{ r.get_status_display }}</span></td>
+                <td class="text-end">
+                  {% if r.status == "REQUESTED" %}
+                    <a class="btn btn-sm btn-dark" href="{% url 'appointments:seller_update' r.pk 'accept' %}">Accept</a>
+                    <a class="btn btn-sm btn-outline-secondary ms-1" href="{% url 'appointments:seller_update' r.pk 'decline' %}">Decline</a>
+                  {% elif r.status == "DEPOSIT_PENDING" %}
+                    <span class="text-secondary small">Waiting for buyer deposit</span>
+                    <a class="btn btn-sm btn-outline-secondary ms-2" href="{% url 'appointments:seller_reschedule' r.pk %}">Reschedule</a>
+                    <form method="post" action="{% url 'appointments:seller_cancel' r.pk %}" class="d-inline">
+                      {% csrf_token %}
+                      <button class="btn btn-sm btn-outline-danger ms-2" type="submit">Cancel</button>
+                    </form>
+                  {% elif r.status == "DEPOSIT_PAID" %}
+                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'appointments:seller_reschedule' r.pk %}">Reschedule</a>
+                    <span class="text-secondary small ms-2">Deposit paid</span>
+                    <form method="post" action="{% url 'appointments:seller_cancel' r.pk %}" class="d-inline">
+                      {% csrf_token %}
+                      <button class="btn btn-sm btn-outline-danger ms-2" type="submit">Cancel</button>
+                    </form>
+                  {% elif r.status == "SCHEDULED" %}
+                    <a class="btn btn-sm btn-outline-secondary me-1" href="{% url 'appointments:seller_reschedule' r.pk %}">Reschedule</a>
+                    <form method="post" action="{% url 'appointments:seller_complete' r.pk %}" class="d-inline">
+                      {% csrf_token %}
+                      <button class="btn btn-sm btn-dark" type="submit">Mark completed</button>
+                    </form>
+                    <form method="post" action="{% url 'appointments:seller_cancel' r.pk %}" class="d-inline">
+                      {% csrf_token %}
+                      <button class="btn btn-sm btn-outline-danger ms-1" type="submit">Cancel</button>
+                    </form>
+                  {% endif %}
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="5" class="py-0">{% include 'partials/empty_state.html' with title='' message='No requests yet.' action_route='core:help' action_label='Appointments help' show_support_links=True %}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

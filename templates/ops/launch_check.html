@@ -1,0 +1,71 @@
+{# templates/ops/launch_check.html #}
+{% extends "ops/base_ops.html" %}
+
+{% block ops_title %}Launch Check{% endblock %}
+
+{% block ops_content %}
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h4 mb-0">Launch Readiness Check</h1>
+      <div class="text-muted small">Conservative go-live posture checks. Fix <strong>FAIL</strong> items before deploying to production.</div>
+    </div>
+    <div>
+      {% if ok %}
+        <span class="badge text-bg-success">OK</span>
+      {% else %}
+        <span class="badge text-bg-danger">FAIL</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="alert alert-light border d-flex align-items-start gap-2 mb-3">
+    <i class="bi bi-info-circle mt-1"></i>
+    <div class="small">
+      Use this page as the single source of truth for launch posture. If you're running locally, some checks are informational; in production, treat FAIL items as release blockers. For incident response and recovery steps, see the
+      <a href="{% url 'ops:runbook' %}">Ops Runbook</a>.
+      For service health, see <a href="{% url 'ops:ops_health' %}">Ops Health</a>.
+    </div>
+  </div>
+
+  <div class="card shadow-sm lm-card">
+    <div class="card-body p-0 lm-card">
+      <div class="lm-table">
+<table class="table mb-0 align-middle">
+        <thead>
+          <tr>
+            <th style="width: 110px;">Status</th>
+            <th style="width: 220px;">Check</th>
+            <th>Message</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in results %}
+            <tr>
+              <td>
+                {% if r.ok %}
+                  <span class="badge text-bg-success">OK</span>
+                {% else %}
+                  <span class="badge text-bg-danger">FAIL</span>
+                {% endif %}
+              </td>
+              <td class="text-monospace">{{ r.key }}</td>
+              <td>
+                {{ r.message }}
+                {% if r.detail %}
+                  <div class="small text-muted mt-1"><code>{{ r.detail }}</code></div>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="3" class="py-0">{% include 'partials/empty_state.html' with title='' message='No checks found.' action_route='ops:dashboard' action_label='Back to Ops' %}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+</div>
+    </div>
+  </div>
+
+  <div class="text-muted small mt-3">
+    CLI: <code>python manage.py launch_check</code> (or <code>python manage.py launch_check --json</code>)
+  </div>
+{% endblock %}

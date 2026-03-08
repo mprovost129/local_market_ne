@@ -1,0 +1,85 @@
+{# templates/staff_console/listings_list.html #}
+{% extends "staff_console/base_staff.html" %}
+{% load humanize %}
+
+{% block staff_content %}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+  <div>
+    <h1 class="h5 mb-1">Listings</h1>
+    <div class="text-muted small">Moderate and re-categorize listings. Prohibited categories are blocked at checkout.</div>
+  </div>
+</div>
+
+<form method="get" class="row g-2 align-items-end mb-3">
+  <div class="col-12 col-md-6">
+    <label class="form-label small text-muted">Search</label>
+    <input class="form-control" type="text" name="q" value="{{ q }}" placeholder="Search titles">
+  </div>
+  <div class="col-12 col-md-3">
+    <label class="form-label small text-muted">Flagged</label>
+    <select class="form-select" name="flagged">
+      <option value="">All</option>
+      <option value="1" {% if flagged == "1" %}selected{% endif %}>Only prohibited</option>
+    </select>
+  </div>
+  <div class="col-12 col-md-3">
+    <button class="btn btn-dark w-100" type="submit"><i class="bi bi-search me-1"></i>Filter</button>
+  </div>
+</form>
+
+<div class="card shadow-sm lm-card">
+  <div class="table-responsive">
+    <div class="lm-table">
+<table class="table table-sm align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Listing</th>
+          <th>Seller</th>
+          <th>Category</th>
+          <th>Status</th>
+          <th class="text-end">Price</th>
+          <th class="text-end"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in listings %}
+          <tr>
+            <td class="fw-semibold">
+              <a href="{% url 'products:detail' p.pk p.slug %}">{{ p.title }}</a>
+              <div class="small text-muted">#{{ p.pk }} · {{ p.kind }}</div>
+            </td>
+            <td>{{ p.seller.username }}</td>
+            <td class="small">
+              {{ p.category.name }}
+              {% if p.category.is_prohibited %}<span class="badge text-bg-danger ms-1">Prohibited</span>{% endif %}
+              {% if p.category.requires_age_18 %}<span class="badge text-bg-warning ms-1">18+</span>{% endif %}
+              {% if p.subcategory %}
+                <div class="text-muted">{{ p.subcategory.name }}
+                  {% if p.subcategory.is_prohibited %}<span class="badge text-bg-danger ms-1">Prohibited</span>{% endif %}
+                  {% if p.subcategory.requires_age_18 %}<span class="badge text-bg-warning ms-1">18+</span>{% endif %}
+                </div>
+              {% endif %}
+            </td>
+            <td>
+              {% if p.is_active %}
+                <span class="badge text-bg-success">Active</span>
+              {% else %}
+                <span class="badge text-bg-secondary">Inactive</span>
+              {% endif %}
+            </td>
+            <td class="text-end">${{ p.price|floatformat:2|intcomma }}</td>
+            <td class="text-end">
+              <a class="btn btn-sm btn-outline-dark" href="{% url 'staff_console:listing_edit' p.pk %}">
+                Edit
+              </a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6" class="text-muted p-3">No listings found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+</div>
+  </div>
+</div>
+{% endblock %}

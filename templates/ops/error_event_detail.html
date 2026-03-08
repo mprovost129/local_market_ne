@@ -1,0 +1,82 @@
+{# templates/ops/error_event_detail.html #}
+{% extends "ops/base_ops.html" %}
+
+{% block ops_content %}
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <div>
+    <div class="h4 mb-0">Error Event</div>
+    <div class="text-muted small">{{ ev.created_at|date:"Y-m-d H:i:s" }} • {{ ev.exception_type }} • {{ ev.status_code }}</div>
+  </div>
+  <div>
+    <a class="btn btn-outline-secondary" href="{% url 'ops:error_events' %}">Back</a>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-12 col-lg-7">
+    <div class="card shadow-sm lm-card">
+      <div class="card-body lm-card">
+        <div class="mb-2">
+          {% if ev.is_resolved %}
+            <span class="badge bg-success">Resolved</span>
+          {% else %}
+            <span class="badge bg-danger">Open</span>
+          {% endif %}
+        </div>
+
+        <dl class="row mb-0">
+          <dt class="col-sm-3">Path</dt>
+          <dd class="col-sm-9"><code>{{ ev.path }}</code></dd>
+
+          <dt class="col-sm-3">Method</dt>
+          <dd class="col-sm-9">{{ ev.method }}</dd>
+
+          <dt class="col-sm-3">Request ID</dt>
+          <dd class="col-sm-9"><code>{{ ev.request_id }}</code></dd>
+
+          <dt class="col-sm-3">User</dt>
+          <dd class="col-sm-9">{% if ev.user %}{{ ev.user }}{% else %}<span class="text-muted">—</span>{% endif %}</dd>
+
+          <dt class="col-sm-3">IP</dt>
+          <dd class="col-sm-9">{% if ev.ip_address %}{{ ev.ip_address }}{% else %}<span class="text-muted">—</span>{% endif %}</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="card shadow-sm mt-3 lm-card">
+      <div class="card-header bg-body fw-semibold lm-card">Message</div>
+      <div class="card-body lm-card">
+        <pre class="mb-0" style="white-space: pre-wrap;">{{ ev.message }}</pre>
+      </div>
+    </div>
+
+    <div class="card shadow-sm mt-3 lm-card">
+      <div class="card-header bg-body fw-semibold lm-card">Traceback</div>
+      <div class="card-body lm-card">
+        <pre class="mb-0" style="white-space: pre-wrap;">{{ ev.traceback }}</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-5">
+    <div class="card shadow-sm lm-card">
+      <div class="card-header bg-body fw-semibold lm-card">Resolution</div>
+      <div class="card-body lm-card">
+        {% if ev.is_resolved %}
+          <div class="text-muted small">Resolved at {{ ev.resolved_at|date:"Y-m-d H:i" }} by {{ ev.resolved_by|default:"(unknown)" }}</div>
+          <hr />
+          <div class="fw-semibold">Notes</div>
+          <pre class="mb-0" style="white-space: pre-wrap;">{{ ev.resolution_notes }}</pre>
+        {% else %}
+          <form method="post" action="{% url 'ops:error_event_resolve' ev.pk %}">
+            {% csrf_token %}
+            <label class="form-label">Resolution notes (required)</label>
+            <textarea class="form-control" name="resolution_notes" rows="4" required></textarea>
+            <button class="btn btn-primary mt-2" type="submit">Mark Resolved</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

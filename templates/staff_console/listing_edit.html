@@ -1,0 +1,54 @@
+{# templates/staff_console/listing_edit.html #}
+{% extends "staff_console/base_staff.html" %}
+
+{% block staff_content %}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+  <div>
+    <h1 class="h5 mb-1">Edit Listing</h1>
+    <div class="text-muted small">Moderation / re-categorization for: <span class="fw-semibold">{{ product.title }}</span></div>
+  </div>
+  <div>
+    <a class="btn btn-outline-dark" href="{% url 'staff_console:listings_list' %}">
+      <i class="bi bi-arrow-left me-1"></i>Back
+    </a>
+  </div>
+</div>
+
+<div class="card shadow-sm lm-card">
+  <div class="card-body lm-card">
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      <div class="mb-3 form-check">
+        {{ form.is_active }}
+        <label class="form-check-label" for="{{ form.is_active.id_for_label }}">Active</label>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-12 col-md-6">
+          <label class="form-label">Category</label>
+          {{ form.category }}
+          {% if form.category.errors %}<div class="text-danger small mt-1">{{ form.category.errors }}</div>{% endif %}
+        </div>
+        <div class="col-12 col-md-6">
+          <label class="form-label">Subcategory</label>
+          {{ form.subcategory }}
+          {% if form.subcategory.errors %}<div class="text-danger small mt-1">{{ form.subcategory.errors }}</div>{% endif %}
+          <div class="form-text">Subcategories shown are restricted to the current category.</div>
+        </div>
+      </div>
+
+      <div class="mt-3">
+        <label class="form-label">Reason / internal note</label>
+        {{ form.reason }}
+        {% if form.reason.errors %}<div class="text-danger small mt-1">{{ form.reason.errors }}</div>{% endif %}
+      </div>
+
+      <div class="d-flex gap-2 mt-4">
+        <button class="btn btn-dark" type="submit"><i class="bi bi-save me-1"></i>Save</button>
+        <a class="btn btn-outline-secondary" href="{% url 'products:detail' product.pk product.slug %}" target="_blank">View listing</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

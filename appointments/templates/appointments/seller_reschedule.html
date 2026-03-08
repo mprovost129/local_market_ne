@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load tz %}
+
+{% block title %}Reschedule Appointment{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h4 mb-1">Reschedule appointment</h1>
+      <div class="text-secondary small">
+        {{ ar.service.title|default:ar.service.name }} • Buyer: {{ ar.buyer.get_full_name|default:ar.buyer.username }}
+      </div>
+    </div>
+    <a class="btn btn-sm btn-outline-secondary" href="{% url 'appointments:seller_requests' %}">Back</a>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="mb-3">
+          <label class="form-label">New start time</label>
+          {{ form.scheduled_start }}
+          {% if form.scheduled_start.errors %}
+            <div class="text-danger small mt-1">{{ form.scheduled_start.errors|striptags }}</div>
+          {% endif %}
+          <div class="form-text">
+            Current: {% if ar.scheduled_start %}{{ ar.scheduled_start|localtime|date:"M j, Y g:i A" }}{% else %}{{ ar.requested_start|localtime|date:"M j, Y g:i A" }}{% endif %}
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Note to buyer (optional)</label>
+          {{ form.scheduled_notes }}
+          {% if form.scheduled_notes.errors %}
+            <div class="text-danger small mt-1">{{ form.scheduled_notes.errors|striptags }}</div>
+          {% endif %}
+        </div>
+
+        <div class="d-flex gap-2">
+          <button class="btn btn-primary" type="submit">Save reschedule</button>
+          <a class="btn btn-outline-secondary" href="{% url 'appointments:seller_requests' %}">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

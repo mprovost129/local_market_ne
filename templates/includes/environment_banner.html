@@ -1,0 +1,9 @@
+{# templates/includes/environment_banner.html #}
+
+{% if env_banner_enabled and env_banner_text %}
+  <div class="alert alert-{{ env_banner_kind|default:'info' }} mb-0 rounded-0 border-0" role="alert" style="border-bottom:1px solid rgba(0,0,0,.08);">
+    <div class="container-fluid text-center small">
+      <strong class="me-2">ENV</strong>{{ env_banner_text }}
+    </div>
+  </div>
+{% endif %}

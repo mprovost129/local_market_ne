@@ -1,0 +1,10 @@
+{% if site_config.site_announcement_enabled and site_config.site_announcement_text %}
+<div class="bg-warning-subtle border-bottom">
+  <div class="container-fluid py-2">
+    <div class="d-flex align-items-center justify-content-center small">
+      <i class="bi bi-megaphone me-2"></i>
+      <span>{{ site_config.site_announcement_text }}</span>
+    </div>
+  </div>
+</div>
+{% endif %}

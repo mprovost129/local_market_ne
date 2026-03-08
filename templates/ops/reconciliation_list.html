@@ -1,0 +1,81 @@
+{% extends "ops/base_ops.html" %}
+{% load money %}
+
+{% block title %}Reconciliation | Ops | Local Market NE{% endblock %}
+
+{% block ops_content %}
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h3 mb-0">Reconciliation</h1>
+      <div class="text-muted small">Snapshot-based fee/net validation against item ledgers.</div>
+    </div>
+    <form class="d-flex gap-2" method="get">
+      <select class="form-select form-select-sm" name="status">
+        <option value="">All statuses</option>
+        <option value="pending" {% if status == "pending" %}selected{% endif %}>pending</option>
+        <option value="awaiting_payment" {% if status == "awaiting_payment" %}selected{% endif %}>awaiting_payment</option>
+        <option value="paid" {% if status == "paid" %}selected{% endif %}>paid</option>
+        <option value="refunded" {% if status == "refunded" %}selected{% endif %}>refunded</option>
+        <option value="canceled" {% if status == "canceled" %}selected{% endif %}>canceled</option>
+        <option value="draft" {% if status == "draft" %}selected{% endif %}>draft</option>
+      </select>
+      <div class="form-check align-self-center">
+        <input class="form-check-input" type="checkbox" name="issues" value="1" id="issues" {% if only_issues %}checked{% endif %}>
+        <label class="form-check-label small" for="issues">Issues only</label>
+      </div>
+      <button class="btn btn-sm btn-primary" type="submit">Apply</button>
+      <a class="btn btn-sm btn-outline-secondary" href="?{% if status %}status={{ status }}&{% endif %}{% if only_issues %}issues=1&{% endif %}format=csv">Export CSV</a>
+    </form>
+  </div>
+
+  <div class="card shadow-sm lm-card">
+    <div class="table-responsive">
+      <div class="lm-table">
+<table class="table table-sm mb-0 align-middle">
+        <thead>
+          <tr>
+            <th>Created</th>
+            <th>Order</th>
+            <th>Buyer</th>
+            <th>Status</th>
+            <th class="text-end">Subtotal</th>
+            <th class="text-end">Items gross</th>
+            <th class="text-end">Exp fee</th>
+            <th class="text-end">Items fee</th>
+            <th>Flags</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for o in page_obj %}
+            <tr>
+              <td class="text-muted small">{{ o.created_at|date:"Y-m-d H:i" }}</td>
+              <td><a href="{% url 'ops:order_detail' o.pk %}">{{ o.pk }}</a></td>
+              <td class="small">{% if o.buyer %}{{ o.buyer.username }}{% else %}{{ o.guest_email }}{% endif %}</td>
+              <td><span class="badge text-bg-secondary">{{ o.status }}</span></td>
+              <td class="text-end">${{ o.subtotal_cents|cents_to_dollars }}</td>
+              <td class="text-end">${{ o.items_gross_cents_agg|default:0|cents_to_dollars }}</td>
+              <td class="text-end">${{ o.expected_fee_cents_agg|default:0|cents_to_dollars }}</td>
+              <td class="text-end">${{ o.marketplace_fee_cents_agg|default:0|cents_to_dollars }}</td>
+              <td class="small">
+                {% if o.totals_mismatch %}<span class="badge text-bg-warning">Totals</span>{% endif %}
+                {% if o.ledger_mismatch %}<span class="badge text-bg-warning">Ledger</span>{% endif %}
+                {% if o.paid_missing_stripe_ids %}<span class="badge text-bg-danger">Stripe IDs</span>{% endif %}
+                {% if o.paid_missing_transfer_event %}<span class="badge text-bg-danger">Transfer</span>{% endif %}
+                {% if not o.totals_mismatch and not o.ledger_mismatch and not o.paid_missing_stripe_ids and not o.paid_missing_transfer_event %}
+                  <span class="text-muted">—</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="9" class="py-0">{% include 'partials/empty_state.html' with title='' message='No orders.' action_route='ops:dashboard' action_label='Back to Ops' %}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+</div>
+    </div>
+  </div>
+
+  <div class="mt-3">
+    {% include "ops/pagination.html" with page_obj=page_obj %}
+  </div>
+{% endblock %}

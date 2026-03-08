@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Help · Local Market NE{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 980px;">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+      <h1 class="h4 mb-1">Help</h1>
+      <div class="text-secondary small">Quick guidance for buying, selling, and using Local Market NE.</div>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <a class="btn btn-outline-dark btn-sm" href="{% url 'products:list' %}"><i class="bi bi-bag me-1"></i>Shop products</a>
+      <a class="btn btn-outline-dark btn-sm" href="{% url 'products:services' %}"><i class="bi bi-wrench-adjustable-circle me-1"></i>Browse services</a>
+      <a class="btn btn-dark btn-sm" href="{% url 'legal:index' %}"><i class="bi bi-shield-check me-1"></i>Policies</a>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-start gap-2">
+            <div class="rounded-3 bg-body-tertiary p-2"><i class="bi bi-cart3" aria-hidden="true"></i></div>
+            <div>
+              <h2 class="h6 mb-1">Buying</h2>
+              <div class="text-secondary small mb-2">Find local products and services, checkout securely, and track your orders.</div>
+            </div>
+          </div>
+
+          <ul class="small mb-0">
+            <li>Use <strong>Products</strong> or <strong>Services</strong> to browse, then filter by category and location.</li>
+            <li>Add items to your cart and start checkout (pickup, delivery, or shipping when available).</li>
+            <li>After purchase, see status updates under <strong>My Orders</strong>.</li>
+            <li>Only verified purchases can leave reviews.</li>
+          </ul>
+
+          <div class="mt-3 d-flex flex-wrap gap-2">
+            <a class="btn btn-outline-secondary btn-sm" href="{% url 'orders:my_orders' %}"><i class="bi bi-receipt me-1"></i>My Orders</a>
+            <a class="btn btn-outline-secondary btn-sm" href="{% url 'core:faqs' %}"><i class="bi bi-question-circle me-1"></i>FAQs</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-start gap-2">
+            <div class="rounded-3 bg-body-tertiary p-2"><i class="bi bi-shop" aria-hidden="true"></i></div>
+            <div>
+              <h2 class="h6 mb-1">Selling</h2>
+              <div class="text-secondary small mb-2">List products or services, fulfill orders, and get paid through Stripe.</div>
+            </div>
+          </div>
+
+          <ul class="small mb-0">
+            <li>Create listings with clear photos, accurate descriptions, and honest lead times.</li>
+            <li>For payouts, sellers must complete <strong>Stripe Connect onboarding</strong>.</li>
+            <li>Use your Seller Dashboard to manage listings and fulfill orders.</li>
+            <li>Refund rules depend on the item type and the seller’s policy. Marketplace fees are non-refundable.</li>
+          </ul>
+
+          <div class="mt-3 d-flex flex-wrap gap-2">
+            <a class="btn btn-outline-secondary btn-sm" href="{% url 'payments:onboarding_start' %}"><i class="bi bi-credit-card me-1"></i>Stripe onboarding</a>
+            <a class="btn btn-outline-secondary btn-sm" href="{% url 'dashboard:home' %}"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="d-flex align-items-start gap-2">
+            <div class="rounded-3 bg-body-tertiary p-2"><i class="bi bi-life-preserver" aria-hidden="true"></i></div>
+            <div class="w-100">
+              <h2 class="h6 mb-1">Need support?</h2>
+              <div class="text-secondary small mb-2">If something looks wrong (missing email, payment confusion, fulfillment issue), start here.</div>
+
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <div class="border rounded-3 p-3 h-100">
+                    <div class="fw-semibold small mb-1">Order help</div>
+                    <div class="text-secondary small mb-2">Check order status, fulfillment, and receipts.</div>
+                    <a class="small text-decoration-none" href="{% url 'orders:my_orders' %}">Go to My Orders <i class="bi bi-arrow-right"></i></a>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="border rounded-3 p-3 h-100">
+                    <div class="fw-semibold small mb-1">Refund policy</div>
+                    <div class="text-secondary small mb-2">Understand what’s refundable and how requests work.</div>
+                    <a class="small text-decoration-none" href="{% url 'legal:refund' %}">View Refund Policy <i class="bi bi-arrow-right"></i></a>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="border rounded-3 p-3 h-100">
+                    <div class="fw-semibold small mb-1">Contact</div>
+                    <div class="text-secondary small mb-2">Email support for account or platform issues.</div>
+                    <a class="small text-decoration-none" href="mailto:localmarketnestore@gmail.com">localmarketnestore@gmail.com <i class="bi bi-envelope"></i></a>
+                  </div>
+                </div>
+              </div>
+
+              <div class="text-secondary small mt-3">
+                Tip: If you’re a seller and you don’t see payouts, confirm your Stripe onboarding status and check the Seller Dashboard payout section.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

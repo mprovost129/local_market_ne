@@ -1,0 +1,154 @@
+{# templates/ops/dashboard.html #}
+{% extends "ops/base_ops.html" %}
+{% load humanize %}
+{% load money %}
+
+{% block title %}Ops Dashboard | Local Market NE{% endblock %}
+
+{% block ops_content %}
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h1 class="h3 mb-0">Ops Dashboard</h1>
+    <div class="text-muted small">For operational control + reconciliation</div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-md-4">
+      <div class="card shadow-sm lm-card">
+        <div class="card-body lm-card">
+          <div class="text-muted small">GMV Today</div>
+          <div class="display-6">${{ gmv_today|cents_to_dollars }}</div>
+          <div class="text-muted small">Paid orders today: {{ orders_paid_today }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="card shadow-sm lm-card">
+        <div class="card-body lm-card">
+          <div class="text-muted small">GMV (7d)</div>
+          <div class="display-6">${{ gmv_7d|cents_to_dollars }}</div>
+          <div class="text-muted small">GMV (30d): ${{ gmv_30d|cents_to_dollars }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="card shadow-sm lm-card">
+        <div class="card-body lm-card">
+          <div class="text-muted small">Queues</div>
+          <div class="d-flex justify-content-between"><span>Pending / Awaiting Payment</span><span class="fw-semibold">{{ orders_pending }}</span></div>
+          <div class="d-flex justify-content-between"><span>Open refund requests</span><span class="fw-semibold">{{ open_refund_requests }}</span></div>
+          <div class="d-flex justify-content-between"><span>Open Q&A reports</span><span class="fw-semibold">{{ open_qa_reports }}</span></div>
+          <div class="d-flex justify-content-between"><span>Open errors</span><span class="fw-semibold"><a href="{% url 'ops:error_events' %}">{{ open_errors }}</a></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# Pack AW: Money Loop KPIs #}
+  <div class="row g-3 mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm lm-card">
+        <div class="card-header bg-body d-flex align-items-center justify-content-between lm-card">
+          <div class="fw-semibold">Money Loop (last 7 days)</div>
+          <div class="text-muted small">Operational KPIs from ledger + refund snapshots</div>
+        </div>
+        <div class="card-body lm-card">
+          <div class="row g-3">
+            <div class="col-12 col-md-3">
+              <div class="border rounded p-3 h-100">
+                <div class="text-muted small">GMV (7d)</div>
+                <div class="h4 mb-0">${{ gmv_7d|cents_to_dollars }}</div>
+              </div>
+            </div>
+            <div class="col-12 col-md-3">
+              <div class="border rounded p-3 h-100">
+                <div class="text-muted small">Marketplace fees (7d)</div>
+                <div class="h4 mb-0">${{ fees_7d_cents|cents_to_dollars }}</div>
+              </div>
+            </div>
+            <div class="col-12 col-md-3">
+              <div class="border rounded p-3 h-100">
+                <div class="text-muted small">Seller net (7d)</div>
+                <div class="h4 mb-0">${{ seller_net_7d_cents|cents_to_dollars }}</div>
+              </div>
+            </div>
+            <div class="col-12 col-md-3">
+              <div class="border rounded p-3 h-100">
+                <div class="text-muted small">Refunds (7d)</div>
+                <div class="h4 mb-0">${{ refunds_7d_cents|cents_to_dollars }}</div>
+                <div class="text-muted small">{{ refunds_7d_count }} refunded</div>
+              </div>
+            </div>
+          </div>
+          <div class="text-muted small mt-3">
+            Fees and seller net are computed from <code>OrderItem</code> ledger fields for PAID orders. Refunds use <code>RefundRequest.total_refund_cents_snapshot</code> where status = REFUNDED.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-lg-7">
+      <div class="card shadow-sm lm-card">
+        <div class="card-header bg-body lm-card">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="fw-semibold">Recent Orders</div>
+            <a class="small" href="{% url 'ops:orders_list' %}">View all</a>
+          </div>
+        </div>
+        <div class="card-body p-0 lm-card">
+          <div class="table-responsive">
+            <div class="lm-table">
+<table class="table table-sm mb-0">
+              <thead>
+                <tr>
+                  <th>Created</th>
+                  <th>Order</th>
+                  <th>Status</th>
+                  <th class="text-end">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for o in recent_orders %}
+                  <tr>
+                    <td class="text-muted small">{{ o.created_at|date:"Y-m-d H:i" }}</td>
+                    <td><a href="{% url 'ops:order_detail' o.pk %}">{{ o.pk }}</a></td>
+                    <td><span class="badge text-bg-secondary">{{ o.status }}</span></td>
+                    <td class="text-end">${{ o.total_cents|cents_to_dollars }}</td>
+                  </tr>
+                {% empty %}
+                  <tr><td colspan="4" class="py-0">{% include 'partials/empty_state.html' with title='' message='No orders yet.' action_route='ops:dashboard' action_label='Back to Ops' %}</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-5">
+      <div class="card shadow-sm lm-card">
+        <div class="card-header bg-body lm-card">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="fw-semibold">Recent Ops Activity</div>
+            <a class="small" href="{% url 'ops:audit_log' %}">Audit log</a>
+          </div>
+        </div>
+        <div class="card-body lm-card">
+          {% for a in recent_audit %}
+            <div class="d-flex justify-content-between border-bottom py-2">
+              <div>
+                <div class="fw-semibold">{{ a.verb }}</div>
+                <div class="text-muted small">{{ a.created_at|date:"Y-m-d H:i" }} — {{ a.actor|default:"system" }}</div>
+              </div>
+              <div class="text-muted small">{{ a.action }}</div>
+            </div>
+          {% empty %}
+            <div class="text-muted">No ops actions recorded yet.</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Contact · Local Market NE{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 980px;">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+      <h1 class="h4 mb-1">Contact</h1>
+      <div class="text-secondary small">Questions, issues, or feedback — we’ll get back to you.</div>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <a class="btn btn-outline-secondary btn-sm" href="{% url 'core:help' %}"><i class="bi bi-life-preserver me-1"></i>Help</a>
+      <a class="btn btn-outline-secondary btn-sm" href="{% url 'core:faqs' %}"><i class="bi bi-question-circle me-1"></i>FAQs</a>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-lg-7">
+      <div class="card lm-card">
+        <div class="card-body">
+          {% if support_form_enabled %}
+          <form method="post" class="vstack gap-3" data-disable-once>
+
+            {% csrf_token %}
+
+            <div class="row g-2">
+              <div class="col-12 col-md-6">
+                <label class="form-label">Your name <span class="text-secondary">(optional)</span></label>
+                <input class="form-control" type="text" name="name" maxlength="120" value="{{ request.POST.name|default:'' }}">
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Your email</label>
+                <input class="form-control" type="email" name="email" required maxlength="254" value="{{ request.POST.email|default:'' }}">
+              </div>
+            </div>
+
+            <div>
+              <label class="form-label">Subject <span class="text-secondary">(optional)</span></label>
+              <input class="form-control" type="text" name="subject" maxlength="160" value="{{ request.POST.subject|default:'' }}">
+            </div>
+
+            <div>
+              <label class="form-label">Message</label>
+              <textarea class="form-control" name="message" rows="5" required maxlength="4000">{{ request.POST.message|default:'' }}</textarea>
+              <div class="form-text">Please include any relevant order number, product link, or screenshot details.</div>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+              <button class="btn btn-dark" type="submit"><i class="bi bi-send me-1"></i>Send message</button>
+              <a class="btn btn-outline-secondary" href="{% url 'core:home' %}">Back to home</a>
+            </div>
+          </form>
+          {% else %}
+            <div class="alert alert-secondary mb-0">
+              The contact form is currently disabled. Please check back soon.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-5">
+      <div class="card lm-card">
+        <div class="card-body">
+          <div class="h6 mb-2">Support email</div>
+          {% if support_email %}
+            <div class="mb-2">
+              <a class="text-decoration-none" href="mailto:{{ support_email }}">{{ support_email }}</a>
+            </div>
+            <div class="text-secondary small">If the form doesn’t work, you can email us directly.</div>
+          {% else %}
+            <div class="text-secondary">Support email is not configured yet.</div>
+          {% endif %}
+
+          <hr class="my-3">
+
+          <div class="h6 mb-2">Helpful links</div>
+          <div class="d-flex flex-column gap-2">
+            <a class="text-decoration-none" href="{% url 'legal:terms' %}">Terms &amp; Conditions</a>
+            <a class="text-decoration-none" href="{% url 'legal:privacy' %}">Privacy Policy</a>
+            <a class="text-decoration-none" href="{% url 'legal:fulfillment_policy' %}">Fulfillment Policy</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

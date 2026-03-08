@@ -1,0 +1,41 @@
+{# templates/staff_console/_nav.html #}
+<ul class="nav nav-pills flex-column gap-1">
+  <li class="nav-item">
+    <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+       href="{% url 'staff_console:dashboard' %}">
+      <i class="bi bi-speedometer2 me-1"></i>Dashboard
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if request.resolver_match.url_name in 'orders_list order_detail' %}active{% endif %}"
+       href="{% url 'staff_console:orders_list' %}">
+      <i class="bi bi-receipt me-1"></i>Orders
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if request.resolver_match.url_name == 'refund_requests_queue' %}active{% endif %}"
+       href="{% url 'staff_console:refund_requests_queue' %}">
+      <i class="bi bi-arrow-counterclockwise me-1"></i>Refund Requests
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if request.resolver_match.url_name in 'contact_messages_list contact_message_detail' %}active{% endif %}"
+       href="{% url 'staff_console:contact_messages_list' %}">
+      <i class="bi bi-inbox me-1"></i>Support Inbox
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if request.resolver_match.url_name in 'qa_reports_queue resolve_qa_report' %}active{% endif %}"
+       href="{% url 'staff_console:qa_reports_queue' %}">
+      <i class="bi bi-flag me-1"></i>Q&amp;A Reports
+    </a>
+  </li>
+
+<li class="nav-item">
+  <a class="nav-link {% if request.resolver_match.url_name in 'listings_list listing_edit' %}active{% endif %}"
+     href="{% url 'staff_console:listings_list' %}">
+    <i class="bi bi-tags me-1"></i>Listings
+  </a>
+</li>
+
+</ul>

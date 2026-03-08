@@ -1,0 +1,173 @@
+{# templates/base.html #}
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>{% block title %}Local Market NE{% endblock %}</title>
+  <link rel="icon" href="{% static 'images/favicon.ico' %}">
+
+  {# -------------------- SEO / Canonical -------------------- #}
+  {% block meta_head %}
+    <meta name="description" content="{% block meta_description %}{{ site_config.seo_default_description|default:"Local Market NE is a local marketplace for individuals and small businesses to buy and sell products and services." }}{% endblock %}">
+    <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+  {% endblock %}
+
+  {# -------------------- Social Sharing Defaults -------------------- #}
+  {# IMPORTANT: social scrapers need absolute URLs for images #}
+  {% block social_meta %}
+    {# Open Graph (Facebook, iMessage, Slack, etc.) #}
+    <meta property="og:site_name" content="Local Market NE">
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}Local Market NE – Products &amp; Services{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ site_config.seo_default_description|default:"Local Market NE is a local marketplace for individuals and small businesses to buy and sell products and services." }}{% endblock %}">
+    <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+
+    {# Default OG image (override this per product/page) #}
+    <meta property="og:image" content="{% block og_image %}{% if site_config.seo_default_og_image_url %}{{ site_config.seo_default_og_image_url }}{% else %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/localmarketne_facebook.png' %}{% endif %}{% endblock %}">
+    <meta property="og:image:width" content="{% block og_image_width %}1200{% endblock %}">
+    <meta property="og:image:height" content="{% block og_image_height %}630{% endblock %}">
+    <meta property="og:image:alt" content="{% block og_image_alt %}Local Market NE – Products &amp; Services{% endblock %}">
+
+    {# Twitter / X #}
+    <meta name="twitter:card" content="{% block twitter_card %}summary_large_image{% endblock %}">
+    {% if site_config.seo_twitter_handle %}<meta name="twitter:site" content="@{{ site_config.seo_twitter_handle }}">{% endif %}
+    <meta name="twitter:title" content="{% block twitter_title %}Local Market NE – Products &amp; Services{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}{{ site_config.seo_default_description|default:"Local Market NE is a local marketplace for individuals and small businesses to buy and sell products and services." }}{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}{% if site_config.seo_default_og_image_url %}{{ site_config.seo_default_og_image_url }}{% else %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/localmarketne_facebook.png' %}{% endif %}{% endblock %}">
+  {% endblock %}
+
+  
+
+  <!-- Bootstrap CSS (CDN) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css">
+
+  <!-- Bootstrap Icons (CDN) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- Theme tokens from SiteConfig -->
+  {% include "includes/theme_css_vars.html" %}
+
+  <!-- Theme mapping to Bootstrap -->
+  <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+
+  <!-- Site overrides -->
+  <link rel="stylesheet" href="{% static 'css/site.css' %}">
+
+  <!-- Apply theme early (prevents flash) -->
+  <script defer src="{% static 'js/theme.js' %}"></script>
+
+  {# Analytics (Google Analytics 4) #}
+  {% if ga_measurement_id %}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ ga_measurement_id }}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '{{ ga_measurement_id }}', { 'anonymize_ip': true });
+    </script>
+  {% endif %}
+
+  {# reCAPTCHA v3 (public write actions) #}
+  {% if recaptcha_site_key %}
+    <script src="https://www.google.com/recaptcha/api.js?render={{ recaptcha_site_key }}"></script>
+    <script>
+      window.__RECAPTCHA_SITE_KEY = "{{ recaptcha_site_key }}";
+    </script>
+  {% endif %}
+
+  {# Google AdSense (optional; SiteConfig controlled) #}
+  {% if site_config.adsense_enabled and site_config.adsense_client_id %}
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site_config.adsense_client_id }}" crossorigin="anonymous"></script>
+  {% endif %}
+</head>
+
+<body class="bg-body">
+
+  {% include "includes/environment_banner.html" %}
+  {% include "includes/promo_banner.html" %}
+
+  {% include "includes/site_announcement.html" %}
+
+  {% include "partials/navbar.html" %}
+
+  <div class="bg-body-tertiary border-bottom">
+    <div class="container-fluid py-2">
+      <div class="d-flex flex-wrap align-items-center justify-content-center gap-3 small text-secondary">
+        <span><i class="bi bi-shield-check me-1"></i>Secure payments</span>
+        <span><i class="bi bi-lightning-charge me-1"></i>Fast checkout</span>
+        <span><i class="bi bi-patch-check me-1"></i>Buyer protection</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="offcanvas offcanvas-start d-lg-none lmne-sidebar" tabindex="-1" id="sidebarOffcanvas"
+       aria-labelledby="sidebarOffcanvasLabel">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="sidebarOffcanvasLabel">Menu</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+      {% include "partials/sidebar.html" %}
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <div class="row">
+      <aside class="d-none d-lg-block col-lg-3 col-xl-2 border-end bg-body-tertiary min-vh-100 p-0">
+        {% include "partials/sidebar.html" %}
+      </aside>
+
+      <main class="col-12 col-lg-9 col-xl-10 p-3 p-md-4">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+
+  {% include "partials/footer.html" %}
+
+  <!-- Bootstrap JS bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script src="{% static 'products/seller/category_subcategory.js' %}"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+  <script>
+    (function () {
+      function initTomSelect() {
+        document.querySelectorAll('select.js-tomselect').forEach(function (el) {
+          if (el.tomselect) return;
+
+          new TomSelect(el, {
+            create: false,
+            allowEmptyOption: true,
+            placeholder: el.getAttribute("data-placeholder") || "Search...",
+            maxOptions: 5000,
+            render: {
+              option: function(data, escape) {
+                return '<div>' + escape(data.text) + '</div>';
+              }
+            }
+          });
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', initTomSelect);
+    })();
+  </script>
+
+  {% if recaptcha_site_key %}
+    <script defer src="{% static 'js/recaptcha_v3.js' %}"></script>
+  {% endif %}
+
+  {# UI helpers (loading states, safe double-submit prevention, micro-interactions) #}
+  <script defer src="{% static 'js/ui.js' %}"></script>
+
+  {# Client-side category sidebar filtering #}
+  <script defer src="{% static 'js/category_filter.js' %}"></script>
+
+</body>
+</html>

@@ -1,0 +1,17 @@
+Appointment update
+
+Status: {{ status_label }}
+Service: {{ ar.service.title|default:ar.service.name }}
+Seller: {{ ar.seller.get_full_name|default:ar.seller.username }}
+Buyer: {{ ar.buyer.get_full_name|default:ar.buyer.username }}
+
+{% if ar.scheduled_start %}
+Scheduled: {{ ar.scheduled_start|date:"M j, Y" }} at {{ ar.scheduled_start|time:"g:i A" }}{% if ar.scheduled_end %} – {{ ar.scheduled_end|time:"g:i A" }}{% endif %}
+{% else %}
+Requested: {{ ar.requested_start|date:"M j, Y" }} at {{ ar.requested_start|time:"g:i A" }}{% if ar.requested_end %} – {{ ar.requested_end|time:"g:i A" }}{% endif %}
+{% endif %}
+
+{% if ar.scheduled_notes %}
+Notes:
+{{ ar.scheduled_notes }}
+{% endif %}

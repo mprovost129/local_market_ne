@@ -1,0 +1,119 @@
+{% extends "ops/base_ops.html" %}
+{% load money %}
+
+{% block title %}Ops Consumer {{ consumer.username }} | Local Market NE{% endblock %}
+
+{% block ops_content %}
+  <div class="mb-3">
+    <h1 class="h4 mb-0">Consumer: {{ consumer.username }}</h1>
+    <div class="text-muted small">{{ consumer.email }}</div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-xl-6">
+      <div class="card shadow-sm lm-card">
+        <div class="card-header bg-body fw-semibold lm-card">Recent Orders (as Buyer)</div>
+        <div class="table-responsive">
+          <div class="lm-table">
+<table class="table table-sm mb-0">
+            <thead><tr><th>Created</th><th>Order</th><th>Status</th><th class="text-end">Total</th></tr></thead>
+            <tbody>
+              {% for o in orders %}
+                <tr>
+                  <td class="text-muted small">{{ o.created_at|date:"Y-m-d H:i" }}</td>
+                  <td><a href="{% url 'ops:order_detail' o.pk %}">{{ o.pk }}</a></td>
+                  <td><span class="badge text-bg-secondary">{{ o.status }}</span></td>
+                  <td class="text-end">${{ o.total_cents|cents_to_dollars }}</td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="4" class="py-0">{% include 'partials/empty_state.html' with title='' message='No orders.' action_route='ops:consumers_list' action_label='Back to Consumers' %}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-6">
+      <div class="card shadow-sm lm-card">
+        <div class="card-header bg-body fw-semibold lm-card">Companies Purchased From</div>
+        <div class="table-responsive">
+          <div class="lm-table">
+<table class="table table-sm mb-0">
+            <thead><tr><th>Company</th><th class="text-end">Orders</th><th class="text-end">Items</th><th class="text-end">Spend</th></tr></thead>
+            <tbody>
+              {% for r in seller_rows %}
+                <tr>
+                  <td>
+                    <a href="{% url 'ops:company_detail' r.seller_id %}">
+                      {% if r.seller__profile__shop_name %}{{ r.seller__profile__shop_name }}{% else %}{{ r.seller__username }}{% endif %}
+                    </a>
+                  </td>
+                  <td class="text-end">{{ r.orders_count }}</td>
+                  <td class="text-end">{{ r.items_count }}</td>
+                  <td class="text-end">${{ r.spend_cents|default:0|cents_to_dollars }}</td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="4" class="py-0">{% include 'partials/empty_state.html' with title='' message='No company history yet.' action_route='ops:consumers_list' action_label='Back to Consumers' %}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mt-1">
+    <div class="col-12 col-xl-6">
+      <div class="card shadow-sm lm-card">
+        <div class="card-header bg-body fw-semibold lm-card">Refund Requests</div>
+        <div class="table-responsive">
+          <div class="lm-table">
+<table class="table table-sm mb-0">
+            <thead><tr><th>Date</th><th>Order</th><th>Status</th><th>Company</th></tr></thead>
+            <tbody>
+              {% for rr in refunds %}
+                <tr>
+                  <td class="text-muted small">{{ rr.created_at|date:"Y-m-d H:i" }}</td>
+                  <td><a href="{% url 'ops:order_detail' rr.order_id %}">{{ rr.order_id|slice:":8" }}</a></td>
+                  <td><span class="badge text-bg-secondary">{{ rr.status }}</span></td>
+                  <td>{% if rr.seller.profile.shop_name %}{{ rr.seller.profile.shop_name }}{% else %}{{ rr.seller.username }}{% endif %}</td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="4" class="py-0">{% include 'partials/empty_state.html' with title='' message='No refunds.' action_route='ops:consumers_list' action_label='Back to Consumers' %}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-6">
+      <div class="card shadow-sm lm-card">
+        <div class="card-header bg-body fw-semibold lm-card">Appointments</div>
+        <div class="table-responsive">
+          <div class="lm-table">
+<table class="table table-sm mb-0">
+            <thead><tr><th>Date</th><th>Service</th><th>Status</th><th>Company</th></tr></thead>
+            <tbody>
+              {% for ap in appointments %}
+                <tr>
+                  <td class="text-muted small">{{ ap.created_at|date:"Y-m-d H:i" }}</td>
+                  <td class="small">{{ ap.service.title }}</td>
+                  <td><span class="badge text-bg-secondary">{{ ap.status }}</span></td>
+                  <td>{% if ap.seller.profile.shop_name %}{{ ap.seller.profile.shop_name }}{% else %}{{ ap.seller.username }}{% endif %}</td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="4" class="py-0">{% include 'partials/empty_state.html' with title='' message='No appointments.' action_route='ops:consumers_list' action_label='Back to Consumers' %}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+</div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

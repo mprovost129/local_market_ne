@@ -1,0 +1,424 @@
+{# templates/orders/order_detail.html #}
+{% extends "base.html" %}
+{% load money %}
+
+{% block title %}Order · Local Market NE{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h1 class="h4 mb-0">Order</h1>
+    <span class="badge text-bg-secondary">{{ order.get_status_display }}</span>
+  </div>
+
+  
+  {% if order.status == "pending" %}
+    <div class="card shadow-sm mb-3">
+      <div class="card-body">
+        <div class="fw-semibold mb-2">Choose a payment method</div>
+        <div class="small text-secondary mb-3">Pay securely with Stripe, or use a quick local option like Venmo/PayPal/Zelle.</div>
+
+        {% if not checkout_enabled %}
+          <div class="alert alert-warning small mb-3">
+            <i class="bi bi-exclamation-triangle me-1"></i>
+            {{ checkout_disabled_message|default:"Checkout is temporarily unavailable. Please try again soon." }}
+          </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'orders:checkout_start' order_id=order.id %}">
+          {% csrf_token %}
+          {% if order_token %}<input type="hidden" name="t" value="{{ order_token }}">{% endif %}
+          <input type="hidden" name="recaptcha_token" value="">
+          <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-dark" type="submit" name="payment_method" value="stripe" {% if not checkout_enabled %}disabled{% endif %}>
+              <i class="bi bi-credit-card me-1"></i>Pay with Stripe
+            </button>
+            {% if any_venmo %}
+            <button class="btn btn-outline-dark" type="submit" name="payment_method" value="venmo" {% if not checkout_enabled %}disabled{% endif %}>
+              Pay with Venmo
+            </button>
+            {% endif %}
+            {% if any_paypal %}
+            <button class="btn btn-outline-dark" type="submit" name="payment_method" value="paypal" {% if not checkout_enabled %}disabled{% endif %}>
+              Pay with PayPal
+            </button>
+            {% endif %}
+            {% if any_zelle %}
+            <button class="btn btn-outline-dark" type="submit" name="payment_method" value="zelle" {% if not checkout_enabled %}disabled{% endif %}>
+              Pay with Zelle
+            </button>
+            {% endif %}
+            {% if any_cashapp %}
+            <button class="btn btn-outline-dark" type="submit" name="payment_method" value="cashapp" {% if not checkout_enabled %}disabled{% endif %}>
+              Pay with Cash App
+            </button>
+            {% endif %}
+          </div>
+          {% if not any_venmo and not any_paypal and not any_zelle and not any_cashapp %}
+            <div class="small text-secondary mt-2">No off-platform payment methods are listed by sellers in this order.</div>
+          {% endif %}
+        </form>
+
+        {% if seller_groups %}
+          <hr>
+          <div class="fw-semibold mb-2">Checkout by seller</div>
+          <div class="table-responsive mb-3">
+            <table class="table table-sm align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Seller / Company</th>
+                  <th>Items</th>
+                  <th class="text-end">Subtotal</th>
+                  <th class="text-end">Current Tip</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for g in seller_groups %}
+                  <tr>
+                    <td>
+                      <div class="fw-semibold">{{ g.company_name }}</div>
+                      <div class="small text-secondary">@{{ g.seller.username }}</div>
+                    </td>
+                    <td class="small">
+                      {% for it in g.items %}
+                        <div>{{ it.title_snapshot|default:it.product.title }} x {{ it.quantity }}</div>
+                      {% endfor %}
+                    </td>
+                    <td class="text-end">${{ g.subtotal_cents|cents_to_dollars }}</td>
+                    <td class="text-end">${{ g.tip_dollars }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <form method="post" action="{% url 'orders:update_tips' order_id=order.id %}" class="border rounded p-3 bg-light">
+            {% csrf_token %}
+            {% if order_token %}<input type="hidden" name="t" value="{{ order_token }}">{% endif %}
+            <div class="fw-semibold mb-2">Add or update tip by seller</div>
+            <div class="row g-2">
+              {% for g in seller_groups %}
+                <div class="col-12 col-md-6">
+                  <label class="form-label small mb-1">{{ g.company_name }}</label>
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text">$</span>
+                    <input class="form-control" type="number" min="0" step="0.01" name="tip_seller_{{ g.seller_id }}" value="{{ g.tip_dollars }}">
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+            <button class="btn btn-sm btn-outline-dark mt-3" type="submit">Update tips</button>
+            <div class="small text-secondary mt-2">Tip can be any amount. Setting 0 removes tip for that seller.</div>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  {% elif order.status == "awaiting_payment" %}
+    <div class="card shadow-sm mb-3">
+      <div class="card-body">
+        <div class="fw-semibold mb-2">Awaiting payment ({{ order.payment_method|title }})</div>
+        <div class="small text-secondary mb-3">
+          Complete payment with the seller using the details below. Once the seller confirms payment, your order will move forward.
+        </div>
+
+        <div class="border rounded p-3 bg-light mb-3">
+          <div class="fw-semibold mb-1">Sent payment already?</div>
+          <div class="small text-secondary mb-2">Marking payment as sent helps the seller prioritize confirmation.</div>
+          <form method="post" action="{% url 'orders:buyer_mark_offplatform_sent' order.id %}">
+            {% csrf_token %}
+            {% if order.is_guest %}
+              <input type="hidden" name="t" value="{{ request.GET.t }}">
+            {% endif %}
+            <textarea class="form-control form-control-sm mb-2" name="offplatform_note" rows="2" placeholder="Optional note (e.g., time sent, handle used)">{{ order.offplatform_note }}</textarea>
+            <button class="btn btn-sm btn-outline-dark" type="submit">
+              <i class="bi bi-check2-circle me-1"></i>I sent payment
+            </button>
+            {% if order.offplatform_sent_at %}
+              <span class="small text-secondary ms-2">Last marked: {{ order.offplatform_sent_at }}</span>
+            {% endif %}
+          </form>
+        </div>
+
+        </div>
+
+        {% if order.status == 'pending' %}
+<form method="post" action="{% url 'orders:set_fulfillment' order_id=order.id %}" class="mb-3">
+  {% csrf_token %}
+{% endif %}
+{% for item in order.items.all %}
+          {% with prof=item.seller.profile %}
+          <div class="border rounded p-3 mb-2">
+            <div class="fw-semibold">{{ item.seller.username }}</div>
+            <div class="small text-secondary mb-2">Seller contact is handled via in-app messaging.</div>
+
+            <div class="row g-2">
+              {% if prof.venmo_handle %}
+                <div class="col-12 col-md-4">
+                  <div class="fw-semibold">Venmo</div>
+                  <div class="small text-secondary">@{{ prof.venmo_handle }}</div>
+                </div>
+              {% endif %}
+              {% if prof.paypal_me_url %}
+                <div class="col-12 col-md-4">
+                  <div class="fw-semibold">PayPal</div>
+                  <div class="small text-secondary text-break">{{ prof.paypal_me_url }}</div>
+                </div>
+              {% endif %}
+              {% if prof.zelle_contact %}
+                <div class="col-12 col-md-4">
+                  <div class="fw-semibold">Zelle</div>
+                  <div class="small text-secondary text-break">{{ prof.zelle_contact }}</div>
+                </div>
+              {% endif %}
+              {% if prof.cashapp_handle %}
+                <div class="col-12 col-md-4">
+                  <div class="fw-semibold">Cash App</div>
+                  <div class="small text-secondary">${{ prof.cashapp_handle }}</div>
+                </div>
+              {% endif %}
+            </div>
+            {% if order.status == 'awaiting_payment' %}
+              {% with qr=offline_qr_by_seller|dict_get:item.seller_id %}
+                {% if qr %}
+                  <div class="mt-2">
+                    <div class="small text-secondary">Seller enabled QR code for this checkout method{% with lbl=offline_label_by_seller|dict_get:item.seller_id %}{% if lbl %}: <span class="fw-semibold">{{ lbl }}</span>{% endif %}{% endwith %}.</div>
+                    <img src="{{ qr }}" class="img-fluid mt-2" style="max-width: 220px;" alt="Payment QR">
+                  </div>
+                {% endif %}
+              {% endwith %}
+            {% endif %}
+
+          </div>
+          {% endwith %}
+        {% endfor %}
+{% if order.status == 'pending' %}
+  <div class="mt-3">
+    <button class="btn btn-dark" type="submit">Save fulfillment choices</button>
+  </div>
+</form>
+{% endif %}
+
+      </div>
+    </div>
+  {% endif %}
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="text-muted small">Order ID</div>
+          <div class="fw-semibold">{{ order.id }}</div>
+        </div>
+        <div class="col-md-6">
+          <div class="text-muted small">Total</div>
+          <div class="fw-semibold">${{ order.total_cents|cents_to_dollars }}</div>
+        </div>
+      </div>
+
+      {% if order.is_guest %}
+        <div class="alert alert-info mt-3 mb-0">
+          <div class="small">
+            Guest order. Keep this link safe to access your order later.
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-white d-flex flex-wrap align-items-center justify-content-between gap-2">
+      <div class="fw-semibold">Items</div>
+          </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table mb-0 align-middle">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Seller</th>
+              <th class="text-end">Qty</th>
+              <th class="text-end">Unit</th>
+              <th class="text-end">Line</th>
+              <th class="text-end">Refund</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in order.items.all %}
+              <tr>
+                <td>
+                  <div class="fw-semibold">{{ item.product }}</div>
+                  {% if item.is_service %}
+                    <span class="badge text-bg-info">service</span>
+                  {% else %}
+                    <span class="badge text-bg-warning">product</span>
+                    <div class="small text-secondary mt-1">
+                      Status:
+                      {% if item.fulfillment_status == "delivered" %}
+                        <span class="badge text-bg-success">Delivered</span>
+                      {% elif item.fulfillment_status == "ready" %}
+                        <span class="badge text-bg-warning">Ready</span>
+                        <form class="d-inline" method="post" action="{% url 'orders:mark_item_delivered_buyer' order_id=order.id item_id=item.id %}{% if order_token %}?t={{ order_token }}{% endif %}">
+                          {% csrf_token %}
+                          {% if order_token %}<input type="hidden" name="t" value="{{ order_token }}">{% endif %}
+                          <button class="btn btn-sm btn-outline-dark ms-2" type="submit">
+                            {% if item.fulfillment_method == "pickup" %}Confirm pickup{% else %}Confirm delivered{% endif %}
+                          </button>
+                        </form>
+                      {% elif item.fulfillment_status == "shipped" %}
+                        <span class="badge text-bg-success">Shipped</span>
+                        {% if item.tracking_number %}
+                          <div class="small text-secondary mt-1">Tracking: {% if item.tracking_carrier %}{{ item.tracking_carrier }} · {% endif %}<span class="text-break">{{ item.tracking_number }}</span></div>
+                        {% endif %}
+                        <form class="d-inline" method="post" action="{% url 'orders:mark_item_delivered_buyer' order_id=order.id item_id=item.id %}{% if order_token %}?t={{ order_token }}{% endif %}">
+                          {% csrf_token %}
+                          {% if order_token %}<input type="hidden" name="t" value="{{ order_token }}">{% endif %}
+                          <button class="btn btn-sm btn-outline-dark ms-2" type="submit">
+                            Confirm delivery
+                          </button>
+                        </form>
+                      {% else %}
+                        <span class="badge text-bg-secondary">Processing</span>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                  <div class="mt-2">
+                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'products:seller_shop' item.seller.id %}">
+                      Contact seller
+                    </a>
+                  </div>
+                </td>
+                <td class="small">
+                  {% if item.seller.profile.shop_name %}
+                    <div class="fw-semibold">{{ item.seller.profile.shop_name }}</div>
+                  {% endif %}
+                  <div>@{{ item.seller.username }}</div>
+                </td>
+
+                <td class="text-end">{{ item.quantity }}</td>
+                <td class="text-end">${{ item.unit_price_cents|cents_to_dollars }}</td>
+                <td class="text-end">${{ item.line_total_cents|cents_to_dollars }}</td>
+
+                <td class="text-end">
+                  {# Refunds: product-only line items on PAID orders. One request per item (OneToOne). #}
+                  {% if order.status == order.Status.PAID and not item.is_service and item.requires_shipping %}
+                    {% if item.refund_request %}
+                      <a
+                        class="btn btn-sm btn-outline-secondary"
+                        href="{% url 'refunds:buyer_detail' refund_id=item.refund_request.pk %}{% if order_token %}?t={{ order_token }}{% endif %}"
+                        title="View refund request"
+                      >
+                        View request
+                      </a>
+                    {% else %}
+                      <a
+                        class="btn btn-sm btn-outline-danger"
+                        href="{% url 'refunds:buyer_create' order_id=order.id item_id=item.id %}{% if order_token %}?t={{ order_token }}{% endif %}"
+                      >
+                        Request refund
+                      </a>
+                    {% endif %}
+                  {% else %}
+                    <span class="text-muted small">N/A</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="6" class="text-center text-muted py-4">No items.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  {% if order.requires_shipping and shipping_timeline %}
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-white">
+        <div class="fw-semibold">Order status</div>
+      </div>
+      <div class="card-body">
+        <div class="d-flex flex-wrap gap-2">
+          <span class="badge {% if shipping_timeline.paid %}text-bg-success{% else %}text-bg-secondary{% endif %}">
+            <i class="bi bi-credit-card me-1"></i>Paid
+          </span>
+          <span class="badge {% if shipping_timeline.shipped %}text-bg-success{% else %}text-bg-secondary{% endif %}">
+            <i class="bi bi-truck me-1"></i>Shipped
+          </span>
+          <span class="badge {% if shipping_timeline.delivered %}text-bg-success{% else %}text-bg-secondary{% endif %}">
+            <i class="bi bi-house-check me-1"></i>Delivered
+          </span>
+        </div>
+        <div class="text-secondary small mt-2">Status updates apply to product items in this order.</div>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if local_timeline %}
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-white">
+        <div class="fw-semibold">Pickup / delivery status</div>
+      </div>
+      <div class="card-body">
+        <div class="d-flex flex-wrap gap-2">
+          <span class="badge {% if local_timeline.paid %}text-bg-success{% else %}text-bg-secondary{% endif %}">
+            <i class="bi bi-credit-card me-1"></i>Paid
+          </span>
+          <span class="badge {% if local_timeline.ready %}text-bg-success{% else %}text-bg-secondary{% endif %}">
+            <i class="bi bi-bag-check me-1"></i>Ready
+          </span>
+          <span class="badge {% if local_timeline.delivered %}text-bg-success{% else %}text-bg-secondary{% endif %}">
+            <i class="bi bi-house-check me-1"></i>Completed
+          </span>
+        </div>
+        <div class="text-secondary small mt-2">Status updates apply to pickup/delivery product items in this order.</div>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if order.requires_shipping %}
+    <div class="card shadow-sm">
+      <div class="card-header bg-white">
+        <div class="fw-semibold">Shipping</div>
+      </div>
+      <div class="card-body">
+        <div class="small text-muted">Ship to</div>
+        <div class="fw-semibold">{{ order.shipping_name }}</div>
+        <div>{{ order.shipping_line1 }}{% if order.shipping_line2 %}, {{ order.shipping_line2 }}{% endif %}</div>
+        <div>{{ order.shipping_city }}, {{ order.shipping_state }} {{ order.shipping_postal_code }}</div>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if order.status == order.Status.PAID and request.user.is_authenticated %}
+    <div class="card shadow-sm mt-4">
+      <div class="card-header bg-white">
+        <div class="fw-semibold">Rate Sellers</div>
+      </div>
+      <div class="card-body">
+        <div class="text-muted small mb-3">Share your feedback about the sellers you purchased from.</div>
+        {% regroup order.items.all by seller as sellers_list %}
+        {% for seller_group in sellers_list %}
+          <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+            <div>
+              <div class="fw-semibold">{{ seller_group.grouper.username }}</div>
+              <div class="small text-muted">{{ seller_group.list|length }} item{{ seller_group.list|pluralize }}</div>
+            </div>
+            <a
+              class="btn btn-sm btn-outline-primary"
+              href="{% url 'reviews:seller_review_new' order.id seller_group.grouper.id %}"
+            >
+              {% if order.seller_reviews|length > 0 %}
+                View rating
+              {% else %}
+                Rate seller
+              {% endif %}
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{# legal/templates/legal/index.html #}
+{% extends "base.html" %}
+{% block title %}Policies · Local Market NE{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 960px;">
+  <div class="d-flex align-items-center gap-2 mb-2">
+    <i class="bi bi-shield-check fs-3 text-secondary"></i>
+    <div>
+      <h1 class="h4 mb-0">Policies</h1>
+      <div class="text-secondary small">Terms, privacy, refunds, and marketplace policies for Local Market NE.</div>
+    </div>
+  </div>
+
+  <div class="alert alert-light border d-flex align-items-start gap-2 mt-3" role="alert">
+    <i class="bi bi-info-circle mt-1 text-secondary"></i>
+    <div class="small text-secondary">
+      Local Market NE supports product goods and services. Sellers may offer pickup, local delivery, and optional shipping.
+      Refunds are seller-defined, with a storewide 30-day baseline for product goods unless stated otherwise. Marketplace fees are non‑refundable.
+    </div>
+  </div>
+
+  <div class="row g-3 mt-1">
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-body">
+          <div class="fw-semibold mb-1">Core</div>
+          <ul class="mb-0">
+            <li><a href="{% url 'legal:terms' %}">Terms of Service</a></li>
+            <li><a href="{% url 'legal:privacy' %}">Privacy Policy</a></li>
+            <li><a href="{% url 'legal:content' %}">Content &amp; Safety Policy</a></li>
+            <li><a href="{% url 'legal:refund' %}">Refund Policy</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-body">
+          <div class="fw-semibold mb-1">Marketplace</div>
+          <ul class="mb-0">
+            <li><a href="{% url 'legal:fulfillment_policy' %}">Fulfillment Policy</a></li>
+            <li><a href="{% url 'legal:services_policy' %}">Services &amp; Appointments Policy</a></li>
+            <li><a href="{% url 'legal:seller_agreement' %}">Seller Agreement</a></li>
+            <li><a href="{% url 'legal:seller_fees' %}">Seller Fees</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{# templates/staff_console/base_staff.html #}
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row g-4">
+    <div class="col-12 col-lg-2">
+      <div class="card shadow-sm lm-card">
+        <div class="card-body lm-card">
+          <div class="fw-semibold mb-2">
+            <i class="bi bi-shield-lock me-1"></i>Admin Console
+          </div>
+          <div class="text-muted small mb-3">
+            Day-to-day site operations
+          </div>
+          {% include "staff_console/_nav.html" %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-10">
+      {% block staff_content %}{% endblock %}
+    </div>
+  </div>
+</div>
+{% endblock %}

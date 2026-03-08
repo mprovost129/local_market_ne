@@ -1,0 +1,22 @@
+{# templates/ops/base_ops.html #}
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row g-4">
+    <div class="col-12 col-lg-2">
+      <div class="card shadow-sm lm-card">
+        <div class="card-body lm-card">
+          <div class="fw-semibold mb-2">Ops Console</div>
+          {% include "ops/_nav.html" %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-10">
+      {% block ops_content %}{% endblock %}
+    </div>
+  </div>
+</div>
+{% endblock %}

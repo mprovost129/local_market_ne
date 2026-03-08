@@ -1,0 +1,104 @@
+{# products/templates/products/services_list.html #}
+{% extends "base.html" %}
+{% block title %}Services · Local Market NE{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 1200px;">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div>
+      <h1 class="h4 mb-1">Services</h1>
+      <div class="text-secondary small">Browse local services offered by sellers.</div>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-dark" href="{% url 'products:list' %}"><i class="bi bi-bag me-1"></i>Products</a>
+      <a class="btn btn-outline-dark" href="{% url 'products:top_sellers' %}"><i class="bi bi-shop me-1"></i>Top sellers</a>
+    </div>
+  </div>
+
+  <div class="lm-sticky-bar mb-3">
+    <form class="d-flex flex-wrap gap-2" method="get">
+      <input class="form-control" name="q" value="{{ q }}" placeholder="Search services..." style="min-width: 240px;">
+
+      <select class="form-select" name="state" style="min-width: 140px;">
+        <option value="">All states</option>
+        {% for code,label in state_choices %}
+          <option value="{{ code }}" {% if state == code %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+
+      <select class="form-select" name="radius" style="min-width: 170px;">
+        <option value="">Any service radius</option>
+        {% for miles in radius_choices %}
+          <option value="{{ miles }}" {% if radius|stringformat:"s" == miles|stringformat:"s" %}selected{% endif %}>Seller travels {{ miles }} mi+</option>
+        {% endfor %}
+      </select>
+
+      {% if category %}
+        <input type="hidden" name="category" value="{{ category }}">
+      {% endif %}
+
+      <button class="btn btn-dark" type="submit"><i class="bi bi-search me-1"></i>Search</button>
+      {% if q or category or state or radius %}
+        <a class="btn btn-outline-secondary" href="{% url 'products:services' %}">Clear</a>
+      {% endif %}
+    </form>
+
+    {% if q or category or state or radius %}
+      <div class="d-flex flex-wrap gap-2 mt-2">
+        {% if q %}
+          <span class="badge text-bg-light border">Search: {{ q }}</span>
+        {% endif %}
+        {% if category and selected_category_name %}
+          <span class="badge text-bg-light border">Category: {{ selected_category_name }}</span>
+        {% endif %}
+        {% if state %}
+          <span class="badge text-bg-light border">State: {{ state }}</span>
+        {% endif %}
+        {% if radius %}
+          <span class="badge text-bg-light border">Radius: {{ radius }}+ mi</span>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12">
+      <div class="row g-3">
+        {% for p in products %}
+          <div class="col-12 col-sm-6 col-xl-4">
+            {% include "products/_product_card.html" with p=p %}
+          </div>
+        {% empty %}
+          <div class="col-12">
+            <div class="alert alert-secondary mb-0">No services found.</div>
+          </div>
+        {% endfor %}
+      </div>
+
+      {% if page_obj and paginator and paginator.num_pages > 1 %}
+        <nav class="mt-4" aria-label="Pagination">
+          <ul class="pagination justify-content-center flex-wrap">
+            <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+              <a class="page-link" href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}{% if state %}state={{ state|urlencode }}&{% endif %}{% if radius %}radius={{ radius|urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+            </li>
+
+            {% for n in paginator.page_range %}
+              {% if n == page_obj.number %}
+                <li class="page-item active"><span class="page-link">{{ n }}</span></li>
+              {% elif n <= 2 or n > paginator.num_pages|add:"-2" or n|add:"-2" <= page_obj.number and n|add:"2" >= page_obj.number %}
+                <li class="page-item"><a class="page-link" href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}{% if state %}state={{ state|urlencode }}&{% endif %}{% if radius %}radius={{ radius|urlencode }}&{% endif %}page={{ n }}">{{ n }}</a></li>
+              {% elif n == 3 or n == paginator.num_pages|add:"-2" %}
+                <li class="page-item disabled"><span class="page-link">…</span></li>
+              {% endif %}
+            {% endfor %}
+
+            <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+              <a class="page-link" href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}{% if state %}state={{ state|urlencode }}&{% endif %}{% if radius %}radius={{ radius|urlencode }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+            </li>
+          </ul>
+        </nav>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

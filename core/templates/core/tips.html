@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}Tips · Local Market NE{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 980px;">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+      <h1 class="h4 mb-1">Tips</h1>
+      <div class="text-secondary small">Practical advice for better listings, smoother fulfillment, and happier customers.</div>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <a class="btn btn-outline-dark btn-sm" href="{% url 'products:list' %}"><i class="bi bi-bag me-1"></i>Shop</a>
+      <a class="btn btn-outline-dark btn-sm" href="{% url 'products:services' %}"><i class="bi bi-wrench-adjustable-circle me-1"></i>Services</a>
+      <a class="btn btn-dark btn-sm" href="{% url 'core:faqs' %}"><i class="bi bi-question-circle me-1"></i>FAQs</a>
+    </div>
+  </div>
+
+  <div class="row g-3">
+
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-start gap-2">
+            <div class="rounded-3 bg-body-tertiary p-2"><i class="bi bi-camera" aria-hidden="true"></i></div>
+            <div>
+              <div class="fw-semibold">Photos sell</div>
+              <div class="text-secondary small">Bright, clean photos beat perfect wording every time.</div>
+            </div>
+          </div>
+          <ul class="small mt-2 mb-0">
+            <li>Use natural light (window light) and a plain background.</li>
+            <li>Show scale (a hand, ruler, or common object).</li>
+            <li>Add at least one close-up of details/condition.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-start gap-2">
+            <div class="rounded-3 bg-body-tertiary p-2"><i class="bi bi-card-text" aria-hidden="true"></i></div>
+            <div>
+              <div class="fw-semibold">Descriptions that reduce returns</div>
+              <div class="text-secondary small">Be specific, especially about condition and what’s included.</div>
+            </div>
+          </div>
+          <ul class="small mt-2 mb-0">
+            <li>Call out any flaws clearly (scratches, wear, missing parts).</li>
+            <li>List dimensions, materials, and compatibility where relevant.</li>
+            <li>Set accurate lead times for made-to-order items.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-start gap-2">
+            <div class="rounded-3 bg-body-tertiary p-2"><i class="bi bi-truck" aria-hidden="true"></i></div>
+            <div>
+              <div class="fw-semibold">Fulfillment clarity</div>
+              <div class="text-secondary small">Buyers love knowing exactly what happens next.</div>
+            </div>
+          </div>
+          <ul class="small mt-2 mb-0">
+            <li>For pickup: share a general area and pickup windows (exact address only when ready).</li>
+            <li>For delivery: state your delivery radius and any fees.</li>
+            <li>For services: define what’s included and what counts as an add-on.</li>
+          </ul>
+          <div class="mt-2 small">
+            <a class="text-decoration-none" href="{% url 'legal:fulfillment_policy' %}">Fulfillment Policy <i class="bi bi-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-start gap-2">
+            <div class="rounded-3 bg-body-tertiary p-2"><i class="bi bi-chat-dots" aria-hidden="true"></i></div>
+            <div>
+              <div class="fw-semibold">Answer questions fast</div>
+              <div class="text-secondary small">Fast replies boost trust and conversions.</div>
+            </div>
+          </div>
+          <ul class="small mt-2 mb-0">
+            <li>Use Q&amp;A to clarify details publicly for future buyers.</li>
+            <li>Be polite and specific; avoid “DM me” for everything.</li>
+            <li>If something is unavailable, update your listing quickly.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <div>
+            <div class="fw-semibold">Want more guidance?</div>
+            <div class="text-secondary small">These pages are static for v1 and will evolve into a richer knowledge base later.</div>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-outline-secondary btn-sm" href="{% url 'core:help' %}">Help</a>
+            <a class="btn btn-outline-secondary btn-sm" href="{% url 'core:faqs' %}">FAQs</a>
+            <a class="btn btn-outline-secondary btn-sm" href="{% url 'legal:index' %}">Policies</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends "ops/base_ops.html" %}
+
+{% block ops_title %}Ops Runbook{% endblock %}
+
+{% block ops_content %}
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <div>
+    <h1 class="h3 mb-1">Ops Runbook</h1>
+    <div class="text-muted">Backup, recovery, and incident response playbook for LocalMarketNE.</div>
+  </div>
+  <div class="text-end">
+    <a class="btn btn-sm btn-outline-secondary" href="{% url 'ops:ops_health' %}"><i class="bi bi-heart-pulse me-1"></i>Ops Health</a>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="card shadow-sm lm-card">
+      <div class="card-body lm-card">
+        <h2 class="h5">1) Backups</h2>
+        <ul class="mb-2">
+          <li><strong>Database</strong>: enable managed backups (daily) and confirm retention. Take a manual snapshot before major deploys.</li>
+          <li><strong>Media/uploads</strong>: {% if use_s3 %}S3 is enabled. Recommend bucket versioning + lifecycle rules.{% else %}Local media is enabled. Ensure the host volume is backed up or migrate to S3 before launch.{% endif %}</li>
+          <li><strong>Config</strong>: store environment variables securely (Render env / secrets manager). Never commit secrets.</li>
+        </ul>
+        <div class="small text-muted">Tip: run <code>python manage.py ops_backup_report</code> for a config/status snapshot.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card shadow-sm lm-card">
+      <div class="card-body lm-card">
+        <h2 class="h5">2) Restore Procedure (High-level)</h2>
+        <ol class="mb-2">
+          <li>Put site in maintenance mode (Ops) or temporarily disable checkout.</li>
+          <li>Restore database snapshot from provider (Render/PG host) into a clean instance.</li>
+          <li>Restore media (if applicable) to the expected bucket/path.</li>
+          <li>Run migrations: <code>python manage.py migrate</code></li>
+          <li>Run smoke checks: <code>/healthz/</code>, <code>/ops/health/</code>, and a small test checkout in Stripe test mode.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card shadow-sm lm-card">
+      <div class="card-body lm-card">
+        <h2 class="h5">3) Webhook & Payment Incidents</h2>
+        <ul class="mb-2">
+          <li>If Stripe shows payment succeeded but the order is not marked paid: check webhook logs and re-send the event (Stripe dashboard).</li>
+          <li>Ops should never “edit totals” directly. Prefer idempotent service functions that log <strong>AuditLog</strong> entries.</li>
+          <li>Verify Stripe keys present: <strong>{{ stripe_configured|yesno:"Yes,No" }}</strong>.</li>
+        </ul>
+        <div class="small text-muted">Pre-deploy gate: <code>python manage.py rc_check --checks --db</code> and <code>python manage.py money_loop_check</code>.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card shadow-sm lm-card">
+      <div class="card-body lm-card">
+        <h2 class="h5">4) Email Incidents</h2>
+        <ul class="mb-2">
+          <li>Backend: <code>{{ email_backend|default:"(not set)" }}</code></li>
+          <li>From: <code>{{ default_from_email|default:"(not set)" }}</code></li>
+          <li>If verification resend breaks, verify the POST alias route exists: <code>/accounts/verify-email/resend/</code>.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12">
+    <div class="card shadow-sm lm-card">
+      <div class="card-body lm-card">
+        <h2 class="h5">5) Weekly Ops Checklist</h2>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <h3 class="h6">Financial</h3>
+            <ul>
+              <li>Export Audit Log CSV and store securely.</li>
+              <li>Reconcile 10 recent paid orders against Stripe dashboard.</li>
+              <li>Review refund requests and resolution times.</li>
+            </ul>
+          </div>
+          <div class="col-md-4">
+            <h3 class="h6">Moderation</h3>
+            <ul>
+              <li>Clear Q&amp;A reports queue.</li>
+              <li>Review prohibited category attempts.</li>
+              <li>Confirm age-gate settings are enforced.</li>
+            </ul>
+          </div>
+          <div class="col-md-4">
+            <h3 class="h6">Reliability</h3>
+            <ul>
+              <li>Confirm DB backups ran successfully.</li>
+              <li>Spot-check emails (verification + order receipt).</li>
+              <li>Verify <code>/ops/health/</code> is green.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

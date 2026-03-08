@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Confirm appointment{% endblock %}
+{% block content %}
+<div class="container" style="max-width: 900px;">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h4 mb-1">Confirm appointment time</h1>
+      <div class="text-secondary small">The seller proposed a new time. Confirm to lock it in.</div>
+    </div>
+    <a class="btn btn-sm btn-outline-secondary" href="{% url 'appointments:buyer_requests' %}">Back</a>
+  </div>
+
+  <div class="card shadow-sm lm-card">
+    <div class="card-body lm-card">
+      <div class="mb-2">
+        <div class="text-secondary small">Service</div>
+        <div class="fw-semibold">{{ ar.service.title }}</div>
+      </div>
+
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <div class="text-secondary small">Proposed start</div>
+          <div class="fw-semibold">{{ ar.scheduled_start|date:"M j, Y g:i A" }}</div>
+        </div>
+        <div class="col-md-6">
+          <div class="text-secondary small">Proposed end</div>
+          <div class="fw-semibold">{{ ar.scheduled_end|date:"M j, Y g:i A" }}</div>
+        </div>
+      </div>
+
+      {% if ar.scheduled_notes %}
+        <div class="mb-3">
+          <div class="text-secondary small">Notes</div>
+          <div class="border rounded p-2 bg-body-tertiary small">{{ ar.scheduled_notes|linebreaksbr }}</div>
+        </div>
+      {% endif %}
+
+      <div class="d-flex gap-2">
+        <form method="post" action="{% url 'appointments:buyer_confirm' ar.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary">Confirm</button>
+        </form>
+
+        <form method="post" action="{% url 'appointments:buyer_cancel' ar.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline-danger">Cancel request</button>
+        </form>
+      </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

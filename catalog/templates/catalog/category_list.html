@@ -1,0 +1,60 @@
+{# catalog/templates/catalog/category_list.html #}
+{% extends "base.html" %}
+{% block title %}Categories · Local Market NE{% endblock %}
+{% block meta_title %}Browse Categories · Local Market NE{% endblock %}
+{% block meta_description %}Browse product and service categories on Local Market NE.{% endblock %}
+
+{% block content %}
+  <div style="max-width:1200px; margin:0 auto;">
+    <h1 style="margin-top:0;">Browse Categories</h1>
+    <p style="color:#6b7280; margin-top:6px;">
+      Select a category from the sidebar, or browse the top-level groups below.
+    </p>
+
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px;">
+      <div style="background:#fff; border:1px solid #e5e7eb; border-radius:16px; padding:16px;">
+        <h2 style="margin-top:0;"> Products</h2>
+        <ul>
+          {% for c in product_roots %}
+            <li>
+              <a href="{{ c.get_absolute_url }}">{{ c.name }}</a>
+              {% if c.children.all %}
+                <ul>
+                  {% for child in c.children.all %}
+                    {% if child.is_active %}
+                      <li><a href="{{ child.get_absolute_url }}">{{ child.name }}</a></li>
+                    {% endif %}
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </li>
+          {% empty %}
+            <li style="list-style:none; padding:0; margin:0; color:#6b7280;">{% include 'partials/empty_state.html' with title='' message='No product categories yet.' action_route='core:contact' action_label='Contact support' %}</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div style="background:#fff; border:1px solid #e5e7eb; border-radius:16px; padding:16px;">
+        <h2 style="margin-top:0;"> Services</h2>
+        <ul>
+          {% for c in service_roots %}
+            <li>
+              <a href="{{ c.get_absolute_url }}">{{ c.name }}</a>
+              {% if c.children.all %}
+                <ul>
+                  {% for child in c.children.all %}
+                    {% if child.is_active %}
+                      <li><a href="{{ child.get_absolute_url }}">{{ child.name }}</a></li>
+                    {% endif %}
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </li>
+          {% empty %}
+            <li style="list-style:none; padding:0; margin:0; color:#6b7280;">{% include 'partials/empty_state.html' with title='' message='No service categories yet.' action_route='core:contact' action_label='Contact support' %}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+{% endblock %}

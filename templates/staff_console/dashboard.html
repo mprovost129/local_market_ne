@@ -1,0 +1,221 @@
+{# templates/staff_console/dashboard.html #}
+{% extends "staff_console/base_staff.html" %}
+{% load humanize %}
+
+{% block staff_content %}
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h3 class="m-0">Admin Dashboard</h3>
+    <div class="text-muted small">For support + daily site work</div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-md-3">
+      <div class="card shadow-sm lm-card">
+        <div class="card-body lm-card">
+          <div class="text-muted small">Orders (Total)</div>
+          <div class="fs-3 fw-semibold">{{ orders_total|intcomma }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-3">
+      <div class="card shadow-sm lm-card">
+        <div class="card-body lm-card">
+          <div class="text-muted small">Orders (Paid)</div>
+          <div class="fs-3 fw-semibold">{{ orders_paid|intcomma }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-3">
+      <div class="card shadow-sm lm-card">
+        <div class="card-body lm-card">
+          <div class="text-muted small">Orders (Pending)</div>
+          <div class="fs-3 fw-semibold">{{ orders_pending|intcomma }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-3">
+      <div class="card shadow-sm lm-card">
+        <div class="card-body lm-card">
+          <div class="text-muted small">Open Refund Requests</div>
+          <div class="fs-3 fw-semibold">{{ refunds_open|intcomma }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-md-6">
+      <div class="card shadow-sm lm-card">
+        <div class="card-body lm-card">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <div class="text-muted small">Open Support Messages</div>
+              <div class="fs-3 fw-semibold">{{ support_open|intcomma }}</div>
+            </div>
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'staff_console:contact_messages_list' %}">Inbox</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6">
+      <div class="card shadow-sm lm-card">
+        <div class="card-body lm-card">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <div class="text-muted small">Open Q&amp;A Reports</div>
+              <div class="fs-3 fw-semibold">{{ qa_reports_open|intcomma }}</div>
+            </div>
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'staff_console:qa_reports_queue' %}">Queue</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-lg-6">
+      <div class="card shadow-sm lm-card">
+        <div class="card-header bg-body-tertiary lm-card">
+          <div class="fw-semibold">Recent Orders</div>
+        </div>
+        <div class="card-body p-0 lm-card">
+          <div class="table-responsive">
+            <div class="lm-table">
+<table class="table table-sm mb-0">
+              <thead>
+                <tr>
+                  <th>ID</th><th>Status</th><th>Total</th><th>Created</th><th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for o in recent_orders %}
+                  <tr>
+                    <td>#{{ o.id }}</td>
+                    <td>{{ o.get_status_display }}</td>
+                    <td>${{ o.total_cents|floatformat:0|intcomma }}</td>
+                    <td class="text-muted small">{{ o.created_at }}</td>
+                    <td class="text-end">
+                      <a class="btn btn-sm btn-outline-primary" href="{% url 'staff_console:order_detail' o.id %}">View</a>
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr><td colspan="5" class="text-muted p-3">No orders.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+      <div class="card shadow-sm mb-3 lm-card">
+        <div class="card-header bg-body-tertiary lm-card">
+          <div class="fw-semibold">Recent Refund Requests</div>
+        </div>
+        <div class="card-body p-0 lm-card">
+          <div class="table-responsive">
+            <div class="lm-table">
+<table class="table table-sm mb-0">
+              <thead>
+                <tr>
+                  <th>ID</th><th>Status</th><th>Created</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in recent_refunds %}
+                  <tr>
+                    <td>#{{ r.id }}</td>
+                    <td>{{ r.get_status_display }}</td>
+                    <td class="text-muted small">{{ r.created_at }}</td>
+                  </tr>
+                {% empty %}
+                  <tr><td colspan="3" class="text-muted p-3">No refund requests.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm lm-card">
+        <div class="card-header bg-body-tertiary lm-card">
+          <div class="fw-semibold">Recent Q&amp;A Reports</div>
+        </div>
+        <div class="card-body p-0 lm-card">
+          <div class="table-responsive">
+            <div class="lm-table">
+<table class="table table-sm mb-0">
+              <thead>
+                <tr>
+                  <th>ID</th><th>Status</th><th>Created</th><th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for rep in recent_reports %}
+                  <tr>
+                    <td>#{{ rep.id }}</td>
+                    <td>{{ rep.get_status_display }}</td>
+                    <td class="text-muted small">{{ rep.created_at }}</td>
+                    <td class="text-end">
+                      <a class="btn btn-sm btn-outline-secondary" href="{% url 'staff_console:qa_reports_queue' %}">Queue</a>
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr><td colspan="4" class="text-muted p-3">No reports.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mt-3 lm-card">
+        <div class="card-header bg-body-tertiary lm-card">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="fw-semibold">Recent Support Messages</div>
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'staff_console:contact_messages_list' %}">Inbox</a>
+          </div>
+        </div>
+        <div class="card-body p-0 lm-card">
+          <div class="table-responsive">
+            <div class="lm-table">
+<table class="table table-sm mb-0">
+              <thead>
+                <tr>
+                  <th>Email</th><th>Subject</th><th>Status</th><th>Created</th><th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for m in recent_support %}
+                  <tr>
+                    <td class="text-truncate" style="max-width: 220px;">{{ m.email }}</td>
+                    <td class="text-truncate" style="max-width: 260px;">{{ m.subject|default:"(no subject)" }}</td>
+                    <td>
+                      {% if m.is_resolved %}
+                        <span class="badge text-bg-success">Resolved</span>
+                      {% else %}
+                        <span class="badge text-bg-warning">Open</span>
+                      {% endif %}
+                    </td>
+                    <td class="text-muted small">{{ m.created_at }}</td>
+                    <td class="text-end">
+                      <a class="btn btn-sm btn-outline-primary" href="{% url 'staff_console:contact_message_detail' m.id %}">View</a>
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr><td colspan="5" class="text-muted p-3">No contact messages.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+{% endblock %}

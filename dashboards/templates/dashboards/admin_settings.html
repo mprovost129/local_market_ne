@@ -1,0 +1,601 @@
+{# templates/dashboards/admin_settings.html #}
+{% extends "base.html" %}
+{% block title %}Admin Settings · Local Market NE{% endblock %}
+
+
+{% block extra_css %}
+<style>
+  .settings-section { border: 1px solid rgba(0,0,0,.08); border-radius: .75rem; background: #fff; }
+  .settings-section .section-header { padding: .75rem 1rem; border-bottom: 1px solid rgba(0,0,0,.06); background: rgba(0,0,0,.02); border-top-left-radius: .75rem; border-top-right-radius: .75rem; }
+  .settings-section .section-body { padding: 1rem; }
+  .settings-section .form-control, .settings-section .form-select { background: #fff; }
+</style>
+{% endblock %}
+
+{% block content %}
+<style>
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="password"],
+  input[type="url"],
+  input[type="date"],
+  input[type="time"],
+  select,
+  textarea {
+    background-color: #ffffff !important;
+    color: #333333 !important;
+  }
+</style>
+
+<div class="container-fluid">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div>
+      <h1 class="h4 mb-1">Admin Settings</h1>
+      <div class="text-secondary small">
+        Manage store-wide settings without the Django admin.
+        {% if site_config_updated_at %}
+          <span class="ms-2">Last saved: {{ site_config_updated_at|date:"M j, Y g:i A" }}</span>
+        {% endif %}
+      </div>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <a class="btn btn-outline-secondary" href="{% url 'dashboards:admin' %}">
+        <i class="bi bi-arrow-left me-1"></i>Back to Admin
+      </a>
+      <a class="btn btn-outline-secondary" href="{% url 'admin:index' %}">
+        <i class="bi bi-gear me-1"></i>Django Admin
+      </a>
+    </div>
+  </div>
+
+  {# ✅ SHOW DJANGO MESSAGES (this was missing) #}
+  {% if messages %}
+    <div class="mb-3">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} mb-2" role="alert">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="card">
+    <div class="card-body">
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="row g-3">
+          <div class="col-12 col-lg-4">
+            <label class="form-label">Marketplace sales percent</label>
+            {{ form.marketplace_sales_percent }}
+            {% if form.marketplace_sales_percent.errors %}
+              <div class="text-danger small mt-1">{{ form.marketplace_sales_percent.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-12 col-lg-4">
+            <label class="form-label">Platform fee (cents)</label>
+            {{ form.platform_fee_cents }}
+            {% if form.platform_fee_cents.errors %}
+              <div class="text-danger small mt-1">{{ form.platform_fee_cents.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-12 col-lg-4">
+            <label class="form-label">Default currency</label>
+            {{ form.default_currency }}
+            {% if form.default_currency.errors %}
+              <div class="text-danger small mt-1">{{ form.default_currency.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Allowed shipping countries</label>
+            {{ form.allowed_shipping_countries_csv }}
+            <div class="form-text">{{ form.allowed_shipping_countries_csv.help_text }}</div>
+            {% if form.allowed_shipping_countries_csv.errors %}
+              <div class="text-danger small mt-1">{{ form.allowed_shipping_countries_csv.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-12 col-lg-4">
+            <label class="form-label">Free service listing cap</label>
+            {{ form.free_digital_listing_cap }}
+            <div class="form-text">
+              Sellers may publish up to this many active free service listings without Stripe onboarding.
+            </div>
+            {% if form.free_digital_listing_cap.errors %}
+              <div class="text-danger small mt-1">{{ form.free_digital_listing_cap.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-12 col-lg-4">
+            <div class="form-check mt-4">
+              {{ form.checkout_enabled }}
+              <label class="form-check-label" for="id_checkout_enabled">Checkout enabled</label>
+            </div>
+            <div class="form-text">Disable checkout without taking the whole site down (browse still works).</div>
+            {% if form.checkout_enabled.errors %}
+              <div class="text-danger small mt-1">{{ form.checkout_enabled.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-12 col-lg-4">
+            <label class="form-label">Checkout disabled message</label>
+            {{ form.checkout_disabled_message }}
+            {% if form.checkout_disabled_message.errors %}
+              <div class="text-danger small mt-1">{{ form.checkout_disabled_message.errors }}</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="col-12 mt-3">
+          <div class="row g-3">
+            <div class="col-12 col-lg-6">
+              <label class="form-label">Google Analytics dashboard URL</label>
+              {{ form.google_analytics_dashboard_url }}
+              <div class="form-text">
+                Optional: paste a Google Analytics link (Property or Reports page) for quick access from the admin dashboard.
+              </div>
+              {% if form.google_analytics_dashboard_url.errors %}
+                <div class="text-danger small mt-1">{{ form.google_analytics_dashboard_url.errors }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-12 col-lg-6">
+              <label class="form-label">Plausible shared dashboard URL <span class="badge text-bg-secondary ms-1">Deprecated</span></label>
+              {{ form.plausible_shared_url }}
+              <div class="form-text">
+                Kept for legacy reference. Local Market NE is transitioning to Google Analytics.
+              </div>
+              {% if form.plausible_shared_url.errors %}
+                <div class="text-danger small mt-1">{{ form.plausible_shared_url.errors }}</div>
+              {% endif %}
+            </div>
+<div class="col-12 col-lg-6">
+  <label class="form-label">Support email</label>
+  {{ form.support_email }}
+  {% if form.support_email.errors %}
+    <div class="text-danger small mt-1">{{ form.support_email.errors }}</div>
+  {% endif %}
+  <div class="form-text">Shown on the Contact page and used for support pathways.</div>
+</div>
+          </div>
+        </div>
+
+        <div class="row g-3 mt-2">
+          <div class="col-12 col-lg-4">
+            <div class="form-check mt-4">
+              {{ form.analytics_enabled }}
+              <label class="form-check-label" for="id_analytics_enabled">Enable native analytics</label>
+            </div>
+            {% if form.analytics_enabled.errors %}
+              <div class="text-danger small mt-1">{{ form.analytics_enabled.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-12 col-lg-4">
+            <label class="form-label">Analytics retention (days)</label>
+            {{ form.analytics_retention_days }}
+            {% if form.analytics_retention_days.errors %}
+              <div class="text-danger small mt-1">{{ form.analytics_retention_days.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-12 col-lg-4">
+            <label class="form-label">GA4 Measurement ID (optional)</label>
+            {{ form.ga_measurement_id }}
+            <div class="form-text">Example: <code>G-XXXX</code>. Leave blank to disable.</div>
+            {% if form.ga_measurement_id.errors %}
+              <div class="text-danger small mt-1">{{ form.ga_measurement_id.errors }}</div>
+            {% endif %}
+<div class="col-12 col-lg-6">
+  <label class="form-label">Support email</label>
+  {{ form.support_email }}
+  {% if form.support_email.errors %}
+    <div class="text-danger small mt-1">{{ form.support_email.errors }}</div>
+  {% endif %}
+  <div class="form-text">Shown on the Contact page and used for support pathways.</div>
+</div>
+          </div>
+        </div>
+
+        <div class="row g-3 mt-2">
+          <div class="col-12 col-lg-4">
+            <div class="form-check mt-4">
+              {{ form.analytics_exclude_staff }}
+              <label class="form-check-label" for="id_analytics_exclude_staff">Exclude staff from analytics</label>
+            </div>
+            {% if form.analytics_exclude_staff.errors %}
+              <div class="text-danger small mt-1">{{ form.analytics_exclude_staff.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-12 col-lg-4">
+            <div class="form-check mt-4">
+              {{ form.analytics_exclude_admin_paths }}
+              <label class="form-check-label" for="id_analytics_exclude_admin_paths">Exclude admin/dashboard paths</label>
+            </div>
+            {% if form.analytics_exclude_admin_paths.errors %}
+              <div class="text-danger small mt-1">{{ form.analytics_exclude_admin_paths.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-12 col-lg-4">
+            <div class="form-check mt-4">
+              {{ form.adsense_enabled }}
+              <label class="form-check-label" for="id_adsense_enabled">Enable Google AdSense</label>
+            </div>
+            {% if form.adsense_enabled.errors %}
+              <div class="text-danger small mt-1">{{ form.adsense_enabled.errors }}</div>
+            {% endif %}
+<div class="col-12 col-lg-6">
+  <label class="form-label">Support email</label>
+  {{ form.support_email }}
+  {% if form.support_email.errors %}
+    <div class="text-danger small mt-1">{{ form.support_email.errors }}</div>
+  {% endif %}
+  <div class="form-text">Shown on the Contact page and used for support pathways.</div>
+</div>
+          </div>
+        </div>
+
+        <div class="row g-3 mt-2">
+          <div class="col-12 col-lg-6">
+            <label class="form-label">Analytics primary host (optional)</label>
+            {{ form.analytics_primary_host }}
+            <div class="form-text">If set, native analytics reports will only include events recorded for this host (example: <code>localmarketne.com</code>).</div>
+            {% if form.analytics_primary_host.errors %}
+              <div class="text-danger small mt-1">{{ form.analytics_primary_host.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-12 col-lg-6">
+            <label class="form-label">Analytics primary environment (optional)</label>
+            {{ form.analytics_primary_environment }}
+            <div class="form-text">If set, reports will filter by the middleware-captured environment (example: <code>production</code>).</div>
+            {% if form.analytics_primary_environment.errors %}
+              <div class="text-danger small mt-1">{{ form.analytics_primary_environment.errors }}</div>
+            {% endif %}
+<div class="col-12 col-lg-6">
+  <label class="form-label">Support email</label>
+  {{ form.support_email }}
+  {% if form.support_email.errors %}
+    <div class="text-danger small mt-1">{{ form.support_email.errors }}</div>
+  {% endif %}
+  <div class="form-text">Shown on the Contact page and used for support pathways.</div>
+</div>
+          </div>
+        </div>
+
+        <div class="row g-3 mt-2">
+          <div class="col-12 col-lg-6">
+            <label class="form-label">AdSense client id (optional)</label>
+            {{ form.adsense_client_id }}
+            <div class="form-text">Example: <code>ca-pub-...</code>. Required if AdSense is enabled.</div>
+            {% if form.adsense_client_id.errors %}
+              <div class="text-danger small mt-1">{{ form.adsense_client_id.errors }}</div>
+            {% endif %}
+          </div>
+          <div class="col-12 col-lg-6">
+            <label class="form-label">Seller prohibited items notice</label>
+            {{ form.seller_prohibited_items_notice }}
+            {% if form.seller_prohibited_items_notice.errors %}
+              <div class="text-danger small mt-1">{{ form.seller_prohibited_items_notice.errors }}</div>
+            {% endif %}
+<div class="col-12 col-lg-6">
+  <label class="form-label">Support email</label>
+  {{ form.support_email }}
+  {% if form.support_email.errors %}
+    <div class="text-danger small mt-1">{{ form.support_email.errors }}</div>
+  {% endif %}
+  <div class="form-text">Shown on the Contact page and used for support pathways.</div>
+</div>
+          </div>
+        </div>
+
+        <div class="row g-3 mt-2">
+          <div class="col-12 col-lg-6">
+            <div class="form-check mt-4">
+              {{ form.seller_requires_age_18 }}
+              <label class="form-check-label" for="id_seller_requires_age_18">Require sellers to confirm 18+ for onboarding</label>
+            </div>
+            {% if form.seller_requires_age_18.errors %}
+              <div class="text-danger small mt-1">{{ form.seller_requires_age_18.errors }}</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <hr class="my-4">
+<div class="settings-section mb-4">
+  <div class="section-header"><div class="fw-semibold">Affiliate Links</div></div>
+  <div class="section-body">
+
+
+        <div class="row g-3">
+          <div class="col-12 col-lg-4">
+            <div class="form-check mt-2">
+              {{ form.affiliate_links_enabled }}
+              <label class="form-check-label" for="id_affiliate_links_enabled">Enable affiliate links</label>
+            </div>
+            {% if form.affiliate_links_enabled.errors %}
+              <div class="text-danger small mt-1">{{ form.affiliate_links_enabled.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-12 col-lg-4">
+            <label class="form-label">Affiliate links title</label>
+            {{ form.affiliate_links_title }}
+            {% if form.affiliate_links_title.errors %}
+              <div class="text-danger small mt-1">{{ form.affiliate_links_title.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-12 col-lg-4">
+            <label class="form-label">Disclosure text</label>
+            {{ form.affiliate_disclosure_text }}
+            {% if form.affiliate_disclosure_text.errors %}
+              <div class="text-danger small mt-1">{{ form.affiliate_disclosure_text.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Affiliate links</label>
+            <div class="form-text mb-2">Add affiliate links using titles and URLs (no JSON needed). Empty rows are ignored.</div>
+
+            <div class="table-responsive">
+              <table class="table table-sm align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th style="width: 28%;">Title</th>
+                    <th style="width: 42%;">URL</th>
+                    <th style="width: 30%;">Details</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>{{ form.affiliate_link_1_label }}</td><td>{{ form.affiliate_link_1_url }}</td><td>{{ form.affiliate_link_1_note }}</td></tr>
+                  <tr><td>{{ form.affiliate_link_2_label }}</td><td>{{ form.affiliate_link_2_url }}</td><td>{{ form.affiliate_link_2_note }}</td></tr>
+                  <tr><td>{{ form.affiliate_link_3_label }}</td><td>{{ form.affiliate_link_3_url }}</td><td>{{ form.affiliate_link_3_note }}</td></tr>
+                  <tr><td>{{ form.affiliate_link_4_label }}</td><td>{{ form.affiliate_link_4_url }}</td><td>{{ form.affiliate_link_4_note }}</td></tr>
+                  <tr><td>{{ form.affiliate_link_5_label }}</td><td>{{ form.affiliate_link_5_url }}</td><td>{{ form.affiliate_link_5_note }}</td></tr>
+                  <tr><td>{{ form.affiliate_link_6_label }}</td><td>{{ form.affiliate_link_6_url }}</td><td>{{ form.affiliate_link_6_note }}</td></tr>
+                  <tr><td>{{ form.affiliate_link_7_label }}</td><td>{{ form.affiliate_link_7_url }}</td><td>{{ form.affiliate_link_7_note }}</td></tr>
+                  <tr><td>{{ form.affiliate_link_8_label }}</td><td>{{ form.affiliate_link_8_url }}</td><td>{{ form.affiliate_link_8_note }}</td></tr>
+                  <tr><td>{{ form.affiliate_link_9_label }}</td><td>{{ form.affiliate_link_9_url }}</td><td>{{ form.affiliate_link_9_note }}</td></tr>
+                  <tr><td>{{ form.affiliate_link_10_label }}</td><td>{{ form.affiliate_link_10_url }}</td><td>{{ form.affiliate_link_10_note }}</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            {% if form.non_field_errors %}
+              <div class="text-danger small mt-2">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+                      </div>
+        </div>
+
+        
+  </div>
+</div>
+<hr class="my-4">
+<div class="settings-section mb-4">
+  <div class="section-header"><div class="fw-semibold">Home Page</div></div>
+  <div class="section-body">
+
+
+        <div class="row g-3">
+          <div class="col-12 col-lg-6">
+            <label class="form-label">Hero title</label>
+            {{ form.home_hero_title }}
+            {% if form.home_hero_title.errors %}
+              <div class="text-danger small mt-1">{{ form.home_hero_title.errors }}</div>
+            {% endif %}
+            {% if form.home_hero_title.help_text %}
+              <div class="form-text">{{ form.home_hero_title.help_text }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Hero subtitle</label>
+            {{ form.home_hero_subtitle }}
+            {% if form.home_hero_subtitle.errors %}
+              <div class="text-danger small mt-1">{{ form.home_hero_subtitle.errors }}</div>
+            {% endif %}
+            {% if form.home_hero_subtitle.help_text %}
+              <div class="form-text">{{ form.home_hero_subtitle.help_text }}</div>
+            {% endif %}
+          </div>
+        </div>
+
+        
+  </div>
+</div>
+<hr class="my-4">
+
+        <h5 class="mb-3">Environment Banner (staging / test mode)\</h5>
+
+        <div class="mb-3 form-check">
+          {{ form.environment_banner_enabled }}
+          <label class="form-check-label" for="{{ form.environment_banner_enabled.id_for_label }}">
+            Enable environment banner
+          </label>
+          <div class="form-text">
+            Use this to show a sitewide banner in staging/test.
+            <strong>Note:</strong> If production is running with Stripe <code>sk_test_</code> keys, a warning banner will show automatically.
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="{{ form.environment_banner_text.id_for_label }}">
+            Environment banner text
+          </label>
+          {{ form.environment_banner_text }}
+          {% if form.environment_banner_text.errors %}
+            <div class="text-danger small mt-1">{{ form.environment_banner_text.errors }}</div>
+          {% endif %}
+        </div>
+
+<hr class="my-4">
+
+        <h5 class="mb-3">Promo Banner (sitewide above navbar)</h5>
+
+        <div class="mb-3 form-check">
+          {{ form.promo_banner_enabled }}
+          <label class="form-check-label" for="{{ form.promo_banner_enabled.id_for_label }}">
+            Enable promo banner
+          </label>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="{{ form.promo_banner_text.id_for_label }}">
+            Promo banner text
+          </label>
+          {{ form.promo_banner_text }}
+          <div class="form-text">
+            Example: Sellers pay 0% marketplace fees for their first 30 days!
+          </div>
+          {% if form.promo_banner_text.errors %}
+            <div class="text-danger small mt-1">{{ form.promo_banner_text.errors }}</div>
+          {% endif %}
+        </div>
+
+        <hr class="my-4">
+
+        <h5 class="mb-3">Home Page Banner (home page only)</h5>
+
+        <div class="mb-3 form-check">
+          {{ form.home_banner_enabled }}
+          <label class="form-check-label" for="{{ form.home_banner_enabled.id_for_label }}">
+            Enable home page banner
+          </label>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="{{ form.home_banner_text.id_for_label }}">
+            Home page banner text
+          </label>
+          {{ form.home_banner_text }}
+          <div class="form-text">
+            Example: <em>First 30 days FREE!</em>
+          </div>
+          {% if form.home_banner_text.errors %}
+            <div class="text-danger small mt-1">{{ form.home_banner_text.errors }}</div>
+          {% endif %}
+        </div>
+
+        <hr class="my-4">
+<div class="settings-section mb-4">
+  <div class="section-header"><div class="fw-semibold">Theme</div></div>
+  <div class="section-body">
+
+
+        <div class="row g-3">
+          <div class="col-12 col-lg-4">
+            <label class="form-label">Default mode</label>
+            {{ form.theme_default_mode }}
+          </div>
+
+          <div class="col-12 col-lg-4">
+            <label class="form-label">Primary (buttons / CTAs)</label>
+            {{ form.theme_primary }}
+          </div>
+
+          <div class="col-12 col-lg-4">
+            <label class="form-label">Accent</label>
+            {{ form.theme_accent }}
+          </div>
+
+          <div class="col-12 col-lg-4">
+            <label class="form-label">Success</label>
+            {{ form.theme_success }}
+          </div>
+
+          <div class="col-12 col-lg-4">
+            <label class="form-label">Danger</label>
+            {{ form.theme_danger }}
+          </div>
+        </div>
+
+        <div class="row g-3 mt-1">
+          <div class="col-12 col-lg-6">
+            <div class="border rounded p-3">
+              <div class="fw-semibold mb-2">Light mode surfaces</div>
+              <div class="row g-2">
+                <div class="col-12 col-md-6"><label class="form-label small">BG</label>{{ form.theme_light_bg }}</div>
+                <div class="col-12 col-md-6"><label class="form-label small">Surface</label>{{ form.theme_light_surface }}</div>
+                <div class="col-12 col-md-6"><label class="form-label small">Text</label>{{ form.theme_light_text }}</div>
+                <div class="col-12 col-md-6"><label class="form-label small">Muted</label>{{ form.theme_light_text_muted }}</div>
+                <div class="col-12 col-md-6"><label class="form-label small">Border</label>{{ form.theme_light_border }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-lg-6">
+            <div class="border rounded p-3">
+              <div class="fw-semibold mb-2">Dark mode surfaces</div>
+              <div class="row g-2">
+                <div class="col-12 col-md-6"><label class="form-label small">BG</label>{{ form.theme_dark_bg }}</div>
+                <div class="col-12 col-md-6"><label class="form-label small">Surface</label>{{ form.theme_dark_surface }}</div>
+                <div class="col-12 col-md-6"><label class="form-label small">Text</label>{{ form.theme_dark_text }}</div>
+                <div class="col-12 col-md-6"><label class="form-label small">Muted</label>{{ form.theme_dark_text_muted }}</div>
+                <div class="col-12 col-md-6"><label class="form-label small">Border</label>{{ form.theme_dark_border }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        
+  </div>
+</div>
+<hr class="my-4">
+<div class="settings-section mb-4">
+  <div class="section-header"><div class="fw-semibold">Social Links</div></div>
+  <div class="section-body">
+
+
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <label class="form-label">Facebook</label>
+            {{ form.facebook_url }}
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label">Instagram</label>
+            {{ form.instagram_url }}
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label">TikTok</label>
+            {{ form.tiktok_url }}
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label">YouTube</label>
+            {{ form.youtube_url }}
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label">X (Twitter)</label>
+            {{ form.x_url }}
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label">LinkedIn</label>
+            {{ form.linkedin_url }}
+          </div>
+        </div>
+
+        <div class="mt-4 d-flex gap-2">
+          <button class="btn btn-primary" type="submit">
+            <i class="bi bi-save me-1"></i>Save Settings
+          </button>
+          <a class="btn btn-outline-secondary" href="{% url 'dashboards:admin' %}">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+  </div>
+</div>

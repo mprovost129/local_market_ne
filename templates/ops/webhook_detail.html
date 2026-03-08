@@ -1,0 +1,90 @@
+{% extends "ops/base_ops.html" %}
+
+{% block title %}Webhook {{ webhook.pk }} | Ops{% endblock %}
+
+{% block ops_content %}
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h4 mb-0">Webhook Event</h1>
+      <div class="text-muted small">
+        {{ webhook.event_type }} —
+        <span class="badge {% if webhook.status == 'error' %}text-bg-danger{% elif webhook.status == 'processed' %}text-bg-success{% else %}text-bg-secondary{% endif %}">{{ webhook.status }}</span>
+        • {{ webhook.created_at|date:"Y-m-d H:i" }}
+      </div>
+      <div class="text-muted small">Stripe ID: <code>{{ webhook.stripe_event_id }}</code></div>
+    </div>
+
+    <div class="d-flex gap-2">
+      <a class="btn btn-sm btn-outline-secondary" href="{% url 'ops:webhooks_list' %}">Back</a>
+      <form method="post" action="{% url 'ops:webhook_reprocess' webhook.pk %}">
+        {% csrf_token %}
+        <button class="btn btn-sm btn-warning" onclick="return confirm('Reprocess this webhook? This is idempotent but may create new delivery rows.');">
+          Reprocess
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-lg-5">
+      <div class="card shadow-sm lm-card">
+        <div class="card-header bg-body fw-semibold lm-card">Deliveries</div>
+        <div class="table-responsive">
+          <div class="lm-table">
+<table class="table table-sm mb-0">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Status</th>
+                <th>Session</th>
+                <th>Order</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for d in deliveries %}
+                <tr>
+                  <td class="text-muted small">{{ d.delivered_at|date:"Y-m-d H:i" }}</td>
+                  <td>
+                    <span class="badge {% if d.status == 'error' %}text-bg-danger{% elif d.status == 'ok' %}text-bg-success{% else %}text-bg-secondary{% endif %}">{{ d.status }}</span>
+                  </td>
+                  <td class="small"><code>{{ d.stripe_session_id }}</code></td>
+                  <td class="small">
+                    {% if d.order %}
+                      <a href="{% url 'ops:order_detail' d.order.pk %}">{{ d.order.pk }}</a>
+                    {% else %}
+                      <span class="text-muted">—</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% if d.error_message %}
+                  <tr>
+                    <td colspan="4" class="text-danger small">Error: {{ d.error_message }}</td>
+                  </tr>
+                {% endif %}
+              {% empty %}
+                <tr><td colspan="4" class="py-0">{% include 'partials/empty_state.html' with title='' message='No deliveries.' action_route='ops:dashboard' action_label='Back to Ops' %}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+</div>
+        </div>
+      </div>
+
+      {% if webhook.error_message %}
+        <div class="alert alert-danger mt-3">
+          <div class="fw-semibold">Webhook error</div>
+          <div class="small">{{ webhook.error_message }}</div>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="col-12 col-lg-7">
+      <div class="card shadow-sm lm-card">
+        <div class="card-header bg-body fw-semibold lm-card">Raw event JSON</div>
+        <div class="card-body lm-card">
+          <pre class="small mb-0" style="white-space: pre-wrap;">{{ pretty_json }}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

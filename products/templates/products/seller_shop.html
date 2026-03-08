@@ -1,0 +1,146 @@
+{# products/templates/products/seller_shop.html #}
+{% extends "base.html" %}
+{% block title %}{% if profile and profile.public_seller_name %}{{ profile.public_seller_name }}{% else %}{{ seller.username }}{% endif %} · Shop · Local Market NE{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 1100px;">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div>
+      <h1 class="h4 mb-1">
+        {% if profile and profile.public_seller_name %}{{ profile.public_seller_name }}{% else %}{{ seller.username }}{% endif %}
+      </h1>
+      <div class="text-secondary small">
+        Seller storefront
+        {% if profile and profile.public_location_label %}
+          · <span class="text-secondary">{{ profile.public_location_label }}</span>
+        {% endif %}
+        {% if profile and profile.service_radius_miles and profile.service_radius_miles > 0 %}
+          · <span class="text-secondary">Service radius ~{{ profile.service_radius_miles }} mi</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-lg-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="fw-semibold mb-2">Quick pay (optional)</div>
+          <div class="text-secondary small mb-3">Some buyers prefer paying via Venmo/PayPal/Zelle/Cash App. Use these only if the seller confirms payment in the app.</div>
+
+          {% if venmo %}
+            <div class="mb-3">
+              <div class="fw-semibold">Venmo</div>
+              <div class="text-secondary small">{{ venmo }}</div>
+              {% if qr_venmo %}<img src="{{ qr_venmo }}" class="img-fluid mt-2" alt="Venmo QR">{% endif %}
+            </div>
+          {% endif %}
+
+          {% if paypal %}
+            <div class="mb-3">
+              <div class="fw-semibold">PayPal</div>
+              <div class="text-secondary small">{{ paypal }}</div>
+              {% if qr_paypal %}<img src="{{ qr_paypal }}" class="img-fluid mt-2" alt="PayPal QR">{% endif %}
+            </div>
+          {% endif %}
+
+          {% if zelle %}
+            <div class="mb-0">
+              <div class="fw-semibold">Zelle</div>
+              <div class="text-secondary small">{{ zelle }}</div>
+              {% if qr_zelle %}<img src="{{ qr_zelle }}" class="img-fluid mt-2" alt="Zelle QR">{% endif %}
+            </div>
+
+          {% if cashapp %}
+            <div class="mb-0">
+              <div class="fw-semibold">Cash App</div>
+              <div class="text-secondary small">${{ cashapp }}</div>
+              {% if qr_cashapp %}<img src="{{ qr_cashapp }}" class="img-fluid mt-2" alt="Cash App QR">{% endif %}
+            </div>
+          {% endif %}
+
+          {% endif %}
+
+          {% if not venmo and not paypal and not zelle and not cashapp %}
+            <div class="text-secondary small">No quick-pay methods listed.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+            <div class="fw-semibold">Listings</div>
+            <form class="d-flex flex-wrap gap-2" method="get">
+              <input class="form-control form-control-sm" name="q" value="{{ q|default:'' }}" placeholder="Search" style="min-width: 180px;">
+              <select class="form-select form-select-sm" name="kind" style="min-width: 160px;">
+                <option value="">All</option>
+                <option value="products" {% if kind == 'products' or kind == 'goods' %}selected{% endif %}>Products</option>
+                <option value="services" {% if kind == 'services' or kind == 'service' %}selected{% endif %}>Services</option>
+              </select>
+              <select class="form-select form-select-sm" name="category" style="min-width: 180px;">
+                <option value="">All categories</option>
+                <optgroup label="Products">
+                  {% for c in store_goods_categories %}
+                    <option value="{{ c.id }}" {% if category == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+                    {% for s in c.children.all %}
+                      <option value="{{ s.id }}" {% if category == s.id|stringformat:"s" %}selected{% endif %}>&nbsp;&nbsp;— {{ s.name }}</option>
+                    {% endfor %}
+                  {% endfor %}
+                </optgroup>
+                <optgroup label="Services">
+                  {% for c in store_service_categories %}
+                    <option value="{{ c.id }}" {% if category == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+                    {% for s in c.children.all %}
+                      <option value="{{ s.id }}" {% if category == s.id|stringformat:"s" %}selected{% endif %}>&nbsp;&nbsp;— {{ s.name }}</option>
+                    {% endfor %}
+                  {% endfor %}
+                </optgroup>
+              </select>
+              <button class="btn btn-sm btn-dark" type="submit">Filter</button>
+            </form>
+          </div>
+
+          <div class="row g-3">
+            {% for p in products %}
+              <div class="col-12 col-sm-6">
+                {% include "products/_product_card.html" with p=p %}
+              </div>
+            {% empty %}
+              <div class="col-12">
+                <div class="p-0">{% include 'partials/empty_state.html' with title='' message='No listings yet.' action_route='products:list' action_label='Browse products' show_support_links=True %}</div>
+              </div>
+            {% endfor %}
+          </div>
+
+          {% if page_obj and paginator and paginator.num_pages > 1 %}
+            <nav class="mt-3" aria-label="Pagination">
+              <ul class="pagination justify-content-center flex-wrap mb-0">
+                <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+                  <a class="page-link" href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if kind %}kind={{ kind|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+                </li>
+
+                {% for n in paginator.page_range %}
+                  {% if n == page_obj.number %}
+                    <li class="page-item active"><span class="page-link">{{ n }}</span></li>
+                  {% elif n <= 2 or n > paginator.num_pages|add:"-2" or n|add:"-2" <= page_obj.number and n|add:"2" >= page_obj.number %}
+                    <li class="page-item"><a class="page-link" href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if kind %}kind={{ kind|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}page={{ n }}">{{ n }}</a></li>
+                  {% elif n == 3 or n == paginator.num_pages|add:"-2" %}
+                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                  {% endif %}
+                {% endfor %}
+
+                <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+                  <a class="page-link" href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if kind %}kind={{ kind|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+                </li>
+              </ul>
+            </nav>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

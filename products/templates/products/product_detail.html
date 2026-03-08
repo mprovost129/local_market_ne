@@ -1,0 +1,353 @@
+{# products/templates/products/product_detail.html #}
+{% extends "base.html" %}
+{% block title %}{{ product.title }} · Local Market NE{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width: 1100px;">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div class="text-secondary small">
+      {% if product.kind == "SERVICE" %}
+        <a class="text-decoration-none" href="{% url 'products:services' %}">Services</a>
+      {% else %}
+        <a class="text-decoration-none" href="{% url 'products:list' %}">Products</a>
+      {% endif %}
+      <span class="mx-1">/</span>
+      <span class="text-body">{{ product.title }}</span>
+    </div>
+
+    <div class="d-flex gap-2">
+      {% if product.kind == "SERVICE" %}
+        <a class="btn btn-outline-dark btn-sm" href="{% url 'products:services' %}"><i class="bi bi-arrow-left me-1"></i>Back to Services</a>
+      {% else %}
+        <a class="btn btn-outline-dark btn-sm" href="{% url 'products:list' %}"><i class="bi bi-arrow-left me-1"></i>Back to Products</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row g-4 align-items-start">
+    <div class="col-12 col-lg-7">
+      <div class="card shadow-sm lm-card">
+        <div class="card-body">
+          {% with img=product.primary_image %}
+            {% if img %}
+              <div class="lm-detail-main">
+                <img id="lmMainImage" src="{{ img.image.url }}" alt="{{ img.alt_text|default:product.title }}" class="lm-detail-main-img">
+              </div>
+            {% else %}
+              <div class="lm-detail-main lm-detail-main--empty"></div>
+            {% endif %}
+          {% endwith %}
+
+          {% if product.images.all|length > 1 %}
+            <div class="lm-detail-thumbs mt-3" role="list">
+              {% for img in product.images.all %}
+                <button type="button" class="lm-thumb" data-lm-src="{{ img.image.url }}" aria-label="View image {{ forloop.counter }}">
+                  <img src="{{ img.image.url }}" alt="{{ img.alt_text|default:product.title }}" class="lm-thumb-img">
+                </button>
+              {% endfor %}
+            </div>
+            <div class="small text-secondary mt-2">Click thumbnails to preview.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-5">
+      <div class="card shadow-sm lm-card">
+        <div class="card-body">
+          <div class="d-flex flex-wrap gap-2 mb-2">
+            {% if product.kind == "SERVICE" %}
+              <span class="badge text-bg-info text-dark">Service</span>
+            {% else %}
+              <span class="badge text-bg-light text-dark border">Product</span>
+            {% endif %}
+            {% if product.category.is_prohibited or product.subcategory.is_prohibited %}
+              <span class="badge text-bg-danger">Prohibited</span>
+            {% endif %}
+            {% if product.category.requires_age_18 or product.subcategory.requires_age_18 %}
+              <span class="badge text-bg-warning">18+</span>
+            {% endif %}
+          </div>
+
+          <h1 class="h4 fw-bold mb-1">{{ product.title }}</h1>
+          <div class="text-secondary small mb-2">
+            Listed by <a href="{% url 'products:seller_shop' product.seller_id %}">{{ product.seller.username }}</a>
+            {% if review_count %}
+              · <span class="text-body fw-semibold">{{ avg_rating|floatformat:1 }}</span>/5 ({{ review_count }})
+            {% endif %}
+          </div>
+
+          <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+            <div class="me-auto">
+              {% if product.is_free %}
+                <span class="h5 mb-0">Free</span>
+              {% else %}
+                <span class="h5 mb-0">${{ product.price }}</span>
+              {% endif %}
+            </div>
+            <a class="btn btn-outline-dark btn-sm" href="{% url 'products:seller_shop' product.seller_id %}">Store</a>
+          </div>
+
+          {% if product.short_description %}
+            <div class="text-secondary mb-3">{{ product.short_description }}</div>
+          {% endif %}
+
+          <div class="border rounded p-3 mb-3">
+            {% if product.kind == "SERVICE" %}
+              <div class="d-flex flex-column gap-2 small">
+                {% if product.service_duration_minutes %}
+                  <div class="text-secondary"><i class="bi bi-clock me-1"></i>{{ product.service_duration_minutes }} minutes</div>
+                {% endif %}
+                {% if product.seller and product.seller.profile and product.seller.profile.service_radius_miles %}
+                  <div class="text-secondary"><i class="bi bi-geo-alt me-1"></i>Service radius: {{ product.seller.profile.service_radius_miles }} miles</div>
+                {% endif %}
+                {% if product.service_deposit_cents and product.service_deposit_cents > 0 %}
+                  <div class="text-secondary"><i class="bi bi-credit-card me-1"></i>Deposit required</div>
+                {% endif %}
+                {% if product.service_cancellation_policy %}
+                  <div>
+                    <div class="fw-semibold">Cancellation policy</div>
+                    <div class="text-secondary">{{ product.service_cancellation_policy }}</div>
+                  </div>
+                {% endif %}
+              </div>
+            {% else %}
+              <div class="d-flex flex-column gap-2 small">
+                {% if product.is_made_to_order %}
+                  <div class="text-secondary"><i class="bi bi-hourglass-split me-1"></i>Made to order{% if product.lead_time_days %} · {{ product.lead_time_days }} day estimate{% endif %}</div>
+                {% else %}
+                  <div class="text-secondary"><i class="bi bi-box-seam me-1"></i>Stock: {{ product.stock_qty }}</div>
+                {% endif %}
+                <div class="d-flex flex-wrap gap-1">
+                  {% if product.fulfillment_pickup_enabled %}
+                    <span class="badge text-bg-light text-dark">Pickup</span>
+                  {% endif %}
+                  {% if product.fulfillment_delivery_enabled %}
+                    <span class="badge text-bg-light text-dark">Delivery</span>
+                  {% endif %}
+                  {% if product.fulfillment_shipping_enabled %}
+                    <span class="badge text-bg-light text-dark">Shipping</span>
+                  {% endif %}
+                </div>
+              </div>
+            {% endif %}
+          </div>
+
+          {% if not can_buy %}
+            <div class="alert alert-warning mb-3">
+              This seller isn’t ready to accept payments yet.
+            </div>
+          {% endif %}
+
+          {% if user.is_authenticated %}
+            {% if product.kind == "SERVICE" %}
+              {% if can_buy %}
+                <a class="btn btn-dark w-100" href="{% url 'appointments:request' product.id %}">
+                  Request to book
+                </a>
+              {% else %}
+                <button class="btn btn-dark w-100" type="button" disabled>Request to book</button>
+              {% endif %}
+            {% else %}
+              <form method="post" action="{% url 'cart:add' %}">
+                {% csrf_token %}
+                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <input type="hidden" name="next" value="{{ request.path }}">
+
+                <div class="mb-2">
+                  <label class="form-label small fw-semibold mb-1" for="id_quantity">Quantity</label>
+                  <input id="id_quantity" class="form-control form-control-sm" type="number" min="1" max="20" name="quantity" value="1">
+                </div>
+
+                <div class="mb-2">
+                  <label class="form-label small fw-semibold mb-1" for="id_buyer_notes">Notes for Seller</label>
+                  <textarea id="id_buyer_notes" class="form-control form-control-sm" name="buyer_notes" rows="2" placeholder="Special instructions, requests, etc."></textarea>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold mb-1" for="id_tip_amount">Tip for Seller</label>
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text">$</span>
+                    <input id="id_tip_amount" class="form-control" type="number" min="0" step="0.01" name="tip_amount" value="0.00">
+                  </div>
+                  <div class="form-text">Optional: show your appreciation with a tip.</div>
+                </div>
+
+                <button class="btn btn-dark w-100" type="submit" {% if not can_buy %}disabled{% endif %}>
+                  Add to cart
+                </button>
+              </form>
+              <a class="btn btn-outline-dark w-100 mt-2" href="{% url 'cart:detail' %}">View cart</a>
+            {% endif %}
+          {% else %}
+            <a class="btn btn-dark w-100" href="{% url 'accounts:login' %}?next={{ request.path }}">Sign in to continue</a>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card shadow-sm lm-card mt-3">
+        <div class="card-body">
+          <div class="fw-semibold mb-2">About this {% if product.kind == "SERVICE" %}service{% else %}item{% endif %}</div>
+          {% if product.description %}
+            <div class="text-secondary" style="white-space: pre-line;">{{ product.description }}</div>
+          {% else %}
+            <div class="text-secondary">No additional details provided yet.</div>
+          {% endif %}
+  
+
+
+
+<div class="card shadow-sm lm-card mt-3">
+  <div class="card-body">
+    <div class="fw-semibold mb-2">Policies</div>
+    {% if product.kind == "SERVICE" %}
+      <div class="small text-secondary">
+        Services are booked directly with the seller. Cancellation and rescheduling terms may vary by listing.
+        See our <a href="{% url 'legal:services_policy' %}">Service &amp; Appointment Policy</a> and
+        <a href="{% url 'legal:refund' %}">Refunds &amp; Returns</a>.
+      </div>
+    {% else %}
+      <div class="small text-secondary">
+        Refunds and returns are handled by the seller according to marketplace guidelines.
+        See our <a href="{% url 'legal:refund' %}">Refunds &amp; Returns</a> policy.
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <ul class="nav nav-tabs" id="detailTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="tab-reviews" data-bs-toggle="tab" data-bs-target="#pane-reviews" type="button" role="tab">Reviews ({{ review_count }})</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-qa" data-bs-toggle="tab" data-bs-target="#pane-qa" type="button" role="tab">Q&amp;A ({{ qa_thread_count }})</button>
+      </li>
+    </ul>
+
+    <div class="tab-content border border-top-0 rounded-bottom p-3">
+      <div class="tab-pane fade show active" id="pane-reviews" role="tabpanel">
+        {% if review_count == 0 %}
+          <div class="text-secondary">No reviews yet.</div>
+        {% else %}
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <div class="h5 mb-0">{{ avg_rating|floatformat:1 }}</div>
+            <div class="text-secondary">Average rating · {{ review_count }} review{{ review_count|pluralize }}</div>
+          </div>
+          <div class="vstack gap-3">
+            {% for r in recent_reviews %}
+              <div class="border rounded p-3">
+                <div class="d-flex align-items-center justify-content-between">
+                  <div class="fw-semibold">{{ r.buyer.username }}</div>
+                  <div class="text-secondary small">{{ r.created_at|date:"M j, Y" }}</div>
+                </div>
+                <div class="small mb-2">Rating: <span class="fw-semibold">{{ r.rating }}</span>/5</div>
+                {% if r.body %}
+                  <div class="text-secondary" style="white-space: pre-line;">{{ r.body }}</div>
+                {% endif %}
+                {% if r.reply %}
+                  <div class="mt-3 bg-light border rounded p-2">
+                    <div class="small fw-semibold">Seller reply</div>
+                    <div class="small text-secondary" style="white-space: pre-line;">{{ r.reply.body }}</div>
+                  </div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="tab-pane fade" id="pane-qa" role="tabpanel">
+        {% if qa_thread_count == 0 %}
+          <div class="text-secondary mb-3">No questions yet. Ask the seller publicly and get answers here.</div>
+        {% endif %}
+
+        <div class="mb-3">
+          {% if user.is_authenticated %}
+            <a class="btn btn-outline-dark btn-sm" href="{% url 'qa:thread_create' product.id %}"><i class="bi bi-chat-dots me-1"></i>Ask a question</a>
+          {% else %}
+            <a class="btn btn-outline-dark btn-sm" href="{% url 'accounts:login' %}?next={{ request.path }}"><i class="bi bi-chat-dots me-1"></i>Sign in to ask</a>
+          {% endif %}
+        </div>
+
+        <div class="vstack gap-3">
+          {% for t in qa_threads %}
+            <div class="border rounded p-3">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <div class="fw-semibold">Thread</div>
+                <div class="text-secondary small">{{ t.created_at|date:"M j, Y" }}</div>
+              </div>
+              <div class="vstack gap-2">
+                {% for m in t.messages.all %}
+                  <div class="d-flex gap-2">
+                    <div class="flex-shrink-0 rounded-circle bg-light border" style="width: 28px; height: 28px;"></div>
+                    <div class="flex-grow-1">
+                      <div class="small fw-semibold">{{ m.author.username }}</div>
+                      <div class="small text-secondary" style="white-space: pre-line;">{{ m.body }}</div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+              <div class="mt-2">
+                <a class="small" href="{% url 'qa:thread_detail' t.id %}">Open thread</a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <div class="d-flex align-items-center justify-content-between mb-2">
+      <h2 class="h5 mb-0">More from this seller</h2>
+      <a class="small" href="{% url 'products:seller_shop' product.seller_id %}">View seller shop</a>
+    </div>
+    <div class="row g-3">
+      {% for p in more_from_seller %}
+        <div class="col-12 col-sm-6 col-xl-3">
+          {% include "products/_product_card.html" with p=p %}
+        </div>
+      {% empty %}
+        <div class="text-secondary">No other listings from this seller yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <h2 class="h5 mb-2">More items like this from other sellers</h2>
+    <div class="row g-3">
+      {% for p in more_from_others %}
+        <div class="col-12 col-sm-6 col-xl-3">
+          {% include "products/_product_card.html" with p=p %}
+        </div>
+      {% empty %}
+        <div class="text-secondary">No related listings found yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const main = document.getElementById('lmMainImage');
+    if (!main) return;
+    const thumbs = document.querySelectorAll('.lm-thumb');
+    thumbs.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const src = btn.getAttribute('data-lm-src');
+        if (!src) return;
+        main.setAttribute('src', src);
+        thumbs.forEach(b => b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+      });
+    });
+    if (thumbs.length) thumbs[0].classList.add('is-active');
+  })();
+</script>
+{% endblock %}

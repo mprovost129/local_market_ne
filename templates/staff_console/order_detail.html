@@ -1,0 +1,96 @@
+{% extends "staff_console/base_staff.html" %}
+{% load money %}
+
+{% block title %}Admin Order {{ order.pk }} | Local Market NE{% endblock %}
+
+{% block staff_content %}
+  <div class="mb-3">
+    <div class="d-flex align-items-center justify-content-between">
+      <h1 class="h4 mb-0">Order {{ order.pk }}</h1>
+      <span class="badge text-bg-secondary">{{ order.status }}</span>
+    </div>
+    <div class="text-muted small">
+      Created: {{ order.created_at|date:"Y-m-d H:i" }} —
+      Buyer: {% if order.buyer %}{{ order.buyer.username }}{% else %}{{ order.guest_email }}{% endif %}
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-lg-8">
+      <div class="card shadow-sm lm-card">
+        <div class="card-header bg-body fw-semibold lm-card">Items</div>
+        <div class="table-responsive">
+          <div class="lm-table">
+<table class="table table-sm mb-0">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Seller</th>
+                <th>Qty</th>
+                <th class="text-end">Line</th>
+                <th>Fulfillment</th>
+                <th>Tracking</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for it in items %}
+                <tr>
+                  <td class="small">{{ it.title_snapshot|default:it.product.title }}</td>
+                  <td class="small">{{ it.seller.username }}</td>
+                  <td>{{ it.quantity }}</td>
+                  <td class="text-end">${{ it.line_total_cents|cents_to_dollars }}</td>
+                  <td class="small">
+                    {{ it.fulfillment_mode_snapshot }} / {{ it.fulfillment_status }}
+                  </td>
+                  <td class="small">
+                    {% if it.tracking_number %}
+                      {{ it.tracking_carrier }} — {{ it.tracking_number }}
+                    {% else %}
+                      <span class="text-muted">—</span>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="6" class="text-center text-muted py-3">No items.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+</div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mt-3 lm-card">
+        <div class="card-header bg-body fw-semibold lm-card">Shipping Snapshot</div>
+        <div class="card-body small lm-card">
+          <div><strong>Name:</strong> {{ order.shipping_name|default:"—" }}</div>
+          <div><strong>Phone:</strong> {{ order.shipping_phone|default:"—" }}</div>
+          <div><strong>Address:</strong> {{ order.shipping_line1 }} {{ order.shipping_line2 }}</div>
+          <div>{{ order.shipping_city }} {{ order.shipping_state }} {{ order.shipping_postal_code }} {{ order.shipping_country }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <div class="card shadow-sm lm-card">
+        <div class="card-header bg-body fw-semibold lm-card">Totals</div>
+        <div class="card-body lm-card">
+          <div class="d-flex justify-content-between"><span>Subtotal</span><span>${{ order.subtotal_cents|cents_to_dollars }}</span></div>
+          <div class="d-flex justify-content-between"><span>Shipping/Delivery</span><span>${{ order.shipping_cents|cents_to_dollars }}</span></div>
+          <div class="d-flex justify-content-between"><span>Tax</span><span>${{ order.tax_cents|cents_to_dollars }}</span></div>
+          <hr>
+          <div class="d-flex justify-content-between fw-semibold"><span>Total</span><span>${{ order.total_cents|cents_to_dollars }}</span></div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mt-3 lm-card">
+        <div class="card-header bg-body fw-semibold lm-card">Stripe / Reconciliation</div>
+        <div class="card-body small lm-card">
+          <div><strong>Payment method:</strong> {{ order.payment_method }}</div>
+          <div><strong>Stripe session:</strong> {{ order.stripe_session_id|default:"—" }}</div>
+          <div><strong>Payment intent:</strong> {{ order.stripe_payment_intent_id|default:"—" }}</div>
+          <div><strong>Paid at:</strong> {{ order.paid_at|date:"Y-m-d H:i"|default:"—" }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

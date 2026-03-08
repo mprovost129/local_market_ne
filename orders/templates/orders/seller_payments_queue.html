@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Payments (Awaiting){% endblock %}
+{% block content %}
+<div class="container-fluid" style="max-width: 1100px;">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h4 mb-1">Payments (Awaiting confirmation)</h1>
+      <div class="text-secondary small">Orders marked as paid off-platform need seller confirmation.</div>
+    </div>
+  </div>
+
+  {% if not orders %}
+    <div class="alert alert-success">No off-platform payments awaiting confirmation.</div>
+  {% else %}
+    {% for row in orders %}
+      {% with order=row.order items=row.items %}
+        <div class="card shadow-sm mb-3">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <div>
+              <div class="fw-semibold">
+                <a class="text-decoration-none" href="{% url 'orders:seller_order_detail' order.pk %}">Order {{ order.pk }}</a>
+              </div>
+              <div class="text-secondary small">
+                Method: <span class="text-uppercase">{{ order.payment_method }}</span>
+                {% if order.offplatform_sent_at %}
+                  • Buyer marked sent: {{ order.offplatform_sent_at|date:"M j, Y g:i A" }}
+                {% endif %}
+              </div>
+              {% if order.offplatform_note %}
+                <div class="text-secondary small">Buyer note: {{ order.offplatform_note }}</div>
+              {% endif %}
+            </div>
+            <form method="post" action="{% url 'orders:seller_confirm_payment' order.pk %}">
+              {% csrf_token %}
+              <button class="btn btn-dark btn-sm" type="submit">Confirm payment received</button>
+            </form>
+          </div>
+          <div class="card-body">
+            <ul class="mb-0">
+              {% for it in items %}
+                <li>{{ it.quantity }} × {{ it.product.title }}{% if it.is_service %} <span class="badge text-bg-light">Service</span>{% endif %}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      {% endwith %}
+    {% endfor %}
+  {% endif %}
+</div>
+{% endblock %}

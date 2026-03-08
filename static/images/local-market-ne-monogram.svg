@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+
+  <circle cx="256" cy="256" r="250" fill="#2F4F2F" />
+  <text x="256" y="290" font-size="120" text-anchor="middle" fill="white" font-family="Montserrat, Arial, sans-serif" font-weight="700" letter-spacing="4">
+    LM
+  </text>
+  <rect x="170" y="320" width="170" height="40" rx="6" fill="#F36F21" />
+  <text x="255" y="348" font-size="26" text-anchor="middle" fill="white" font-family="Montserrat, Arial, sans-serif" font-weight="600">
+    NE
+  </text>
+
+</svg>
