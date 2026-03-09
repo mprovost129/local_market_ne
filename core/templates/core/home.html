@@ -39,15 +39,15 @@
     <div class="row align-items-center g-4">
       <div class="col-lg-6">
         <h1 class="display-5 fw-bold mb-3">
-          {{ site_config.home_hero_title|default:"Welcome to Local Market NE" }}
+          {{ site_config.home_hero_title|default:"Shop local. Support neighbors. Discover something great." }}
         </h1>
         <p class="lead text-secondary mb-4">
-          <strong> {{ site_config.home_hero_subtitle|default:"Sometimes creativity needs to be shared..."|linebreaksbr|safe }} </strong>
+          <strong> {{ site_config.home_hero_subtitle|default:"Find products and services from trusted small businesses and creators in your community."|linebreaksbr|safe }} </strong>
         </p>
 
         <div class="d-flex flex-wrap gap-2">
           <a class="btn btn-primary btn-lg" href="{% url 'products:list' %}">
-            <i class="bi bi-search me-2"></i>Browse All Products
+            <i class="bi bi-search me-2"></i>Browse Products
           </a>
           <a class="btn btn-outline-secondary btn-lg" href="{% url 'catalog:category_list' %}">
             <i class="bi bi-grid me-2"></i>Explore Categories

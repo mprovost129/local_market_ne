@@ -85,6 +85,13 @@ Database:
 - `DEFAULT_FROM_EMAIL=...`
 - SMTP vars (whatever your stack uses in `config/settings/`)
 
+### Saved search alerts
+
+- `SAVED_SEARCH_ALERTS_ENABLED=1`
+- `SAVED_SEARCH_ALERTS_LIMIT=500`
+- Create a Render Cron Job to run every 10-15 minutes:
+  - `python manage.py send_saved_search_alerts --enabled --limit 500`
+
 ### Storage
 
 v1 uses local storage. Ensure `MEDIA_ROOT` and `STATIC_ROOT` are configured in production settings.
@@ -201,3 +208,4 @@ This repo includes `render.yaml` (blueprint) you can import into Render to creat
 
 - Defaults to `DJANGO_SETTINGS_MODULE=config.settings.prod`
 - Stripe/email keys are marked `sync: false` so you set them in Render.
+- Includes a cron service for saved-search alerts (`localmarketne-saved-search-alerts`) scheduled every 15 minutes.

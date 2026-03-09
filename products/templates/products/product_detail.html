@@ -72,6 +72,11 @@
           <h1 class="h4 fw-bold mb-1">{{ product.title }}</h1>
           <div class="text-secondary small mb-2">
             Listed by <a href="{% url 'products:seller_shop' product.seller_id %}">{{ product.seller.username }}</a>
+            {% if product.seller and product.seller.profile and product.seller.profile.public_city %}
+              - {{ product.seller.profile.public_city }}
+            {% elif product.seller and product.seller.profile and product.seller.profile.public_location_label %}
+              - {{ product.seller.profile.public_location_label }}
+            {% endif %}
             {% if review_count %}
               - <span class="text-body fw-semibold">{{ avg_rating|floatformat:1 }}</span>/5 ({{ review_count }})
             {% endif %}

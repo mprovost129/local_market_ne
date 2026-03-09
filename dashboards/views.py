@@ -36,7 +36,7 @@ from orders.models import Order, OrderItem, OrderEvent, StripeWebhookDelivery, S
 from refunds.models import RefundRequest, RefundAttempt
 from payments.models import SellerStripeAccount, SellerBalanceEntry
 from payments.services_fee_waiver import ensure_fee_waiver_for_new_seller
-from products.models import Product, ProductEngagementEvent
+from products.models import Product, ProductEngagementEvent, SavedSearchAlert
 from products.permissions import is_owner_user, is_seller_user
 from payments.services import get_seller_balance_cents
 
@@ -165,6 +165,8 @@ def consumer_dashboard(request):
     )
 
     total_spent = _cents_to_dollars(int(totals.get("total_spent_cents") or 0))
+    saved_searches = SavedSearchAlert.objects.filter(user=user, is_active=True).order_by("-created_at")[:5]
+    saved_search_count = SavedSearchAlert.objects.filter(user=user, is_active=True).count()
 
     return render(
         request,
@@ -173,6 +175,8 @@ def consumer_dashboard(request):
             "orders": orders,
             "total_spent": total_spent,
             "paid_count": totals.get("paid_count") or 0,
+            "saved_searches": saved_searches,
+            "saved_search_count": saved_search_count,
         },
     )
 
@@ -229,7 +233,7 @@ def seller_dashboard(request):
 
     # Seller onboarding checklist (shown until complete). Keeps sellers moving.
     profile = getattr(user, "profile", None)
-    has_public_location = bool(getattr(profile, "public_city", "") or getattr(profile, "public_state", ""))
+    has_public_location = bool((getattr(profile, "zip_code", "") or "").strip())
     has_shop_name = bool((getattr(profile, "shop_name", "") or "").strip())
     email_verified = bool(getattr(profile, "email_verified", False))
     age_ok = bool(getattr(profile, "is_age_18_confirmed", False))
@@ -242,7 +246,7 @@ def seller_dashboard(request):
         {"key": "policy", "label": "Acknowledge prohibited items policy", "done": policy_ack, "url": reverse("accounts:profile")},
         {"key": "stripe", "label": "Connect Stripe payouts", "done": bool(getattr(stripe_obj, "is_ready", False)), "url": reverse("payments:connect_start")},
         {"key": "shop", "label": "Add your shop name", "done": has_shop_name, "url": reverse("accounts:profile")},
-        {"key": "location", "label": "Set your public location (city/state)", "done": has_public_location, "url": reverse("accounts:profile")},
+        {"key": "location", "label": "Set your ZIP code", "done": has_public_location, "url": reverse("accounts:profile")},
         {"key": "listing", "label": "Create your first listing", "done": has_listing, "url": reverse("products:seller_create")},
     ]
     onboarding_done = all(s.get("done") for s in onboarding_steps)

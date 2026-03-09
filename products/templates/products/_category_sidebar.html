@@ -1,5 +1,5 @@
 {# products/templates/products/_category_sidebar.html #}
-{# Expects: categories, selected_category, q, base_label, offcanvas_id. Optional: state, radius #}
+{# Expects: categories, selected_category, q, base_label, offcanvas_id. Optional: zip, radius #}
 
 <div class="d-none d-lg-block">
   <div class="card shadow-sm">
@@ -17,7 +17,7 @@
 
       <div class="list-group list-group-flush small" data-cat-list data-cat-scope="desk" data-cat-scope-id="{{ offcanvas_id }}">
         <a class="list-group-item list-group-item-action {% if not selected_category %}active{% endif %}"
-           href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if state %}state={{ state|urlencode }}&{% endif %}{% if radius %}radius={{ radius|urlencode }}&{% endif %}">
+           href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if zip %}zip={{ zip|urlencode }}&{% endif %}{% if sort %}sort={{ sort|urlencode }}&{% endif %}{% if radius %}radius={{ radius|urlencode }}&{% endif %}">
           All
         </a>
 
@@ -41,7 +41,7 @@
                 </button>
 
                 <a class="list-group-item list-group-item-action border-0 px-0 py-2 {% if selected_category == c.id|stringformat:'s' %}fw-semibold{% endif %}" data-cat-item
-                   href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if state %}state={{ state|urlencode }}&{% endif %}{% if radius %}radius={{ radius|urlencode }}&{% endif %}category={{ c.id }}">
+                   href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if zip %}zip={{ zip|urlencode }}&{% endif %}{% if sort %}sort={{ sort|urlencode }}&{% endif %}{% if radius %}radius={{ radius|urlencode }}&{% endif %}category={{ c.id }}">
                   {{ c.name }}
                 </a>
               </div>
@@ -52,7 +52,7 @@
                     <div class="list-group list-group-flush">
                       {% for s in c.children.all %}
                         <a class="list-group-item list-group-item-action border-0 px-0 py-1 {% if selected_category == s.id|stringformat:'s' %}fw-semibold{% endif %}" data-cat-item
-                           href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if state %}state={{ state|urlencode }}&{% endif %}{% if radius %}radius={{ radius|urlencode }}&{% endif %}category={{ s.id }}">
+                           href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if zip %}zip={{ zip|urlencode }}&{% endif %}{% if sort %}sort={{ sort|urlencode }}&{% endif %}{% if radius %}radius={{ radius|urlencode }}&{% endif %}category={{ s.id }}">
                           " {{ s.name }}
                         </a>
                       {% endfor %}
@@ -99,7 +99,7 @@
 
       <div class="list-group list-group-flush" data-cat-list data-cat-scope="mob" data-cat-scope-id="{{ offcanvas_id }}">
         <a class="list-group-item list-group-item-action {% if not selected_category %}active{% endif %}"
-           href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if state %}state={{ state|urlencode }}&{% endif %}{% if radius %}radius={{ radius|urlencode }}&{% endif %}">
+           href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if zip %}zip={{ zip|urlencode }}&{% endif %}{% if sort %}sort={{ sort|urlencode }}&{% endif %}{% if radius %}radius={{ radius|urlencode }}&{% endif %}">
           All
         </a>
 
@@ -123,7 +123,7 @@
                 </button>
 
                 <a class="list-group-item list-group-item-action border-0 px-0 py-2 {% if selected_category == c.id|stringformat:'s' %}fw-semibold{% endif %}" data-cat-item
-                   href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if state %}state={{ state|urlencode }}&{% endif %}{% if radius %}radius={{ radius|urlencode }}&{% endif %}category={{ c.id }}">
+                   href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if zip %}zip={{ zip|urlencode }}&{% endif %}{% if sort %}sort={{ sort|urlencode }}&{% endif %}{% if radius %}radius={{ radius|urlencode }}&{% endif %}category={{ c.id }}">
                   {{ c.name }}
                 </a>
               </div>
@@ -134,7 +134,7 @@
                     <div class="list-group list-group-flush">
                       {% for s in c.children.all %}
                         <a class="list-group-item list-group-item-action border-0 px-0 py-1 {% if selected_category == s.id|stringformat:'s' %}fw-semibold{% endif %}" data-cat-item
-                           href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if state %}state={{ state|urlencode }}&{% endif %}{% if radius %}radius={{ radius|urlencode }}&{% endif %}category={{ s.id }}">
+                           href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if zip %}zip={{ zip|urlencode }}&{% endif %}{% if sort %}sort={{ sort|urlencode }}&{% endif %}{% if radius %}radius={{ radius|urlencode }}&{% endif %}category={{ s.id }}">
                           " {{ s.name }}
                         </a>
                       {% endfor %}

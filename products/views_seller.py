@@ -133,7 +133,7 @@ def seller_product_list(request):
 
     # Onboarding checklist (mirrors seller dashboard)
     profile = getattr(request.user, "profile", None)
-    has_public_location = bool(getattr(profile, "public_city", "") or getattr(profile, "public_state", ""))
+    has_public_location = bool((getattr(profile, "zip_code", "") or "").strip())
     has_shop_name = bool((getattr(profile, "shop_name", "") or "").strip())
     email_verified = bool(getattr(profile, "email_verified", False))
     age_ok = bool(getattr(profile, "is_age_18_confirmed", False))
@@ -146,7 +146,7 @@ def seller_product_list(request):
         {"key": "policy", "label": "Acknowledge prohibited items policy", "done": policy_ack, "url": reverse("accounts:profile")},
         {"key": "stripe", "label": "Connect Stripe payouts", "done": bool(stripe_ready), "url": reverse("payments:connect_status")},
         {"key": "shop", "label": "Add your shop name", "done": has_shop_name, "url": reverse("accounts:profile")},
-        {"key": "location", "label": "Set your public location (city/state)", "done": has_public_location, "url": reverse("accounts:profile")},
+        {"key": "location", "label": "Set your ZIP code", "done": has_public_location, "url": reverse("accounts:profile")},
         {"key": "listing", "label": "Create your first listing", "done": has_listing, "url": reverse("products:seller_create")},
     ]
     onboarding_done = all(s.get("done") for s in onboarding_steps)

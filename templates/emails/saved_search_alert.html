@@ -1,0 +1,12 @@
+{% extends "emails/base.html" %}
+{% block content %}
+  <h1 style="margin:0 0 12px;font-size:20px;">{{ title }}</h1>
+  <p style="margin:0 0 12px;">{{ body }}</p>
+  <div style="margin:16px 0;padding:16px;border:1px solid #e5e7eb;border-radius:10px;background:#f9fafb;">
+    <div style="font-size:12px;color:#6b7280;margin-bottom:6px;">View matches</div>
+    <a href="{{ action_url }}" style="color:#2563eb;text-decoration:none;">Open saved search results</a>
+  </div>
+  <p style="margin:16px 0 0;color:#6b7280;font-size:13px;">
+    You can disable email alerts anytime on your Saved Searches page.
+  </p>
+{% endblock %}

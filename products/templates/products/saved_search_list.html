@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Saved Searches - Local Market NE{% endblock %}
+
+{% block content %}
+<div class="container-fluid lm-page-shell">
+  <div class="lm-page-head">
+    <div>
+      <h1 class="h4 lm-page-title">Saved Searches</h1>
+      <p class="small lm-page-subtitle">Get alerts when new matching listings are published.</p>
+    </div>
+    <div class="lm-page-actions">
+      <a class="btn btn-outline-secondary" href="{% url 'dashboards:consumer' %}">Dashboard</a>
+      <a class="btn btn-primary" href="{% url 'products:list' %}">Browse</a>
+    </div>
+  </div>
+
+  <div class="card lm-panel">
+    <div class="lm-table table-responsive">
+      <table class="table table-sm align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Type</th>
+            <th>Filters</th>
+            <th>Status</th>
+            <th>Last alert</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in saved_searches %}
+            <tr>
+              <td>{{ s.get_kind_display }}</td>
+              <td class="small text-secondary">
+                {% if s.query %}Query: {{ s.query }}{% endif %}
+                {% if s.zip_prefix %}{% if s.query %} - {% endif %}ZIP: {{ s.zip_prefix }}{% endif %}
+                {% if s.category_id_filter %} - Category #{{ s.category_id_filter }}{% endif %}
+                {% if s.kind == 'SERVICE' and s.radius_miles %} - Radius: {{ s.radius_miles }}+ mi{% endif %}
+                {% if s.sort %} - Sort: {{ s.sort }}{% endif %}
+              </td>
+              <td>
+                <form method="post" action="{% url 'products:saved_search_update' s.id %}" class="d-flex flex-column gap-1 align-items-start">
+                  {% csrf_token %}
+                  <label class="form-check small mb-0">
+                    <input class="form-check-input" type="checkbox" name="is_active" value="1" {% if s.is_active %}checked{% endif %}>
+                    <span class="form-check-label">Active</span>
+                  </label>
+                  <label class="form-check small mb-0">
+                    <input class="form-check-input" type="checkbox" name="email_enabled" value="1" {% if s.email_enabled %}checked{% endif %}>
+                    <span class="form-check-label">Email alerts</span>
+                  </label>
+                  <button class="btn btn-sm btn-outline-secondary" type="submit">Save</button>
+                </form>
+              </td>
+              <td class="small">{% if s.last_notified_at %}{{ s.last_notified_at|date:"Y-m-d H:i" }}{% else %}-{% endif %}</td>
+              <td class="text-end">
+                <form method="post" action="{% url 'products:saved_search_delete' s.id %}" class="d-inline">
+                  {% csrf_token %}
+                  <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+                </form>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" class="py-0">{% include 'partials/empty_state.html' with title='' message='No saved searches yet.' action_route='products:list' action_label='Browse products' show_support_links=True %}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

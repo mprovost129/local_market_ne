@@ -1,0 +1,8 @@
+{{ title }}
+
+{{ body }}
+
+Open saved search results:
+{{ action_url }}
+
+You can disable email alerts anytime on your Saved Searches page.

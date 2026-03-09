@@ -284,3 +284,36 @@ class ProductEngagementEvent(models.Model):
 
     def __str__(self) -> str:
         return f"{self.kind} {self.product_id}"
+
+
+class SavedSearchAlert(models.Model):
+    class Kind(models.TextChoices):
+        GOOD = "GOOD", "Products"
+        SERVICE = "SERVICE", "Services"
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="saved_search_alerts",
+    )
+    kind = models.CharField(max_length=10, choices=Kind.choices, db_index=True)
+    query = models.CharField(max_length=200, blank=True, default="")
+    category_id_filter = models.PositiveIntegerField(null=True, blank=True, db_index=True)
+    zip_prefix = models.CharField(max_length=5, blank=True, default="", db_index=True)
+    radius_miles = models.PositiveIntegerField(default=0)
+    sort = models.CharField(max_length=24, blank=True, default="new")
+    email_enabled = models.BooleanField(default=False, db_index=True)
+    is_active = models.BooleanField(default=True, db_index=True)
+    last_notified_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["user", "kind", "is_active", "created_at"]),
+            models.Index(fields=["kind", "is_active", "last_notified_at"]),
+        ]
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:
+        return f"SavedSearchAlert<{self.user_id}:{self.kind}>"

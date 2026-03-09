@@ -34,7 +34,7 @@
 
   <div class="row g-3 mb-3">
     <div class="col-12 col-md-3">
-      <div class="card h-100">
+      <div class="card lm-card h-100">
         <div class="card-body">
           <div class="text-secondary small">Products (total)</div>
           <div class="h4 mb-0">{{ products_total|default:"0" }}</div>
@@ -44,7 +44,7 @@
     </div>
 
     <div class="col-12 col-md-3">
-      <div class="card h-100">
+      <div class="card lm-card h-100">
         <div class="card-body">
           <div class="text-secondary small">Sellers (with listings)</div>
           <div class="h4 mb-0">{{ sellers_total|default:"0" }}</div>
@@ -53,7 +53,7 @@
     </div>
 
     <div class="col-12 col-md-3">
-      <div class="card h-100">
+      <div class="card lm-card h-100">
         <div class="card-body">
           <div class="text-secondary small">Orders</div>
           <div class="d-flex justify-content-between mt-1">
@@ -69,7 +69,7 @@
     </div>
 
     <div class="col-12 col-md-3">
-      <div class="card h-100">
+      <div class="card lm-card h-100">
         <div class="card-body">
           <div class="text-secondary small">Revenue (last {{ since_days }} days)</div>
           <div class="h4 mb-0">${{ revenue_30|default:"0" }}</div>
@@ -80,7 +80,7 @@
 
   <div class="row g-3 mb-3">
     <div class="col-12 col-lg-4">
-      <div class="card h-100">
+      <div class="card lm-card h-100">
         <div class="card-header bg-white">
           <div class="fw-semibold">Marketplace Settings (Live)</div>
         </div>
@@ -108,12 +108,12 @@
     </div>
 
     <div class="col-12 col-lg-8">
-      <div class="card h-100">
+      <div class="card lm-card h-100">
         <div class="card-header bg-white">
           <div class="fw-semibold">Top Sellers (last {{ since_days }} days)</div>
         </div>
 
-        <div class="table-responsive">
+        <div class="lm-table table-responsive">
           <table class="table table-hover align-middle mb-0">
             <thead class="table-light">
               <tr>
@@ -146,7 +146,7 @@
 
   <div class="row g-3 mb-3">
     <div class="col-12">
-      <div class="card shadow-sm">
+      <div class="card lm-card shadow-sm">
         <div class="card-header bg-white d-flex flex-wrap align-items-center justify-content-between gap-2">
           <div class="fw-semibold">Analytics (Native)</div>
           <div class="d-flex flex-wrap align-items-center gap-2">
@@ -216,7 +216,7 @@
 
             <div class="fw-semibold mb-2">Top pages ({{ analytics_range_label }})</div>
             {% if analytics_top_pages %}
-              <div class="table-responsive">
+              <div class="lm-table table-responsive">
                 <table class="table table-sm align-middle mb-0">
                   <thead class="table-light">
                     <tr>
@@ -264,7 +264,7 @@
               <div class="col-12 col-lg-6">
                 <div class="text-secondary small mb-1">Top throttled rules (24h)</div>
                 {% if abuse_top_rules_24h %}
-                  <div class="table-responsive">
+                  <div class="lm-table table-responsive">
                     <table class="table table-sm align-middle mb-0">
                       <thead class="table-light">
                         <tr>
@@ -290,7 +290,7 @@
               <div class="col-12 col-lg-6">
                 <div class="text-secondary small mb-1">Top throttled rules (7d)</div>
                 {% if abuse_top_rules_7d %}
-                  <div class="table-responsive">
+                  <div class="lm-table table-responsive">
                     <table class="table table-sm align-middle mb-0">
                       <thead class="table-light">
                         <tr>

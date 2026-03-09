@@ -47,6 +47,8 @@ Optional:
 - `RECAPTCHA_V3_SITE_KEY=...`
 - `RECAPTCHA_V3_SECRET_KEY=...`
 - `USE_S3=1` (if using S3 media)
+- `SAVED_SEARCH_ALERTS_ENABLED=1`
+- `SAVED_SEARCH_ALERTS_LIMIT=500`
 
 Recommended quick check after setting env vars:
 - `python manage.py env_audit`
@@ -102,6 +104,11 @@ Use one of these before promoting a release:
 
 6) First-live validation helper (server + public HTTP)
 - `python manage.py first_live_validate --base-url https://localmarketne.com`
+
+7) Saved search alerts scheduler
+- Ensure recurring job exists (Render Cron): every 10-15 minutes.
+- Dry-run validation:
+  - `python manage.py send_saved_search_alerts --enabled --dry-run --limit 50`
 
 ## First-live validation (Stripe)
 

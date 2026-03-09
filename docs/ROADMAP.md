@@ -1158,3 +1158,109 @@ Move from "working and branded" to "production-consistent UX" with a tracked, ph
   - SiteConfig `analytics_primary_host` and `analytics_primary_environment`
 
 
+## 2026-03-09 - Pack DC - UI baseline lock (checklist + regression cleanup)
+
+### Completed
+- Added compact visual regression checklist for release QA:
+  - `docs/VISUAL_REGRESSION_CHECKLIST.md`
+- Closed a remaining checkout copy-encoding regression in `orders/views.py`.
+- Updated seller image primary badge style to theme-aligned `text-bg-secondary`.
+
+### Next
+- Execute the visual regression checklist on:
+  - Home -> Product detail -> Cart -> Checkout
+  - Seller dashboard -> Listings CRUD -> Storefront preview
+  - Admin dashboard -> Ops pages
+
+
+## 2026-03-09 - Pack DD - Admin/Ops surface consistency pass
+
+### Completed
+- Standardized dashboard table wrappers to `lm-table table-responsive` on:
+  - Admin Dashboard
+  - Admin Ops
+  - Seller Dashboard
+  - Seller Payouts
+  - Consumer Dashboard
+  - Admin Reconciliation
+- Fixed UI data fallbacks that showed stray quote characters in:
+  - Admin Ops refunds table actor fallback
+  - Seller Payouts transfer amount fallback
+- Fixed Seller Payouts metric cards to use `card-body` class structure correctly.
+- Applied `lm-card` styling to Admin Dashboard and Admin Ops card surfaces for visual parity.
+
+### Next
+- Run template-level QA on Admin/Ops flows and verify no regressions in:
+  - analytics blocks
+  - reconciliation tables
+  - webhook/refund ops queues
+
+
+## 2026-03-09 - Pack DE - Local discovery saved searches + alerts
+
+### Completed
+- Added `products.SavedSearchAlert` model + admin registration to persist buyer search filters:
+  - kind (products/services), query, category, ZIP prefix, radius, sort, active flag, last alert timestamp.
+- Added buyer-facing save/remove/search-management flows:
+  - `POST /products/saved-searches/create/`
+  - `POST /products/saved-searches/<id>/delete/`
+  - `GET /products/saved-searches/`
+- Added browse-page controls on products/services to:
+  - Save the current filtered search.
+  - Remove the active saved search.
+  - Navigate to manage saved searches.
+- Added consumer dashboard visibility for active saved searches.
+- Added background dispatch command:
+  - `python manage.py send_saved_search_alerts [--limit N] [--dry-run]`
+  - Sends in-app notifications for newly published matching listings.
+  - Excludes a user's own listings from notifications.
+- Added regression tests for:
+  - Saved search create/delete.
+  - Alert dispatch notification creation.
+  - Alert self-listing exclusion.
+
+### Next
+- Schedule `send_saved_search_alerts` in production (cron/worker) at a fixed cadence.
+- Add optional email alerts toggle per saved search (in-app already live).
+
+
+## 2026-03-09 - Pack DF - Saved search email alerts + controls
+
+### Completed
+- Added per-search `email_enabled` flag on `products.SavedSearchAlert`.
+- Added saved-search settings update endpoint:
+  - `POST /products/saved-searches/<id>/update/`
+  - Supports toggling `is_active` and `email_enabled`.
+- Updated saved-search browse UI to allow enabling email alerts at save time.
+- Updated Saved Searches management page with inline controls for:
+  - Active/inactive toggle
+  - Email alerts toggle
+- Enhanced `send_saved_search_alerts`:
+  - Sends in-app only when email alerts are disabled.
+  - Sends email + in-app when email alerts are enabled.
+  - Added saved-search alert email templates (`html` + `txt`).
+- Added regression tests for:
+  - Saved-search update toggles.
+  - Email-alert dispatch creates notification + email delivery attempt.
+
+### Next
+- Schedule `send_saved_search_alerts` as a recurring production job (10-15 min cadence).
+
+
+## 2026-03-09 - Pack DG - Saved search scheduler deployment wiring
+
+### Completed
+- Added scheduler-safe env controls to saved search alert command:
+  - `SAVED_SEARCH_ALERTS_ENABLED`
+  - `SAVED_SEARCH_ALERTS_LIMIT`
+- Updated command defaults to use env values for unattended runs.
+- Added Render Blueprint cron service:
+  - `localmarketne-saved-search-alerts`
+  - schedule: every 15 minutes
+  - command: `python manage.py send_saved_search_alerts --enabled --limit 500`
+- Updated deploy/go-live/env-var docs to include scheduler setup and validation.
+
+### Next
+- Verify cron service is enabled in production and monitor first 24h of notification volume.
+
+

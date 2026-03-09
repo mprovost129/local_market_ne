@@ -20,7 +20,7 @@
 
   <div class="row g-3 mb-3">
     <div class="col-12 col-lg-6">
-      <div class="card shadow-sm">
+      <div class="card lm-card shadow-sm">
         <div class="card-body">
           <div class="d-flex align-items-center justify-content-between">
             <div class="fw-semibold">Stripe Webhook Deliveries</div>
@@ -38,7 +38,7 @@
           <div class="mt-3">
             <div class="fw-semibold small">Recent errors</div>
             {% if webhook_errors %}
-              <div class="table-responsive">
+              <div class="lm-table table-responsive">
                 <table class="table table-sm align-middle mb-0">
                   <thead>
                     <tr>
@@ -87,7 +87,7 @@
     </div>
 
     <div class="col-12 col-lg-6">
-      <div class="card shadow-sm">
+      <div class="card lm-card shadow-sm">
         <div class="card-body">
           <div class="d-flex align-items-center justify-content-between">
             <div class="fw-semibold">Refund Trigger Attempts</div>
@@ -104,7 +104,7 @@
           <div class="mt-3">
             <div class="fw-semibold small">Failures (last 24h)</div>
             {% if refund_failures_24h %}
-              <div class="table-responsive">
+              <div class="lm-table table-responsive">
                 <table class="table table-sm align-middle mb-0">
                   <thead>
                     <tr>
@@ -120,7 +120,7 @@
                       <tr>
                         <td class="text-nowrap">{{ a.created_at|date:"Y-m-d H:i" }}</td>
                         <td class="text-nowrap">{{ a.refund_request_id }}</td>
-                        <td class="text-nowrap">{% if a.actor %}{{ a.actor.username }}{% else %}"{% endif %}</td>
+                        <td class="text-nowrap">{% if a.actor %}{{ a.actor.username }}{% else %}-{% endif %}</td>
                         <td class="text-nowrap">{{ a.request_id|default:"" }}</td>
                         <td class="small text-truncate" style="max-width: 340px;">{{ a.error_message }}</td>
                       </tr>
@@ -137,7 +137,7 @@
     </div>
   </div>
 
-  <div class="card shadow-sm">
+  <div class="card lm-card shadow-sm">
     <div class="card-body">
       <div class="d-flex align-items-center justify-content-between">
         <div class="fw-semibold">Recent Order Warnings</div>
@@ -145,7 +145,7 @@
       </div>
 
       {% if recent_order_warnings %}
-        <div class="table-responsive mt-2">
+        <div class="lm-table table-responsive mt-2">
           <table class="table table-sm align-middle mb-0">
             <thead>
               <tr>

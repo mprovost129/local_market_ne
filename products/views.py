@@ -4,14 +4,20 @@ from __future__ import annotations
 import base64
 import io
 from datetime import timedelta
+import re
+from urllib.parse import urlencode
 
+from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.db.models import Avg, Count, Prefetch, Q
+from django.db.models import Avg, Case, Count, IntegerField, Prefetch, Q, Value, When
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
+from django.views.decorators.http import require_POST
 
 from catalog.models import Category
 from core.qr import qr_data_uri
@@ -19,7 +25,7 @@ from core.throttle import ThrottleRule, throttle
 from payments.models import SellerStripeAccount
 from products.permissions import is_owner_user
 from products.services.trending import get_trending_badge_ids
-from .models import Product, ProductEngagementEvent
+from .models import Product, ProductEngagementEvent, SavedSearchAlert
 
 
 VIEW_THROTTLE_MINUTES = 10
@@ -42,15 +48,14 @@ MAX_PER_PAGE = 60
 MAX_QUERY_LEN = 200
 
 # Service browse filters
-NE_STATE_CHOICES = [
-    ("CT", "Connecticut"),
-    ("ME", "Maine"),
-    ("MA", "Massachusetts"),
-    ("NH", "New Hampshire"),
-    ("RI", "Rhode Island"),
-    ("VT", "Vermont"),
-]
 SERVICE_RADIUS_CHOICES = [5, 10, 25, 50, 100]
+SORT_CHOICES = [
+    ("local", "Local first"),
+    ("new", "Newest"),
+    ("price_low", "Price: low to high"),
+    ("price_high", "Price: high to low"),
+    ("trending", "Trending"),
+]
 
 # Short cache for anonymous browse/storefront pages
 ANON_CACHE_SECONDS = 60
@@ -69,6 +74,24 @@ def _safe_int(raw: str, default: int) -> int:
         return int(str(raw).strip())
     except Exception:
         return default
+
+
+def _normalized_zip_prefix(raw: str) -> str:
+    """
+    Normalize a ZIP-like input to a numeric prefix for startswith filtering.
+    Supports inputs like:
+    - 02860
+    - 02860-1234
+    - 02860 1234
+    """
+    txt = (raw or "").strip()
+    if not txt:
+        return ""
+    digits = re.sub(r"[^0-9]", "", txt)
+    if not digits:
+        return ""
+    # ZIP5 + optional ZIP4: we only need ZIP5 prefix for location filtering.
+    return digits[:5]
 
 
 def _get_per_page(request: HttpRequest) -> int:
@@ -134,9 +157,77 @@ def _selected_category_name(raw_category: str) -> str:
     )
 
 
+def _sort_key(raw: str, *, has_zip: bool) -> str:
+    key = (raw or "").strip().lower()
+    allowed = {k for k, _ in SORT_CHOICES}
+    if key not in allowed:
+        return "local" if has_zip else "new"
+    if key == "local" and not has_zip:
+        return "new"
+    return key
+
+
+def _apply_listing_sort(qs, *, sort: str, zip_code: str):
+    if sort == "price_low":
+        return qs.order_by("price", "-created_at")
+    if sort == "price_high":
+        return qs.order_by("-price", "-created_at")
+    if sort == "trending":
+        return qs.order_by("-is_trending", "-created_at")
+    if sort == "local" and zip_code:
+        zip3 = zip_code[:3]
+        return (
+            qs.annotate(
+                local_rank=Case(
+                    When(seller__profile__zip_code__istartswith=zip_code, then=Value(0)),
+                    When(seller__profile__zip_code__istartswith=zip3, then=Value(1)),
+                    default=Value(2),
+                    output_field=IntegerField(),
+                )
+            )
+            .order_by("local_rank", "-created_at")
+        )
+    return qs.order_by("-created_at")
+
+
+def _saved_search_existing(*, user, kind: str, q: str, category: str, zip_code: str, radius: int, sort: str):
+    category_id_filter = int(category) if str(category or "").isdigit() else None
+    return (
+        SavedSearchAlert.objects.filter(
+            user=user,
+            kind=kind,
+            query=(q or "").strip(),
+            category_id_filter=category_id_filter,
+            zip_prefix=(zip_code or "").strip(),
+            radius_miles=max(0, int(radius or 0)),
+            sort=(sort or "new").strip(),
+            is_active=True,
+        )
+        .only("id")
+        .first()
+    )
+
+
+def _saved_search_browse_url(*, kind: str, q: str, category: str, zip_code: str, radius: int, sort: str) -> str:
+    route = "products:services" if kind == SavedSearchAlert.Kind.SERVICE else "products:list"
+    params: dict[str, str] = {}
+    if q:
+        params["q"] = q
+    if category and str(category).isdigit():
+        params["category"] = str(category)
+    if zip_code:
+        params["zip"] = zip_code
+    if kind == SavedSearchAlert.Kind.SERVICE and radius and int(radius) > 0:
+        params["radius"] = str(int(radius))
+    if sort:
+        params["sort"] = sort
+    qs = urlencode(params)
+    return f"{reverse(route)}?{qs}" if qs else reverse(route)
+
+
 def product_list(request: HttpRequest) -> HttpResponse:
     """Default public browse: Products (Goods)."""
-    qs = _base_qs().filter(kind=Product.Kind.GOOD).order_by("-created_at")
+    qs = _base_qs().filter(kind=Product.Kind.GOOD)
 
     q = (request.GET.get("q") or "").strip()[:MAX_QUERY_LEN]
     if q:
@@ -147,9 +238,26 @@ def product_list(request: HttpRequest) -> HttpResponse:
         cid = int(category)
         qs = qs.filter(Q(category_id=cid) | Q(subcategory_id=cid))
 
+    zip_code = _normalized_zip_prefix(request.GET.get("zip"))
+    if zip_code:
+        qs = qs.filter(seller__profile__zip_code__istartswith=zip_code)
+    sort = _sort_key(request.GET.get("sort"), has_zip=bool(zip_code))
+    qs = _apply_listing_sort(qs, sort=sort, zip_code=zip_code)
+
     page_obj = _paginate(request, qs)
     selected_category_name = _selected_category_name(category)
     trending_badge_ids = sorted(get_trending_badge_ids())
+    saved_search = None
+    if request.user.is_authenticated:
+        saved_search = _saved_search_existing(
+            user=request.user,
+            kind=SavedSearchAlert.Kind.GOOD,
+            q=q,
+            category=category,
+            zip_code=zip_code,
+            radius=0,
+            sort=sort,
+        )
 
     return _maybe_cached_render(
         request,
@@ -161,6 +269,10 @@ def product_list(request: HttpRequest) -> HttpResponse:
             "active_tab": "products",
             "q": q,
             "category": category,
+            "zip": zip_code,
+            "sort": sort,
+            "sort_choices": SORT_CHOICES,
+            "saved_search": saved_search,
             "selected_category_name": selected_category_name,
             "trending_badge_ids": trending_badge_ids,
         },
@@ -168,7 +280,7 @@ def product_list(request: HttpRequest) -> HttpResponse:
 
 
 def services_list(request: HttpRequest) -> HttpResponse:
-    qs = _base_qs().filter(kind=Product.Kind.SERVICE).order_by("-created_at")
+    qs = _base_qs().filter(kind=Product.Kind.SERVICE)
 
     q = (request.GET.get("q") or "").strip()[:MAX_QUERY_LEN]
     if q:
@@ -179,18 +291,31 @@ def services_list(request: HttpRequest) -> HttpResponse:
         cid = int(category)
         qs = qs.filter(Q(category_id=cid) | Q(subcategory_id=cid))
 
-    state = (request.GET.get("state") or "").strip().upper()
-    if state and len(state) <= 4:
-        qs = qs.filter(seller__profile__public_state__iexact=state)
+    zip_code = _normalized_zip_prefix(request.GET.get("zip"))
+    if zip_code:
+        qs = qs.filter(seller__profile__zip_code__istartswith=zip_code)
 
     radius_raw = (request.GET.get("radius") or "").strip()
     radius = _safe_int(radius_raw, 0)
     if radius > 0:
         qs = qs.filter(seller__profile__service_radius_miles__gte=radius)
+    sort = _sort_key(request.GET.get("sort"), has_zip=bool(zip_code))
+    qs = _apply_listing_sort(qs, sort=sort, zip_code=zip_code)
 
     page_obj = _paginate(request, qs)
     selected_category_name = _selected_category_name(category)
     trending_badge_ids = sorted(get_trending_badge_ids())
+    saved_search = None
+    if request.user.is_authenticated:
+        saved_search = _saved_search_existing(
+            user=request.user,
+            kind=SavedSearchAlert.Kind.SERVICE,
+            q=q,
+            category=category,
+            zip_code=zip_code,
+            radius=radius,
+            sort=sort,
+        )
 
     return _maybe_cached_render(
         request,
@@ -202,14 +327,91 @@ def services_list(request: HttpRequest) -> HttpResponse:
             "active_tab": "services",
             "q": q,
             "category": category,
+            "zip": zip_code,
+            "sort": sort,
+            "sort_choices": SORT_CHOICES,
+            "saved_search": saved_search,
             "selected_category_name": selected_category_name,
-            "state": state,
             "radius": radius if radius > 0 else "",
-            "state_choices": NE_STATE_CHOICES,
             "radius_choices": SERVICE_RADIUS_CHOICES,
             "trending_badge_ids": trending_badge_ids,
         },
     )
+
+
+@login_required
+@require_POST
+def saved_search_create(request: HttpRequest) -> HttpResponse:
+    kind = (request.POST.get("kind") or "").strip().upper()
+    if kind not in {SavedSearchAlert.Kind.GOOD, SavedSearchAlert.Kind.SERVICE}:
+        kind = SavedSearchAlert.Kind.GOOD
+
+    q = (request.POST.get("q") or "").strip()[:MAX_QUERY_LEN]
+    category = (request.POST.get("category") or "").strip()
+    zip_code = _normalized_zip_prefix(request.POST.get("zip"))
+    radius = _safe_int(request.POST.get("radius"), 0) if kind == SavedSearchAlert.Kind.SERVICE else 0
+    sort = _sort_key(request.POST.get("sort"), has_zip=bool(zip_code))
+    email_enabled = bool(request.POST.get("email_enabled"))
+
+    category_id_filter = int(category) if category.isdigit() else None
+    existing = _saved_search_existing(
+        user=request.user,
+        kind=kind,
+        q=q,
+        category=category,
+        zip_code=zip_code,
+        radius=radius,
+        sort=sort,
+    )
+    if existing:
+        messages.info(request, "This local search is already saved.")
+        return redirect(_saved_search_browse_url(kind=kind, q=q, category=category, zip_code=zip_code, radius=radius, sort=sort))
+
+    SavedSearchAlert.objects.create(
+        user=request.user,
+        kind=kind,
+        query=q,
+        category_id_filter=category_id_filter,
+        zip_prefix=zip_code,
+        radius_miles=max(0, int(radius)),
+        sort=sort,
+        email_enabled=email_enabled,
+        is_active=True,
+    )
+    messages.success(request, "Saved search created. We'll alert you when new matching listings appear.")
+    return redirect(_saved_search_browse_url(kind=kind, q=q, category=category, zip_code=zip_code, radius=radius, sort=sort))
+
+
+@login_required
+@require_POST
+def saved_search_delete(request: HttpRequest, pk: int) -> HttpResponse:
+    obj = get_object_or_404(SavedSearchAlert, pk=pk, user=request.user)
+    kind = obj.kind
+    q = obj.query
+    category = str(obj.category_id_filter or "")
+    zip_code = obj.zip_prefix
+    radius = int(obj.radius_miles or 0)
+    sort = obj.sort or "new"
+    obj.delete()
+    messages.success(request, "Saved search removed.")
+    return redirect(_saved_search_browse_url(kind=kind, q=q, category=category, zip_code=zip_code, radius=radius, sort=sort))
+
+
+@login_required
+@require_POST
+def saved_search_update(request: HttpRequest, pk: int) -> HttpResponse:
+    obj = get_object_or_404(SavedSearchAlert, pk=pk, user=request.user)
+    obj.is_active = bool(request.POST.get("is_active"))
+    obj.email_enabled = bool(request.POST.get("email_enabled"))
+    obj.save(update_fields=["is_active", "email_enabled", "updated_at"])
+    messages.success(request, "Saved search settings updated.")
+    return redirect("products:saved_search_list")
+
+
+@login_required
+def saved_search_list(request: HttpRequest) -> HttpResponse:
+    rows = SavedSearchAlert.objects.filter(user=request.user).order_by("-created_at")
+    return render(request, "products/saved_search_list.html", {"saved_searches": rows})
 
 
 def product_go(request: HttpRequest, pk: int, slug: str) -> HttpResponse:

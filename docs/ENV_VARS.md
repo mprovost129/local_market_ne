@@ -61,6 +61,13 @@ Use `.env.example` for local development and the Render dashboard (or Blueprint 
 | `AWS_S3_MEDIA_BUCKET` | ✅ if `USE_S3=1` | Bucket name for media. |
 | `AWS_S3_REGION_NAME` | ✅ if `USE_S3=1` | Region, e.g. `us-east-2`. |
 
+## Saved Search Alerts
+
+| Variable | Required | Notes |
+|---|---:|---|
+| `SAVED_SEARCH_ALERTS_ENABLED` | optional | Set to `1` to allow scheduled saved-search dispatch. |
+| `SAVED_SEARCH_ALERTS_LIMIT` | optional | Per-run cap for evaluated searches (default `500`). |
+
 ## Helpful Commands
 
 - `python manage.py env_audit` — prints what’s present/missing (recommended/required).

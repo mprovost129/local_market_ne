@@ -5,14 +5,16 @@ from uuid import uuid4
 
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
+from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
 from catalog.models import Category
+from notifications.models import EmailDeliveryAttempt, Notification
 from orders.models import Order, OrderItem
 from payments.models import SellerStripeAccount
-from products.models import Product
+from products.models import Product, SavedSearchAlert
 from products.services.trending import get_trending_badge_ids
 
 
@@ -37,7 +39,9 @@ class ListingFlowTests(TestCase):
         prof.is_seller = True
         prof.email_verified = True
         prof.shop_name = "Seller Listing Co"
-        prof.save(update_fields=["is_seller", "email_verified", "shop_name", "updated_at"])
+        prof.public_city = "Providence"
+        prof.zip_code = "02860"
+        prof.save(update_fields=["is_seller", "email_verified", "shop_name", "public_city", "zip_code", "updated_at"])
 
         SellerStripeAccount.objects.create(
             user=self.seller,
@@ -60,6 +64,12 @@ class ListingFlowTests(TestCase):
             type=Category.CategoryType.GOOD,
             name="Goods Test",
             slug=f"goods-test-{uuid4().hex[:8]}",
+            is_active=True,
+        )
+        self.service_category = Category.objects.create(
+            type=Category.CategoryType.SERVICE,
+            name="Services Test",
+            slug=f"services-test-{uuid4().hex[:8]}",
             is_active=True,
         )
 
@@ -176,3 +186,241 @@ class ListingFlowTests(TestCase):
         self.assertIn(p1.id, badge_ids)
         listing = self.client.get(reverse("products:list"))
         self.assertContains(listing, "Trending")
+
+    def test_product_card_shows_seller_city(self):
+        Product.objects.create(
+            seller=self.seller,
+            kind=Product.Kind.GOOD,
+            title="City Card Product",
+            category=self.goods_category,
+            price=Decimal("9.99"),
+            is_active=True,
+            stock_qty=5,
+            fulfillment_pickup_enabled=True,
+        )
+        resp = self.client.get(reverse("products:list"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Providence")
+
+    def test_products_list_filters_by_seller_zip(self):
+        other_seller = User.objects.create_user(
+            username="seller_zip_other",
+            email="seller_zip_other@example.com",
+            password="pw123456",
+        )
+        other_profile = other_seller.profile
+        other_profile.is_seller = True
+        other_profile.email_verified = True
+        other_profile.zip_code = "02108"
+        other_profile.save(update_fields=["is_seller", "email_verified", "zip_code", "updated_at"])
+
+        Product.objects.create(
+            seller=self.seller,
+            kind=Product.Kind.GOOD,
+            title="Zip Matched Product",
+            category=self.goods_category,
+            price=Decimal("12.00"),
+            is_active=True,
+            stock_qty=3,
+            fulfillment_pickup_enabled=True,
+        )
+        Product.objects.create(
+            seller=other_seller,
+            kind=Product.Kind.GOOD,
+            title="Zip Other Product",
+            category=self.goods_category,
+            price=Decimal("13.00"),
+            is_active=True,
+            stock_qty=3,
+            fulfillment_pickup_enabled=True,
+        )
+
+        resp = self.client.get(reverse("products:list"), {"zip": "02860"})
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Zip Matched Product")
+        self.assertNotContains(resp, "Zip Other Product")
+
+    def test_services_list_filters_by_seller_zip(self):
+        other_seller = User.objects.create_user(
+            username="seller_service_zip_other",
+            email="seller_service_zip_other@example.com",
+            password="pw123456",
+        )
+        other_profile = other_seller.profile
+        other_profile.is_seller = True
+        other_profile.email_verified = True
+        other_profile.zip_code = "02108"
+        other_profile.save(update_fields=["is_seller", "email_verified", "zip_code", "updated_at"])
+
+        Product.objects.create(
+            seller=self.seller,
+            kind=Product.Kind.SERVICE,
+            title="Zip Matched Service",
+            category=self.service_category,
+            price=Decimal("50.00"),
+            is_active=True,
+            service_duration_minutes=60,
+        )
+        Product.objects.create(
+            seller=other_seller,
+            kind=Product.Kind.SERVICE,
+            title="Zip Other Service",
+            category=self.service_category,
+            price=Decimal("50.00"),
+            is_active=True,
+            service_duration_minutes=60,
+        )
+
+        resp = self.client.get(reverse("products:services"), {"zip": "02860"})
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Zip Matched Service")
+        self.assertNotContains(resp, "Zip Other Service")
+
+    def test_products_sort_price_low_orders_results(self):
+        Product.objects.create(
+            seller=self.seller,
+            kind=Product.Kind.GOOD,
+            title="Expensive Product",
+            category=self.goods_category,
+            price=Decimal("30.00"),
+            is_active=True,
+            stock_qty=3,
+            fulfillment_pickup_enabled=True,
+        )
+        Product.objects.create(
+            seller=self.seller,
+            kind=Product.Kind.GOOD,
+            title="Affordable Product",
+            category=self.goods_category,
+            price=Decimal("5.00"),
+            is_active=True,
+            stock_qty=3,
+            fulfillment_pickup_enabled=True,
+        )
+
+        resp = self.client.get(reverse("products:list"), {"sort": "price_low", "zip": "02860"})
+        self.assertEqual(resp.status_code, 200)
+        rows = list(resp.context["products"])
+        titles = [p.title for p in rows]
+        self.assertIn("Affordable Product", titles)
+        self.assertIn("Expensive Product", titles)
+        self.assertLess(titles.index("Affordable Product"), titles.index("Expensive Product"))
+
+    def test_saved_search_create_and_remove(self):
+        self.client.force_login(self.consumer)
+        create_resp = self.client.post(
+            reverse("products:saved_search_create"),
+            data={
+                "kind": "GOOD",
+                "q": "candle",
+                "zip": "02860",
+                "sort": "local",
+            },
+        )
+        self.assertEqual(create_resp.status_code, 302)
+        saved = SavedSearchAlert.objects.filter(user=self.consumer, kind=SavedSearchAlert.Kind.GOOD).first()
+        self.assertIsNotNone(saved)
+        self.assertEqual(saved.query, "candle")
+        self.assertEqual(saved.zip_prefix, "02860")
+
+        remove_resp = self.client.post(reverse("products:saved_search_delete", kwargs={"pk": saved.id}))
+        self.assertEqual(remove_resp.status_code, 302)
+        self.assertFalse(SavedSearchAlert.objects.filter(pk=saved.id).exists())
+
+    def test_saved_search_update_toggles_flags(self):
+        saved = SavedSearchAlert.objects.create(
+            user=self.consumer,
+            kind=SavedSearchAlert.Kind.GOOD,
+            query="candle",
+            zip_prefix="02860",
+            sort="local",
+            is_active=True,
+            email_enabled=False,
+        )
+        self.client.force_login(self.consumer)
+        resp = self.client.post(
+            reverse("products:saved_search_update", kwargs={"pk": saved.id}),
+            data={"email_enabled": "1"},
+        )
+        self.assertEqual(resp.status_code, 302)
+        saved.refresh_from_db()
+        self.assertFalse(saved.is_active)
+        self.assertTrue(saved.email_enabled)
+
+    def test_saved_search_alert_command_creates_in_app_notification(self):
+        saved = SavedSearchAlert.objects.create(
+            user=self.consumer,
+            kind=SavedSearchAlert.Kind.GOOD,
+            query="Maple",
+            zip_prefix="02860",
+            sort="local",
+        )
+        Product.objects.create(
+            seller=self.seller,
+            kind=Product.Kind.GOOD,
+            title="Maple Birdhouse",
+            short_description="Local handmade birdhouse",
+            category=self.goods_category,
+            price=Decimal("35.00"),
+            is_active=True,
+            stock_qty=3,
+            fulfillment_pickup_enabled=True,
+        )
+
+        call_command("send_saved_search_alerts", limit=50)
+
+        self.assertTrue(Notification.objects.filter(user=self.consumer, payload__saved_search_id=saved.id).exists())
+        saved.refresh_from_db()
+        self.assertIsNotNone(saved.last_notified_at)
+
+    def test_saved_search_alert_command_email_enabled_creates_email_attempt(self):
+        SavedSearchAlert.objects.create(
+            user=self.consumer,
+            kind=SavedSearchAlert.Kind.GOOD,
+            query="Maple",
+            zip_prefix="02860",
+            sort="local",
+            email_enabled=True,
+        )
+        Product.objects.create(
+            seller=self.seller,
+            kind=Product.Kind.GOOD,
+            title="Maple Planter",
+            short_description="Handmade planter",
+            category=self.goods_category,
+            price=Decimal("22.00"),
+            is_active=True,
+            stock_qty=3,
+            fulfillment_pickup_enabled=True,
+        )
+
+        call_command("send_saved_search_alerts", limit=50)
+
+        notif = Notification.objects.filter(user=self.consumer).order_by("-created_at").first()
+        self.assertIsNotNone(notif)
+        self.assertTrue(notif.email_subject)
+        self.assertTrue(EmailDeliveryAttempt.objects.filter(notification=notif).exists())
+
+    def test_saved_search_alert_command_skips_user_own_listings(self):
+        saved = SavedSearchAlert.objects.create(
+            user=self.seller,
+            kind=SavedSearchAlert.Kind.GOOD,
+            query="Maple",
+            zip_prefix="02860",
+            sort="local",
+        )
+        Product.objects.create(
+            seller=self.seller,
+            kind=Product.Kind.GOOD,
+            title="Maple Coaster Set",
+            short_description="Maple wood coasters",
+            category=self.goods_category,
+            price=Decimal("20.00"),
+            is_active=True,
+            stock_qty=4,
+            fulfillment_pickup_enabled=True,
+        )
+
+        call_command("send_saved_search_alerts", limit=50)
+
+        self.assertFalse(Notification.objects.filter(user=self.seller, payload__saved_search_id=saved.id).exists())

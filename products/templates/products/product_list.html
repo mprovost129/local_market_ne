@@ -18,22 +18,64 @@
   <div class="lm-sticky-bar mb-3">
     <form class="d-flex flex-wrap gap-2" method="get">
       <input class="form-control" name="q" value="{{ q }}" placeholder="Search products..." style="min-width: 240px;">
+      <input class="form-control" name="zip" value="{{ zip }}" placeholder="ZIP code" inputmode="numeric" pattern="[0-9]{5}(-[0-9]{4})?" style="max-width: 160px;">
+      <select class="form-select" name="sort" style="min-width: 170px;">
+        {% for key,label in sort_choices %}
+          <option value="{{ key }}" {% if sort == key %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      {% if user.is_authenticated and user.profile.zip_code %}
+        <a class="btn btn-outline-secondary" href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}{% if sort %}sort={{ sort|urlencode }}&{% endif %}zip={{ user.profile.zip_code|urlencode }}">
+          Use my ZIP ({{ user.profile.zip_code }})
+        </a>
+      {% endif %}
       {% if category %}
         <input type="hidden" name="category" value="{{ category }}">
       {% endif %}
       <button class="btn btn-primary" type="submit"><i class="bi bi-search me-1"></i>Search</button>
-      {% if q or category %}
+      {% if q or category or zip or sort != 'new' %}
         <a class="btn btn-outline-secondary" href="{% url 'products:list' %}">Clear</a>
       {% endif %}
     </form>
+    {% if user.is_authenticated %}
+      <div class="mt-2 d-flex flex-wrap gap-2">
+        {% if saved_search %}
+          <form method="post" action="{% url 'products:saved_search_delete' saved_search.id %}" class="d-inline">
+            {% csrf_token %}
+            <button class="btn btn-sm btn-outline-danger" type="submit">Remove saved search</button>
+          </form>
+        {% else %}
+          <form method="post" action="{% url 'products:saved_search_create' %}" class="d-inline">
+            {% csrf_token %}
+            <input type="hidden" name="kind" value="GOOD">
+            <input type="hidden" name="q" value="{{ q }}">
+            <input type="hidden" name="category" value="{{ category }}">
+            <input type="hidden" name="zip" value="{{ zip }}">
+            <input type="hidden" name="sort" value="{{ sort }}">
+            <div class="form-check form-check-inline align-middle mx-1">
+              <input class="form-check-input" type="checkbox" id="save-search-email-good" name="email_enabled" value="1">
+              <label class="form-check-label small" for="save-search-email-good">Email alerts</label>
+            </div>
+            <button class="btn btn-sm btn-outline-primary" type="submit">Save this search</button>
+          </form>
+        {% endif %}
+        <a class="btn btn-sm btn-outline-secondary" href="{% url 'products:saved_search_list' %}">Manage saved searches</a>
+      </div>
+    {% endif %}
 
-    {% if q or category %}
+    {% if q or category or zip or sort != 'new' %}
       <div class="d-flex flex-wrap gap-2 mt-2">
         {% if q %}
           <span class="badge text-bg-light border">Search: {{ q }}</span>
         {% endif %}
+        {% if zip %}
+          <span class="badge text-bg-light border">ZIP: {{ zip }}</span>
+        {% endif %}
         {% if category and selected_category_name %}
           <span class="badge text-bg-light border">Category: {{ selected_category_name }}</span>
+        {% endif %}
+        {% if sort and sort != 'new' %}
+          <span class="badge text-bg-light border">Sort: {{ sort|title }}</span>
         {% endif %}
       </div>
     {% endif %}
@@ -57,21 +99,21 @@
         <nav class="mt-4" aria-label="Pagination">
           <ul class="pagination justify-content-center flex-wrap">
             <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
-              <a class="page-link" href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+              <a class="page-link" href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if zip %}zip={{ zip|urlencode }}&{% endif %}{% if sort %}sort={{ sort|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
             </li>
 
             {% for n in paginator.page_range %}
               {% if n == page_obj.number %}
                 <li class="page-item active"><span class="page-link">{{ n }}</span></li>
               {% elif n <= 2 or n > paginator.num_pages|add:"-2" or n|add:"-2" <= page_obj.number and n|add:"2" >= page_obj.number %}
-                <li class="page-item"><a class="page-link" href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}page={{ n }}">{{ n }}</a></li>
+                <li class="page-item"><a class="page-link" href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if zip %}zip={{ zip|urlencode }}&{% endif %}{% if sort %}sort={{ sort|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}page={{ n }}">{{ n }}</a></li>
               {% elif n == 3 or n == paginator.num_pages|add:"-2" %}
                 <li class="page-item disabled"><span class="page-link">?</span></li>
               {% endif %}
             {% endfor %}
 
             <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
-              <a class="page-link" href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+              <a class="page-link" href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if zip %}zip={{ zip|urlencode }}&{% endif %}{% if sort %}sort={{ sort|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
             </li>
           </ul>
         </nav>

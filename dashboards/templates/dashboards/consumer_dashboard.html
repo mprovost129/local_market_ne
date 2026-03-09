@@ -19,6 +19,9 @@
       <a class="btn btn-outline-secondary" href="{% url 'favorites:library' %}">
         <i class="bi bi-heart me-1"></i>Favorites &amp; Wishlist
       </a>
+      <a class="btn btn-outline-secondary" href="{% url 'products:saved_search_list' %}">
+        <i class="bi bi-bell me-1"></i>Saved Searches
+      </a>
       <a class="btn btn-outline-secondary" href="{% url 'accounts:profile' %}">
         <i class="bi bi-person-circle me-1"></i>Profile
       </a>
@@ -75,6 +78,27 @@
     </div>
   </div>
 
+  <div class="card lm-panel mb-3">
+    <div class="card-header bg-white d-flex align-items-center justify-content-between">
+      <div class="fw-semibold">Saved Search Alerts</div>
+      <a class="small text-decoration-none" href="{% url 'products:saved_search_list' %}">Manage</a>
+    </div>
+    <div class="card-body">
+      {% if saved_searches %}
+        <div class="small text-secondary mb-2">{{ saved_search_count }} active search{{ saved_search_count|pluralize }}</div>
+        <div class="d-flex flex-wrap gap-2">
+          {% for s in saved_searches %}
+            <span class="badge text-bg-light border">
+              {{ s.get_kind_display }}{% if s.query %}: {{ s.query }}{% endif %}{% if s.zip_prefix %} - ZIP {{ s.zip_prefix }}{% endif %}
+            </span>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="p-0">{% include 'partials/empty_state.html' with title='' message='No saved searches yet.' action_route='products:list' action_label='Browse local listings' show_support_links=True %}</div>
+      {% endif %}
+    </div>
+  </div>
+
   {% if not user.profile.is_seller %}
   <div class="card mb-3 border-primary bg-light lm-panel">
     <div class="card-body">
@@ -101,7 +125,7 @@
       <a class="small text-decoration-none" href="{% url 'orders:my_orders' %}">View all</a>
     </div>
 
-    <div class="table-responsive">
+    <div class="lm-table table-responsive">
       <table class="table table-hover align-middle mb-0">
         <thead class="table-light">
           <tr>

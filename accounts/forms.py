@@ -214,3 +214,19 @@ class ProfileForm(forms.ModelForm):
         # Owner/admin flags should not be editable here
         if "is_owner" in self.fields:
             self.fields.pop("is_owner")
+
+    def clean(self):
+        cleaned = super().clean()
+        is_seller = bool(cleaned.get("is_seller", False))
+        raw_zip = (cleaned.get("zip_code") or "").strip()
+
+        if is_seller and not raw_zip:
+            self.add_error("zip_code", "ZIP code is required for seller accounts.")
+            return cleaned
+
+        if raw_zip:
+            import re
+            if not re.fullmatch(r"^\d{5}(-\d{4})?$", raw_zip):
+                self.add_error("zip_code", "Enter a valid ZIP code (e.g., 02860 or 02860-1234).")
+
+        return cleaned

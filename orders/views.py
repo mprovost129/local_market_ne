@@ -844,7 +844,7 @@ def checkout_start(request, order_id):
         session = create_checkout_session_for_order(request=request, order=order)
     except Exception:
         logger.exception("Checkout start failed for order=%s", order.pk)
-        messages.error(request, "We couldnâ€™t start checkout right now. Please try again.")
+        messages.error(request, "We couldn't start checkout right now. Please try again.")
         return _redirect_order_detail(order, request)
     return redirect(session.url)
 

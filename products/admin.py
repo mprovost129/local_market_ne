@@ -7,7 +7,7 @@ from django.urls import path
 
 from catalog.models import Category
 from core.admin_filters import SellerCompanyFilter
-from .models import Product, ProductImage, ProductEngagementEvent
+from .models import Product, ProductImage, ProductEngagementEvent, SavedSearchAlert
 
 
 class ProductImageInline(admin.TabularInline):
@@ -117,3 +117,23 @@ class ProductEngagementEventAdmin(admin.ModelAdmin):
     list_display = ("id", "product", "kind", "user", "session_key", "created_at")
     list_filter = ("kind", "created_at")
     search_fields = ("product__title", "user__username", "session_key")
+
+
+@admin.register(SavedSearchAlert)
+class SavedSearchAlertAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "user",
+        "kind",
+        "query",
+        "zip_prefix",
+        "category_id_filter",
+        "radius_miles",
+        "sort",
+        "email_enabled",
+        "is_active",
+        "last_notified_at",
+        "created_at",
+    )
+    list_filter = ("kind", "is_active", "email_enabled", "sort")
+    search_fields = ("user__username", "query", "zip_prefix")
