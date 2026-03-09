@@ -1,7 +1,7 @@
 {# templates/dashboards/seller_dashboard.html #}
 {% extends "base.html" %}
 {% load money %}
-{% block title %}Seller Dashboard · Local Market NE{% endblock %}
+{% block title %}Seller Dashboard - Local Market NE{% endblock %}
 
 
 {% block content %}
@@ -167,8 +167,8 @@
                       <span title="Specs">
                         <i class="bi {% if checklist.has_specs %}bi-check-circle-fill text-success{% else %}bi-x-circle-fill text-danger{% endif %}"></i> Specs
                       </span>
-                      <span title="service Asset">
-                        <i class="bi {% if checklist.has_assets %}bi-check-circle-fill text-success{% else %}bi-x-circle-fill text-danger{% endif %}"></i> service Asset
+                      <span title="Asset">
+                        <i class="bi {% if checklist.has_assets %}bi-check-circle-fill text-success{% else %}bi-x-circle-fill text-danger{% endif %}"></i> Asset
                       </span>
                       <span title="Active">
                         <i class="bi {% if checklist.is_active %}bi-check-circle-fill text-success{% else %}bi-x-circle-fill text-danger{% endif %}"></i> Active
@@ -197,3 +197,6 @@
 
 </div>
 {% endblock %}
+
+
+

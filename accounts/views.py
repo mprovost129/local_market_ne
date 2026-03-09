@@ -1,12 +1,15 @@
 # accounts/views.py
 from __future__ import annotations
 
+import logging
+
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.decorators.http import require_POST, require_http_methods
+from botocore.exceptions import BotoCoreError, ClientError
 
 from core.throttle import throttle
 from core.throttle_rules import AUTH_LOGIN, AUTH_REGISTER
@@ -14,6 +17,9 @@ from core.recaptcha import require_recaptcha_v3
 from .forms import RegisterForm, UsernameAuthenticationForm, ProfileForm
 from .services import send_email_verification
 from .models import Profile
+
+
+logger = logging.getLogger(__name__)
 
 
 # ----------------------------
@@ -110,7 +116,14 @@ def profile_view(request):
 
         form = ProfileForm(request.POST, request.FILES, instance=profile, user=request.user)
         if form.is_valid():
-            form.save()
+            try:
+                form.save()
+            except (BotoCoreError, ClientError, OSError):
+                # Keep the request user-facing when media storage is temporarily unavailable.
+                logger.exception("Profile avatar upload failed", extra={"user_id": request.user.id})
+                messages.error(request, "Profile picture upload failed. Please try again in a moment.")
+                return redirect("accounts:profile")
+
             messages.success(request, "Profile updated.")
 
             # If they just enabled seller mode, redirect to Stripe onboarding (gated)

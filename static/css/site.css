@@ -174,6 +174,148 @@ textarea {
   animation: softPulse 6s ease-in-out infinite;
 }
 
+/* Auth pages */
+.lm-auth-wrap {
+  max-width: 560px;
+  margin: 40px auto;
+}
+
+.lm-auth-brand {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.lm-auth-logo {
+  height: 58px;
+  width: auto;
+  margin-bottom: 14px;
+}
+
+.lm-auth-title {
+  margin: 0 0 8px;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--bs-body-color);
+}
+
+.lm-auth-subtitle {
+  margin: 0;
+  color: var(--bs-secondary-color);
+  font-size: 0.95rem;
+}
+
+.lm-auth-card {
+  padding: 30px;
+}
+
+.lm-auth-back {
+  text-align: center;
+  margin-top: 24px;
+}
+
+.lm-auth-back a {
+  color: var(--bs-secondary-color);
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.lm-auth-callout {
+  margin-top: 18px;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid var(--lm-border);
+}
+
+.lm-auth-callout h6 {
+  margin: 0 0 6px;
+  font-size: 0.92rem;
+}
+
+.lm-auth-callout p {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.lm-auth-callout--age {
+  background: var(--lm-info-bg);
+}
+
+.lm-auth-callout--seller {
+  background: var(--lm-warning-bg);
+}
+
+/* Shared page containers */
+.lm-page-wrap {
+  max-width: 900px;
+}
+
+/* Profile page helpers */
+.profile-full {
+  grid-column: 1 / -1;
+}
+
+.profile-section {
+  margin-top: 6px;
+}
+
+.profile-section .help {
+  margin-bottom: 6px;
+}
+
+.profile-error {
+  color: #b91c1c;
+}
+
+.profile-verified {
+  color: #16a34a;
+}
+
+.profile-unverified {
+  color: #b45309;
+}
+
+.profile-avatar-preview {
+  margin: 6px 0 10px;
+}
+
+.profile-avatar-preview img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+}
+
+/* Seller listings */
+.lm-thumb-84 {
+  width: 84px;
+}
+
+.lm-thumb-84-img {
+  width: 84px;
+  height: 84px;
+  object-fit: cover;
+}
+
+.lm-thumb-84-empty {
+  width: 84px;
+  height: 84px;
+}
+
+.lm-step-progress {
+  height: 6px;
+}
+
+.lm-page-wrap-sm {
+  max-width: 700px;
+}
+
+.lm-page-wrap-md {
+  max-width: 900px;
+}
+
+.lm-page-wrap-lg {
+  max-width: 1100px;
+}
+
 /* ------------------------------------------------------------------
    Local Market NE — Pack BL polish
 ------------------------------------------------------------------- */

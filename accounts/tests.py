@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import uuid
+from unittest.mock import patch
 
+from botocore.exceptions import ClientError
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -56,3 +59,30 @@ class RecaptchaLoginTests(TestCase):
         )
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp["Location"], url)
+
+
+class ProfileAvatarUploadFailureTests(TestCase):
+    def test_profile_post_handles_storage_failure_without_500(self):
+        user = User.objects.create_user(
+            username="avataruser",
+            email="avataruser@example.com",
+            password="pw123456",
+        )
+        self.client.force_login(user)
+
+        # Tiny valid GIF payload so ImageField validation passes.
+        avatar = SimpleUploadedFile(
+            "avatar.gif",
+            b"GIF89a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\xff\xff\xff!\xf9\x04\x00\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02L\x01\x00;",
+            content_type="image/gif",
+        )
+
+        err = ClientError({"Error": {"Code": "AccessDenied", "Message": "Denied"}}, "PutObject")
+        with patch("accounts.views.ProfileForm.save", side_effect=err):
+            resp = self.client.post(
+                reverse("accounts:profile"),
+                data={"email": "avataruser@example.com", "avatar": avatar},
+            )
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["Location"], reverse("accounts:profile"))

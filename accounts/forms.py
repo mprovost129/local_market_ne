@@ -22,6 +22,14 @@ class UsernameAuthenticationForm(AuthenticationForm):
         widget=forms.PasswordInput(attrs={"autocomplete": "current-password", "placeholder": "Password"}),
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for _, field in self.fields.items():
+            if isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs["class"] = (field.widget.attrs.get("class", "") + " form-check-input").strip()
+            else:
+                field.widget.attrs["class"] = (field.widget.attrs.get("class", "") + " form-control").strip()
+
 
 class RegisterForm(UserCreationForm):
     """
@@ -63,6 +71,14 @@ class RegisterForm(UserCreationForm):
     class Meta:
         model = User
         fields = ("username", "first_name", "last_name", "email", "password1", "password2")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for _, field in self.fields.items():
+            if isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs["class"] = (field.widget.attrs.get("class", "") + " form-check-input").strip()
+            else:
+                field.widget.attrs["class"] = (field.widget.attrs.get("class", "") + " form-control").strip()
 
     def clean(self):
         cleaned_data = super().clean()

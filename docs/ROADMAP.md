@@ -1081,3 +1081,45 @@ phase is always explicit.
 **Next**
 - Production deploy on Render + first-live validation (docs/GO_LIVE_KIT.md).
 
+
+## 2026-03-09 - Pack DA - UI Consistency + Upgrade Execution Plan
+
+### Goal
+Move from "working and branded" to "production-consistent UX" with a tracked, phased execution plan.
+
+### Priority checklist
+- [ ] Design system pass
+  - [ ] Standardize spacing, heading scale, card spacing, and form rhythm.
+  - [ ] Replace remaining inline template styling with reusable classes.
+- [ ] Mobile UX pass
+  - [ ] Checkout, listing create/edit, and dashboards reviewed at small breakpoints.
+  - [ ] Reduce scroll depth and improve action placement for thumb reach.
+- [ ] State consistency
+  - [ ] Standardize empty/loading/error states across buyer, seller, and ops pages.
+  - [ ] Ensure every state includes clear next actions.
+- [ ] Seller conversion UX
+  - [ ] Improve onboarding progress visibility.
+  - [ ] Add "next best action" cards on seller surfaces.
+- [ ] Trust and policy visibility
+  - [ ] Strengthen checkout trust messaging and policy surfacing.
+  - [ ] Keep support/refund paths obvious through checkout and post-purchase views.
+- [ ] Performance pass
+  - [ ] Image optimization and lazy loading audit.
+  - [ ] Reduce duplicate CSS/JS/template patterns on high-traffic pages.
+- [ ] Accessibility pass
+  - [ ] Contrast + focus + keyboard navigation checks in light and dark themes.
+  - [ ] Form validation cues and screen-reader label consistency.
+- [ ] Release hardening
+  - [ ] Add visual regression checklist for top user flows.
+  - [ ] Keep runtime/dependency policy pinned and review quarterly.
+
+### Execution order
+1. Auth + onboarding pages (high-traffic entry flow)
+2. Checkout + cart + listing detail
+3. Seller dashboard + listing management
+4. Admin/Ops surfaces
+
+### Current status
+- In progress: Pass 2 extended consistency across seller listing management surfaces (seller dashboard + listing create/edit/images/assets/delete).
+
+

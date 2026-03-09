@@ -155,6 +155,8 @@ class SiteConfigAdmin(admin.ModelAdmin):
             "site_announcement_text",
             "maintenance_mode_enabled",
             "maintenance_mode_message",
+            "environment_banner_enabled",
+            "environment_banner_text",
             "checkout_enabled",
             "checkout_disabled_message",
             "waitlist_enabled",
@@ -166,7 +168,17 @@ class SiteConfigAdmin(admin.ModelAdmin):
             "featured_seller_usernames",
             "featured_category_ids",
         )}),
-        ("Support", {"fields": ("support_email",)}),
+        ("Support", {"fields": (
+            "support_email",
+            "support_form_enabled",
+            "support_store_messages",
+            "support_send_email",
+            "support_admin_notify_enabled",
+            "support_admin_email",
+            "support_auto_reply_enabled",
+            "support_auto_reply_subject",
+            "support_auto_reply_body",
+        )}),
 
         ("Seller Promo (Fee Waiver)", {"fields": ("seller_fee_waiver_enabled", "seller_fee_waiver_days")}),
         ("Affiliate / Amazon Associates", {"fields": (
@@ -180,6 +192,8 @@ class SiteConfigAdmin(admin.ModelAdmin):
             "platform_fee_cents",
             "default_currency",
 	        "free_digital_listing_cap",
+            "seller_requires_age_18",
+            "seller_prohibited_items_notice",
         )}),
         ("Shipping", {"fields": ("allowed_shipping_countries",)}),
         ("Theme", {"fields": (
@@ -215,6 +229,13 @@ class SiteConfigAdmin(admin.ModelAdmin):
             "google_analytics_dashboard_url",
             "analytics_enabled",
             "analytics_retention_days",
+            "analytics_exclude_staff",
+            "analytics_exclude_admin_paths",
+            "analytics_primary_host",
+            "analytics_primary_environment",
+            "ga_measurement_id",
+            "adsense_enabled",
+            "adsense_client_id",
             "plausible_shared_url",  # legacy / deprecated
         )}),
     )

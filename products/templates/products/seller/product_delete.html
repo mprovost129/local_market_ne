@@ -1,9 +1,9 @@
 {# products/templates/products/seller/product_delete.html #}
 {% extends "base.html" %}
-{% block title %}Delete · {{ product.title }} · Local Market NE{% endblock %}
+{% block title %}Delete - {{ product.title }} - Local Market NE{% endblock %}
 
 {% block content %}
-<div class="container py-4" style="max-width: 700px;">
+<div class="container py-4 lm-page-wrap-sm">
   <div class="card shadow-sm">
     <div class="card-body">
       <h1 class="h5 mb-2">Delete listing</h1>
@@ -12,10 +12,11 @@
 
       <form method="post">
         {% csrf_token %}
-        <a class="btn btn-outline-dark" href="{% url 'products:seller_list' %}">Cancel</a>
+        <a class="btn btn-outline-secondary" href="{% url 'products:seller_list' %}">Cancel</a>
         <button class="btn btn-danger" type="submit"><i class="bi bi-trash me-1"></i>Delete</button>
       </form>
     </div>
   </div>
 </div>
 {% endblock %}
+

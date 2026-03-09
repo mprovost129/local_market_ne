@@ -1,9 +1,9 @@
 {# payments/templates/payments/connect_status.html #}
 {% extends "base.html" %}
-{% block title %}Stripe Payouts · Local Market NE{% endblock %}
+{% block title %}Stripe Payouts - Local Market NE{% endblock %}
 
 {% block content %}
-<div class="container-fluid" style="max-width: 900px;">
+<div class="container-fluid lm-page-wrap">
   <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
     <div>
       <h1 class="h4 mb-1">Stripe Payouts</h1>
@@ -115,7 +115,7 @@
           </div>
         {% endif %}
 
-        <button class="btn btn-dark" type="submit">
+        <button class="btn btn-primary" type="submit">
           <i class="bi bi-link-45deg me-1"></i>
           {% if stripe.stripe_account_id %}Continue Stripe setup{% else %}Connect Stripe{% endif %}
         </button>
@@ -133,3 +133,4 @@
   </div>
 </div>
 {% endblock %}
+

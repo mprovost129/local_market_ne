@@ -2,23 +2,17 @@
 {% extends "accounts/base_accounts.html" %}
 {% load static %}
 
-{% block title %}Login · Local Market NE{% endblock %}
+{% block title %}Login - Local Market NE{% endblock %}
 
 {% block content %}
-<div style="max-width: 540px; margin: 40px auto;">
-  <div style="text-align: center; margin-bottom: 32px;">
-    <div style="margin:0 auto 16px;">
-      <img
-        src="{% static 'images/logos/localmarketne_logo_600x156.png' %}"
-        alt="Local Market NE"
-        style="height:60px;width:auto;"
-      >
-    </div>
-    <h1 style="margin:0 0 8px;font-size:28px;font-weight:600;color:#111827;">Welcome back</h1>
-    <p style="margin:0;color:#6b7280;font-size:15px;">Sign in to manage orders and your listings.</p>
+<div class="lm-auth-wrap">
+  <div class="lm-auth-brand">
+    <img src="{% static 'images/logos/localmarketne_logo_600x156.png' %}" alt="Local Market NE" class="lm-auth-logo">
+    <h1 class="lm-auth-title">Welcome back</h1>
+    <p class="lm-auth-subtitle">Sign in to manage orders and your listings.</p>
   </div>
 
-  <div class="card" style="padding:32px;">
+  <div class="card lm-auth-card">
     <h2 style="margin-top:0;">Login</h2>
 
     <form method="post" novalidate data-recaptcha-action="login">
@@ -52,15 +46,13 @@
 
       <div class="actions">
         <button class="btn btn-primary" type="submit">Login</button>
-        <a class="btn secondary" href="{% url 'accounts:register' %}">Create account</a>
+        <a class="btn btn-outline-secondary" href="{% url 'accounts:register' %}">Create account</a>
       </div>
     </form>
   </div>
 
-  <div style="text-align:center;margin-top:24px;">
-    <a href="{% url 'core:home' %}" style="color:#6b7280;font-size:14px;text-decoration:none;">
-      ← Back to store
-    </a>
+  <div class="lm-auth-back">
+    <a href="{% url 'core:home' %}">&larr; Back to store</a>
   </div>
 </div>
 {% endblock %}
