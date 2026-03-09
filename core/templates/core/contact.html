@@ -19,9 +19,10 @@
       <div class="card lm-card">
         <div class="card-body">
           {% if support_form_enabled %}
-          <form method="post" class="vstack gap-3" data-disable-once>
+          <form method="post" class="vstack gap-3" data-disable-once data-recaptcha-action="contact_submit">
 
             {% csrf_token %}
+            <input type="hidden" name="recaptcha_token" value="">
 
             <div class="row g-2">
               <div class="col-12 col-md-6">

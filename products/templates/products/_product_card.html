@@ -49,8 +49,9 @@
         {% if p.kind == "SERVICE" %}
           <a class="btn btn-dark btn-sm w-100 mt-2" href="{% url 'appointments:request' p.id %}">Request</a>
         {% else %}
-          <form method="post" action="{% url 'cart:add' %}" class="mt-2">
+          <form method="post" action="{% url 'cart:add' %}" class="mt-2" data-recaptcha-action="cart_add">
             {% csrf_token %}
+            <input type="hidden" name="recaptcha_token" value="">
             <input type="hidden" name="product_id" value="{{ p.id }}">
             <input type="hidden" name="next" value="{{ request.path }}">
             <input type="hidden" name="quantity" value="1">

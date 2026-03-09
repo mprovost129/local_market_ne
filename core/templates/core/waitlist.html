@@ -14,8 +14,9 @@
               Waitlist signup is temporarily disabled.
             </div>
           {% else %}
-            <form method="post" class="vstack gap-3" data-disable-once>
+            <form method="post" class="vstack gap-3" data-disable-once data-recaptcha-action="waitlist_signup">
               {% csrf_token %}
+              <input type="hidden" name="recaptcha_token" value="">
               <input type="hidden" name="source_path" value="{{ source|default:'' }}">
 
               <div>

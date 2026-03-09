@@ -25,6 +25,7 @@ from payments.models import SellerStripeAccount
 from products.models import Product, ProductEngagementEvent
 from products.permissions import is_owner_user
 from products.services.trending import annotate_trending, get_trending_badge_ids
+from .recaptcha import require_recaptcha_v3
 from .config import get_site_config
 from .models import WaitlistEntry, ContactMessage
 from .throttle import throttle
@@ -401,6 +402,7 @@ def sitemap_xml(request):
 
 
 @throttle(WAITLIST_SIGNUP)
+@require_recaptcha_v3("waitlist_signup")
 def waitlist_signup(request):
     """Email waitlist capture used by Coming Soon pages."""
 
@@ -519,6 +521,7 @@ def tips_page(request):
     return render(request, "core/tips.html", {})
 
 @throttle(CONTACT_SUBMIT, methods=["POST"])
+@require_recaptcha_v3("contact_submit")
 def contact_page(request):
     """Public Contact page (v1)."""
     site_config = get_site_config()

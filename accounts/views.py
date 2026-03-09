@@ -37,6 +37,7 @@ def login_view(request):
 
 @require_POST
 @throttle(AUTH_LOGIN_RULE)
+@require_recaptcha_v3("login")
 def _login_post(request):
     form = UsernameAuthenticationForm(request, data=request.POST)
     if form.is_valid():

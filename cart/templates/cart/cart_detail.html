@@ -22,8 +22,9 @@
       <a class="btn btn-outline-dark" href="{% url 'products:list' %}">
         <i class="bi bi-arrow-left me-1"></i>Continue shopping
       </a>
-      <form method="post" action="{% url 'cart:clear' %}">
+      <form method="post" action="{% url 'cart:clear' %}" data-recaptcha-action="cart_clear">
         {% csrf_token %}
+        <input type="hidden" name="recaptcha_token" value="">
         <button class="btn btn-outline-danger" type="submit" {% if not cart_lines %}disabled{% endif %}>
           <i class="bi bi-trash me-1"></i>Clear cart
         </button>
@@ -102,8 +103,9 @@
                       </div>
                     {% endif %}
 
-                    <form method="post" action="{% url 'cart:update' %}" class="mt-2">
+                    <form method="post" action="{% url 'cart:update' %}" class="mt-2" data-recaptcha-action="cart_update">
                       {% csrf_token %}
+                      <input type="hidden" name="recaptcha_token" value="">
                       <input type="hidden" name="product_id" value="{{ line.product.pk }}">
                       <input type="hidden" name="quantity" value="{{ line.quantity }}">
                       <div class="input-group input-group-sm">
@@ -129,8 +131,9 @@
                   <div class="text-secondary small">1 (service)</div>
                 {% else %}
 
-                  <form method="post" action="{% url 'cart:update' %}" class="d-flex gap-2">
+                  <form method="post" action="{% url 'cart:update' %}" class="d-flex gap-2" data-recaptcha-action="cart_update">
                     {% csrf_token %}
+                    <input type="hidden" name="recaptcha_token" value="">
                     <input type="hidden" name="product_id" value="{{ line.product.pk }}">
                     <input class="form-control form-control-sm" type="number" name="quantity" min="1" value="{{ line.quantity }}">
                     <button class="btn btn-sm btn-outline-dark" type="submit">Update</button>
@@ -147,8 +150,9 @@
               </td>
 
               <td class="text-end">
-                <form method="post" action="{% url 'cart:remove' line.product.pk %}">
+                <form method="post" action="{% url 'cart:remove' line.product.pk %}" data-recaptcha-action="cart_remove">
                   {% csrf_token %}
+                  <input type="hidden" name="recaptcha_token" value="">
                   <button class="btn btn-sm btn-outline-danger" type="submit" title="Remove" aria-label="Remove {{ line.product.title }} from cart">
                     <i class="bi bi-x-lg"></i>
                   </button>

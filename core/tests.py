@@ -5,9 +5,12 @@ We keep a small set of fast, high-signal tests that catch common regressions.
 Pack AZ: Template integrity compilation pass.
 """
 
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, TestCase, override_settings
 from django.template import TemplateDoesNotExist
 from django.template.loader import get_template
+from django.urls import reverse
+
+from core.models import ContactMessage, WaitlistEntry
 
 
 class TemplateIntegrityTests(SimpleTestCase):
@@ -47,3 +50,42 @@ class TemplateIntegrityTests(SimpleTestCase):
                 missing.append(name)
         if missing:
             self.fail(f"Missing templates: {', '.join(missing)}")
+
+
+class RecaptchaPublicFormsTests(TestCase):
+    @override_settings(
+        RECAPTCHA_ENABLED=True,
+        RECAPTCHA_V3_SITE_KEY="test-site-key",
+        RECAPTCHA_V3_SECRET_KEY="test-secret-key",
+    )
+    def test_contact_post_requires_recaptcha_token(self):
+        url = reverse("core:contact")
+        resp = self.client.post(
+            url,
+            data={
+                "name": "Tester",
+                "email": "tester@example.com",
+                "subject": "Hello",
+                "message": "Test message",
+            },
+            HTTP_REFERER=url,
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["Location"], url)
+        self.assertEqual(ContactMessage.objects.count(), 0)
+
+    @override_settings(
+        RECAPTCHA_ENABLED=True,
+        RECAPTCHA_V3_SITE_KEY="test-site-key",
+        RECAPTCHA_V3_SECRET_KEY="test-secret-key",
+    )
+    def test_waitlist_post_requires_recaptcha_token(self):
+        url = reverse("core:waitlist")
+        resp = self.client.post(
+            url,
+            data={"email": "waitlist@example.com"},
+            HTTP_REFERER=url,
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["Location"], url)
+        self.assertEqual(WaitlistEntry.objects.count(), 0)

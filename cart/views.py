@@ -10,6 +10,7 @@ from django.views.decorators.http import require_POST
 
 from core.throttle import throttle
 from core.throttle_rules import CART_MUTATE
+from core.recaptcha import require_recaptcha_v3
 from core.config import get_checkout_disabled_message, get_site_config, is_checkout_enabled
 from payments.utils import seller_is_stripe_ready
 from products.models import Product, ProductEngagementEvent
@@ -254,6 +255,7 @@ def cart_detail(request):
 
 @require_POST
 @throttle(CART_ADD_RULE)
+@require_recaptcha_v3("cart_add")
 def cart_add(request):
     cart = Cart(request)
 
@@ -347,6 +349,7 @@ def cart_add(request):
 
 @require_POST
 @throttle(CART_UPDATE_RULE)
+@require_recaptcha_v3("cart_update")
 def cart_update(request):
     cart = Cart(request)
 
@@ -426,6 +429,7 @@ def cart_update(request):
 
 @require_POST
 @throttle(CART_REMOVE_RULE)
+@require_recaptcha_v3("cart_remove")
 def cart_remove(request, product_id: int):
     cart = Cart(request)
     product = get_object_or_404(Product, pk=product_id)
@@ -436,6 +440,7 @@ def cart_remove(request, product_id: int):
 
 @require_POST
 @throttle(CART_CLEAR_RULE)
+@require_recaptcha_v3("cart_clear")
 def cart_clear(request):
     cart = Cart(request)
     cart.clear()
