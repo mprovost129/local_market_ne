@@ -69,20 +69,20 @@
 
   {# Analytics (Google Analytics 4) #}
   {% if ga_measurement_id %}
-    <script async src="https://www.googletagmanager.com/gtag/js?id={{ ga_measurement_id }}"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q9MY1M7M6C"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', '{{ ga_measurement_id }}', { 'anonymize_ip': true });
+      gtag('config', 'G-Q9MY1M7M6C');
     </script>
   {% endif %}
 
   {# reCAPTCHA v3 (public write actions) #}
   {% if recaptcha_site_key %}
-    <script src="https://www.google.com/recaptcha/api.js?render={{ recaptcha_site_key }}"></script>
+    <script src="https://www.google.com/recaptcha/api.js?render=6LftFoQsAAAAAI8QYSNSYg_38kaFpaGgWTWE8fqE"></script>
     <script>
-      window.__RECAPTCHA_SITE_KEY = "{{ recaptcha_site_key }}";
+      window.__RECAPTCHA_SITE_KEY = "6LftFoQsAAAAAI8QYSNSYg_38kaFpaGgWTWE8fqE";
     </script>
   {% endif %}
 
