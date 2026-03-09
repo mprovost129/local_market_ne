@@ -35,6 +35,7 @@ from .analytics import is_configured as analytics_is_configured
 from orders.models import Order, OrderItem, OrderEvent, StripeWebhookDelivery, SellerFulfillmentTask
 from refunds.models import RefundRequest, RefundAttempt
 from payments.models import SellerStripeAccount, SellerBalanceEntry
+from payments.services_fee_waiver import ensure_fee_waiver_for_new_seller
 from products.models import Product, ProductEngagementEvent
 from products.permissions import is_owner_user, is_seller_user
 from payments.services import get_seller_balance_cents
@@ -210,7 +211,12 @@ def seller_dashboard(request):
         if action in {"activate", "deactivate"} and selected_ids:
             products = Product.objects.filter(seller=user, id__in=selected_ids)
             new_status = action == "activate"
+            had_active_before = Product.objects.filter(seller=user, is_active=True).exists()
             updated = products.update(is_active=new_status)
+            if new_status and updated and not had_active_before:
+                has_active_after = Product.objects.filter(seller=user, is_active=True).exists()
+                if has_active_after:
+                    ensure_fee_waiver_for_new_seller(seller_user=user)
             messages.success(request, f"{updated} listing(s) {'activated' if new_status else 'deactivated'}.")
             return redirect("dashboards:seller")
 

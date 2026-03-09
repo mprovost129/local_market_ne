@@ -1120,6 +1120,41 @@ Move from "working and branded" to "production-consistent UX" with a tracked, ph
 4. Admin/Ops surfaces
 
 ### Current status
-- In progress: Pass 2 extended consistency across seller listing management surfaces (seller dashboard + listing create/edit/images/assets/delete).
+- Completed: Theme alignment and button consistency sweep across major buyer/seller surfaces.
+- Completed: Seller listing management consistency pass (dashboard + create/edit/images/assets/delete).
+- Completed: Checkout/cart/product detail consistency pass (button variants, spacing, text rendering helpers).
+- In progress: Pack DA execution order step 4 (Admin/Ops surface consistency + final cross-page QA sweep).
+
+### Immediate next (Pack DA)
+- Run focused QA on top user flows in both light/dark and mobile breakpoints:
+  - Home -> Product detail -> Cart -> Checkout
+  - Seller dashboard -> Listings CRUD -> Storefront preview
+  - Admin dashboard -> Ops pages (tables/filters/buttons/states)
+- Close remaining visual/copy regressions from prior encoding cleanup on high-traffic templates.
+- Add a compact visual regression checklist to lock the current UI baseline before commit/deploy.
+
+
+## 2026-03-09 - Pack DB - Native analytics inflation hardening
+
+### Completed
+- Hardened analytics collection to reduce inflated visitor counts:
+  - Ignore `HEAD` requests for pageview tracking.
+  - Treat empty user-agent requests as bot/automation traffic.
+  - Expanded bot/monitor signatures (`uptimerobot`, `pingdom`, `python-requests`, `curl`, etc.).
+- Fixed cookie-less visitor inflation:
+  - If `hc_vid` is missing, visitor id now resolves to a stable value (authenticated user id or derived anonymous hash) instead of random UUID churn.
+- Added safer admin analytics scoping:
+  - `dashboards.analytics` now defaults to canonical host from `SITE_BASE_URL` when `analytics_primary_host` is not explicitly set.
+- Added one-time analytics cleanup tooling:
+  - New command: `python manage.py cleanup_analytics_noise`
+  - Supports `--dry-run`, `--days N`, and `--all-time`.
+
+### Next
+- Run cleanup in production with preview first:
+  - `python manage.py cleanup_analytics_noise --days 30 --dry-run`
+  - `python manage.py cleanup_analytics_noise --days 30`
+- Observe metrics for 24-48 hours and tune if needed:
+  - `ANALYTICS_THROTTLE_SECONDS`
+  - SiteConfig `analytics_primary_host` and `analytics_primary_environment`
 
 

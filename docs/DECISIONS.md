@@ -910,3 +910,13 @@ Guardrails:
 - Any management command intended to be aggregated by `rc_report` must support `--json` output.
 - Audits must support `--limit` and `--quiet` to keep RC output bounded and usable.
 - `stripe_config_check` exists as a dedicated Stripe posture check (keys + webhook route reversal) so Stripe surprises are caught before manual testing.
+
+## 2026-03-09 - Native analytics visitor counting hardening
+- Native pageview analytics should count only `GET` HTML responses (exclude `HEAD`).
+- Empty user-agent traffic is treated as automation/noise for analytics purposes.
+- If visitor cookie (`hc_vid`) is missing, visitor identity must be stable:
+  - authenticated users: deterministic user-based id
+  - anonymous users: deterministic hash from coarse request fingerprint
+  - do not mint random UUIDs on each cookie-less request
+- Admin analytics queries should default to canonical site host from `SITE_BASE_URL` when no explicit primary host is configured.
+- Historical noisy pageviews are cleaned with a dedicated command (`cleanup_analytics_noise`) using `--dry-run` first.

@@ -4,6 +4,10 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
+from catalog.models import Category
+from payments.models import SellerFeeWaiver
+from products.models import Product
+
 
 User = get_user_model()
 
@@ -29,6 +33,48 @@ class StartSellingFlowTests(TestCase):
         profile.refresh_from_db()
         self.assertTrue(profile.is_seller)
 
+
+class SellerBulkActivateWaiverTests(TestCase):
+    def setUp(self):
+        self.seller = User.objects.create_user(
+            username="seller_bulk_activate",
+            email="seller_bulk_activate@example.com",
+            password="pw123456",
+        )
+        profile = self.seller.profile
+        profile.is_seller = True
+        profile.email_verified = True
+        profile.save(update_fields=["is_seller", "email_verified", "updated_at"])
+
+        self.category = Category.objects.create(
+            type=Category.CategoryType.GOOD,
+            name="Bulk Activate Category",
+            slug="bulk-activate-category",
+            is_active=True,
+        )
+        self.product = Product.objects.create(
+            seller=self.seller,
+            kind=Product.Kind.GOOD,
+            title="Bulk Draft Listing",
+            category=self.category,
+            price="12.00",
+            stock_qty=2,
+            fulfillment_pickup_enabled=True,
+            is_active=False,
+        )
+        self.client.force_login(self.seller)
+
+    def test_bulk_activate_starts_waiver_for_first_live_listing(self):
+        self.assertFalse(SellerFeeWaiver.objects.filter(user=self.seller).exists())
+
+        resp = self.client.post(
+            reverse("dashboards:seller"),
+            data={"bulk_action": "activate", "selected_ids": [str(self.product.id)]},
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["Location"], reverse("dashboards:seller"))
+        self.assertEqual(SellerFeeWaiver.objects.filter(user=self.seller).count(), 1)
+
     def test_start_selling_marks_seller_and_redirects_unverified_to_verify_with_next(self):
         profile = self.user.profile
         profile.email_verified = False
@@ -41,4 +87,3 @@ class StartSellingFlowTests(TestCase):
 
         profile.refresh_from_db()
         self.assertTrue(profile.is_seller)
-
