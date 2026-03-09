@@ -1,20 +1,20 @@
 {# qa/templates/qa/staff_reports_queue.html #}
 {% extends "base.html" %}
 
-{% block title %}Q&A Reports · Local Market NE{% endblock %}
+{% block title %}Q&A Reports  - Local Market NE{% endblock %}
 
 {% block content %}
 <div class="container py-4">
   <div class="d-flex align-items-center justify-content-between mb-3">
     <h1 class="h4 mb-0">Q&amp;A Reports</h1>
     <div class="d-flex align-items-center gap-2">
-      <a class="btn btn-sm {% if status == "open" %}btn-dark{% else %}btn-outline-dark{% endif %}" href="?status=open">
+      <a class="btn btn-sm {% if status == "open" %}btn-primary{% else %}btn-outline-secondary{% endif %}" href="?status=open">
         Open <span class="badge text-bg-light text-dark ms-1">{{ counts.open }}</span>
       </a>
-      <a class="btn btn-sm {% if status == "resolved" %}btn-dark{% else %}btn-outline-dark{% endif %}" href="?status=resolved">
+      <a class="btn btn-sm {% if status == "resolved" %}btn-primary{% else %}btn-outline-secondary{% endif %}" href="?status=resolved">
         Resolved <span class="badge text-bg-light text-dark ms-1">{{ counts.resolved }}</span>
       </a>
-      <a class="btn btn-sm {% if status == "all" %}btn-dark{% else %}btn-outline-dark{% endif %}" href="?status=all">
+      <a class="btn btn-sm {% if status == "all" %}btn-primary{% else %}btn-outline-secondary{% endif %}" href="?status=all">
         All <span class="badge text-bg-light text-dark ms-1">{{ counts.open|add:counts.resolved }}</span>
       </a>
     </div>

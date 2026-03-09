@@ -62,7 +62,7 @@
               <a href="{% url 'ops:error_event_detail' ev.pk %}">{{ ev.path|default:"(no path)" }}</a>
             </td>
             <td class="text-muted text-nowrap">{{ ev.request_id }}</td>
-            <td class="text-nowrap">{% if ev.user %}{{ ev.user }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+            <td class="text-nowrap">{% if ev.user %}{{ ev.user }}{% else %}<span class="text-muted">-</span>{% endif %}</td>
           </tr>
           {% empty %}
           <tr>

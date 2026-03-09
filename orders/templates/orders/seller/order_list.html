@@ -1,6 +1,6 @@
 {# orders/templates/orders/seller/order_list.html #}
 {% extends "base.html" %}
-{% block title %}Seller Orders · Local Market NE{% endblock %}
+{% block title %}Seller Orders  - Local Market NE{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
@@ -12,7 +12,7 @@
 
     <form class="d-flex gap-2" method="get">
       <input class="form-control" name="q" value="{{ q }}" placeholder="Search orders, items, buyer, tracking..." style="min-width:280px;">
-      <button class="btn btn-outline-dark" type="submit">Search</button>
+      <button class="btn btn-outline-secondary" type="submit">Search</button>
     </form>
   </div>
 
@@ -50,7 +50,7 @@
               </td>
               <td class="text-end"><strong>${{ o.seller_total|floatformat:2 }}</strong></td>
               <td class="text-end">
-                <a class="btn btn-sm btn-outline-dark" href="{% url 'orders:seller_order_detail' o.id %}">
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'orders:seller_order_detail' o.id %}">
                   View
                 </a>
               </td>

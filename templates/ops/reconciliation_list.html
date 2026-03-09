@@ -63,7 +63,7 @@
                 {% if o.paid_missing_stripe_ids %}<span class="badge text-bg-danger">Stripe IDs</span>{% endif %}
                 {% if o.paid_missing_transfer_event %}<span class="badge text-bg-danger">Transfer</span>{% endif %}
                 {% if not o.totals_mismatch and not o.ledger_mismatch and not o.paid_missing_stripe_ids and not o.paid_missing_transfer_event %}
-                  <span class="text-muted">—</span>
+                  <span class="text-muted">-</span>
                 {% endif %}
               </td>
             </tr>

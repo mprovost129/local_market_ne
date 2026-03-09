@@ -1,7 +1,7 @@
 {# orders/templates/orders/seller_orders_list.html #}
 {% extends "base.html" %}
 {% load money %}
-{% block title %}Fulfillment · Local Market NE{% endblock %}
+{% block title %}Fulfillment  - Local Market NE{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-3">
@@ -84,7 +84,7 @@
                 <div class="text-secondary small">
                   {% if it.tracking_carrier or it.tracking_number %}
                     {% if it.tracking_carrier %}{{ it.tracking_carrier }}{% endif %}
-                    {% if it.tracking_number %}{% if it.tracking_carrier %} · {% endif %}<span class="font-monospace">{{ it.tracking_number }}</span>{% endif %}
+                    {% if it.tracking_number %}{% if it.tracking_carrier %}  - {% endif %}<span class="font-monospace">{{ it.tracking_number }}</span>{% endif %}
                   {% else %}
                     product
                   {% endif %}
@@ -109,7 +109,7 @@
               <td class="text-end">
                 <div class="d-flex justify-content-end gap-2 flex-wrap">
                   {# Always allow opening the full order #}
-                  <a class="btn btn-sm btn-outline-dark" href="{% url 'orders:seller_order_detail' it.order_id %}">View</a>
+                  <a class="btn btn-sm btn-outline-secondary" href="{% url 'orders:seller_order_detail' it.order_id %}">View</a>
 
                   {# Pickup flow: Pending -> Ready -> Picked up #}
                   {% if it.fulfillment_method == 'pickup' %}
@@ -172,7 +172,7 @@
                           <input class="form-control form-control-sm" name="tracking_number" placeholder="Tracking # (optional)">
                         </div>
                         <div class="col-12 col-md-3 d-grid">
-                          <button class="btn btn-sm btn-dark" type="submit">Save + ship</button>
+                          <button class="btn btn-sm btn-primary" type="submit">Save + ship</button>
                         </div>
                       </div>
                     </form>

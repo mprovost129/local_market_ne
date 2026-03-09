@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Favorites & Wishlist · Local Market NE{% endblock %}
+{% block title %}Favorites & Wishlist  - Local Market NE{% endblock %}
 
 {% block content %}
 <div class="container-fluid" style="max-width: 1100px;">
@@ -11,7 +11,7 @@
       <div class="text-secondary small">Your saved items. Favorites and wishlist are stored separately.</div>
     </div>
     <div class="d-flex gap-2">
-      <a class="btn btn-outline-dark" href="{% url 'products:list' %}">
+      <a class="btn btn-outline-secondary" href="{% url 'products:list' %}">
         <i class="bi bi-shop me-1"></i>Browse store
       </a>
     </div>

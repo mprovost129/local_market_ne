@@ -1,7 +1,7 @@
 {# templates/dashboards/seller_analytics.html #}
 {% extends "base.html" %}
 {% load money %}
-{% block title %}Seller Analytics · Local Market NE{% endblock %}
+{% block title %}Seller Analytics  - Local Market NE{% endblock %}
 
 {% block content %}
 <div class="container-fluid lm-page-shell">
@@ -15,11 +15,11 @@
 
     <div class="lm-page-actions align-items-center">
       <div class="btn-group" role="group" aria-label="Time range">
-        <a class="btn btn-outline-dark {% if days == 7 %}active{% endif %}" href="?days=7">7d</a>
-        <a class="btn btn-outline-dark {% if days == 30 %}active{% endif %}" href="?days=30">30d</a>
-        <a class="btn btn-outline-dark {% if days == 90 %}active{% endif %}" href="?days=90">90d</a>
+        <a class="btn btn-outline-secondary {% if days == 7 %}active{% endif %}" href="?days=7">7d</a>
+        <a class="btn btn-outline-secondary {% if days == 30 %}active{% endif %}" href="?days=30">30d</a>
+        <a class="btn btn-outline-secondary {% if days == 90 %}active{% endif %}" href="?days=90">90d</a>
       </div>
-      <a class="btn btn-outline-dark" href="{% url 'dashboards:seller' %}">
+      <a class="btn btn-outline-secondary" href="{% url 'dashboards:seller' %}">
         <i class="bi bi-arrow-left me-1"></i>Back to Overview
       </a>
     </div>
@@ -128,7 +128,7 @@
                   <a class="text-decoration-none" href="{{ r.product.get_absolute_url }}">{{ r.product.title }}</a>
                 </div>
                 <div class="text-secondary small">
-                  {{ r.product.kind }} · {% if r.product.is_active %}Active{% else %}Inactive{% endif %}
+                  {{ r.product.kind }}  - {% if r.product.is_active %}Active{% else %}Inactive{% endif %}
                 </div>
               </td>
               <td class="text-end">{{ r.views }}</td>
@@ -140,7 +140,7 @@
               <td class="text-end">
                 {% if r.product.kind == "FILE" %}
                 {% else %}
-                  <span class="text-secondary">—</span>
+                  <span class="text-secondary">"</span>
                 {% endif %}
               </td>
             </tr>

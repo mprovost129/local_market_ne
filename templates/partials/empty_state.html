@@ -8,11 +8,11 @@
 
   <div class="d-flex justify-content-center gap-2 flex-wrap">
     {% if action_label and action_url %}
-      <a href="{{ action_url }}" class="btn btn-sm btn-outline-dark">{{ action_label }}</a>
+      <a href="{{ action_url }}" class="btn btn-sm btn-outline-secondary">{{ action_label }}</a>
     {% elif action_label and action_route %}
       {# Django template variables cannot start with underscores #}
       {% url action_route as action_url_resolved %}
-      {% if action_url_resolved %}<a href="{{ action_url_resolved }}" class="btn btn-sm btn-outline-dark">{{ action_label }}</a>{% endif %}
+      {% if action_url_resolved %}<a href="{{ action_url_resolved }}" class="btn btn-sm btn-outline-secondary">{{ action_label }}</a>{% endif %}
     {% endif %}
 
     {% if secondary_label and secondary_url %}

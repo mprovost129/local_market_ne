@@ -1,7 +1,7 @@
 {# catalog/templates/catalog/category_detail.html #}
 {% extends "base.html" %}
-{% block title %}{{ category.name }} · Local Market NE{% endblock %}
-{% block meta_title %}{{ category.name }} · Local Market NE{% endblock %}
+{% block title %}{{ category.name }}  - Local Market NE{% endblock %}
+{% block meta_title %}{{ category.name }}  - Local Market NE{% endblock %}
 {% block meta_description %}
   {% if category.description %}
     {{ category.description|striptags|truncatechars:160 }}
@@ -18,7 +18,7 @@
       <div class="text-secondary small">
         {{ category.get_type_display }}
         {% if category.parent %}
-          · Parent: <a href="{{ category.parent.get_absolute_url }}" class="text-decoration-none">{{ category.parent.name }}</a>
+           - Parent: <a href="{{ category.parent.get_absolute_url }}" class="text-decoration-none">{{ category.parent.name }}</a>
         {% endif %}
       </div>
       {% if category.description %}
@@ -27,10 +27,10 @@
     </div>
 
     <div class="d-flex gap-2">
-      <a class="btn btn-outline-dark" href="{% url 'catalog:category_list' %}">
+      <a class="btn btn-outline-secondary" href="{% url 'catalog:category_list' %}">
         <i class="bi bi-arrow-left me-1"></i>All Categories
       </a>
-      <a class="btn btn-outline-dark" href="{% url 'products:list' %}">
+      <a class="btn btn-outline-secondary" href="{% url 'products:list' %}">
         <i class="bi bi-grid me-1"></i>All Products
       </a>
     </div>
@@ -71,7 +71,7 @@
 
             <div class="text-secondary small mb-2">
               by <strong>{{ p.seller.username }}</strong>
-              · {{ p.category.name }}
+               - {{ p.category.name }}
             </div>
 
             {% if p.short_description %}
@@ -81,7 +81,7 @@
 
           <div class="card-footer bg-white d-flex justify-content-between align-items-center">
             <strong>{{ p.display_price }}</strong>
-            <a class="btn btn-sm btn-outline-dark" href="{{ p.get_absolute_url }}">View</a>
+            <a class="btn btn-sm btn-outline-secondary" href="{{ p.get_absolute_url }}">View</a>
           </div>
         </div>
       </div>

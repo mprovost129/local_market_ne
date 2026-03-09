@@ -16,7 +16,7 @@
         <strong>Scheduled:</strong>
         {{ ar.scheduled_start|localtime|date:"M j, Y" }} at {{ ar.scheduled_start|localtime|time:"g:i A" }}
         {% if ar.scheduled_end %}
-          – {{ ar.scheduled_end|localtime|time:"g:i A" }}
+          - {{ ar.scheduled_end|localtime|time:"g:i A" }}
         {% endif %}
       </p>
     <p style="margin:0 0 10px 0;">
@@ -32,7 +32,7 @@
         <strong>Requested:</strong>
         {{ ar.requested_start|localtime|date:"M j, Y" }} at {{ ar.requested_start|localtime|time:"g:i A" }}
         {% if ar.requested_end %}
-          – {{ ar.requested_end|localtime|time:"g:i A" }}
+          - {{ ar.requested_end|localtime|time:"g:i A" }}
         {% endif %}
       </p>
     {% endif %}

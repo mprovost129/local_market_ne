@@ -2,7 +2,7 @@
 {% extends "base.html" %}
 {% load money %}
 
-{% block title %}Refund Requests · Seller · Local Market NE{% endblock %}
+{% block title %}Refund Requests  - Seller  - Local Market NE{% endblock %}
 
 {% block content %}
 <div class="container py-4">
@@ -19,7 +19,7 @@
             <div>
               <div class="fw-semibold">{{ rr.order_item.product.title }}</div>
               <div class="text-muted small">
-                {{ rr.get_status_display }} · {{ rr.get_reason_display }} · Order #{{ rr.order_id }}
+                {{ rr.get_status_display }}  - {{ rr.get_reason_display }}  - Order #{{ rr.order_id }}
               </div>
               <div class="text-muted small">
                 Buyer:

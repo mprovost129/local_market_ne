@@ -565,3 +565,8 @@ header.bg-body {
     border-radius: 9px;
   }
 }
+
+/* Hide reCAPTCHA v3 floating badge (footer notice is shown instead). */
+.grecaptcha-badge {
+  visibility: hidden !important;
+}

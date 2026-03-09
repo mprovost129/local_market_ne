@@ -1,6 +1,6 @@
 {# reviews/templates/reviews/review_form.html #}
 {% extends "base.html" %}
-{% block title %}Leave a Review · Local Market NE{% endblock %}
+{% block title %}Leave a Review  - Local Market NE{% endblock %}
 
 {% block content %}
 <div class="container py-4" style="max-width: 760px;">
@@ -11,10 +11,10 @@
         For: <strong>{{ product.title }}</strong>
       </div>
       <div class="text-secondary small">
-        Order item #{{ item.id }} · Qty {{ item.quantity }}
+        Order item #{{ item.id }}  - Qty {{ item.quantity }}
       </div>
     </div>
-    <a class="btn btn-outline-dark" href="{{ product.get_absolute_url }}">Back to product</a>
+    <a class="btn btn-outline-secondary" href="{{ product.get_absolute_url }}">Back to product</a>
   </div>
 
   <div class="card">
@@ -45,7 +45,7 @@
           {% if form.body.errors %}<div class="text-danger small">{{ form.body.errors }}</div>{% endif %}
         </div>
 
-        <button class="btn btn-dark" type="submit">
+        <button class="btn btn-primary" type="submit">
           Post Review
         </button>
       </form>

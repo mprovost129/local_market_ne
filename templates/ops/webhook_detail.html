@@ -7,9 +7,9 @@
     <div>
       <h1 class="h4 mb-0">Webhook Event</h1>
       <div class="text-muted small">
-        {{ webhook.event_type }} —
+        {{ webhook.event_type }} -
         <span class="badge {% if webhook.status == 'error' %}text-bg-danger{% elif webhook.status == 'processed' %}text-bg-success{% else %}text-bg-secondary{% endif %}">{{ webhook.status }}</span>
-        • {{ webhook.created_at|date:"Y-m-d H:i" }}
+        * {{ webhook.created_at|date:"Y-m-d H:i" }}
       </div>
       <div class="text-muted small">Stripe ID: <code>{{ webhook.stripe_event_id }}</code></div>
     </div>
@@ -52,7 +52,7 @@
                     {% if d.order %}
                       <a href="{% url 'ops:order_detail' d.order.pk %}">{{ d.order.pk }}</a>
                     {% else %}
-                      <span class="text-muted">—</span>
+                      <span class="text-muted">-</span>
                     {% endif %}
                   </td>
                 </tr>

@@ -9,7 +9,7 @@
     <div>
       <h1 class="h4 mb-1">Reschedule appointment</h1>
       <div class="text-secondary small">
-        {{ ar.service.title|default:ar.service.name }} • Buyer: {{ ar.buyer.get_full_name|default:ar.buyer.username }}
+        {{ ar.service.title|default:ar.service.name }} * Buyer: {{ ar.buyer.get_full_name|default:ar.buyer.username }}
       </div>
     </div>
     <a class="btn btn-sm btn-outline-secondary" href="{% url 'appointments:seller_requests' %}">Back</a>

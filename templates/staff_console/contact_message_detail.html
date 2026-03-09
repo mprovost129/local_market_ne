@@ -144,19 +144,19 @@
           </div>
 
           <div class="small">
-            <div class="mb-2"><span class="text-muted">From path:</span> {{ msg.source_path|default:"—" }}</div>
-            <div class="mb-2"><span class="text-muted">IP:</span> {{ msg.ip_address|default:"—" }}</div>
-            <div class="mb-2"><span class="text-muted">User:</span> {% if msg.user %}{{ msg.user }}{% else %}—{% endif %}</div>
-            <div class="mb-2"><span class="text-muted">User agent:</span> <span class="text-break">{{ msg.user_agent|default:"—" }}</span></div>
+            <div class="mb-2"><span class="text-muted">From path:</span> {{ msg.source_path|default:"-" }}</div>
+            <div class="mb-2"><span class="text-muted">IP:</span> {{ msg.ip_address|default:"-" }}</div>
+            <div class="mb-2"><span class="text-muted">User:</span> {% if msg.user %}{{ msg.user }}{% else %}-{% endif %}</div>
+            <div class="mb-2"><span class="text-muted">User agent:</span> <span class="text-break">{{ msg.user_agent|default:"-" }}</span></div>
           </div>
 
           <hr />
 
           <div class="small">
-            <div class="mb-2"><span class="text-muted">Resolved at:</span> {% if msg.resolved_at %}{{ msg.resolved_at }}{% else %}—{% endif %}</div>
-            <div class="mb-2"><span class="text-muted">Resolved by:</span> {% if msg.resolved_by %}{{ msg.resolved_by }}{% else %}—{% endif %}</div>
-            <div class="mb-2"><span class="text-muted">Last reply:</span> {% if msg.last_responded_at %}{{ msg.last_responded_at }}{% else %}—{% endif %}</div>
-            <div class="mb-2"><span class="text-muted">Replied by:</span> {% if msg.last_responded_by %}{{ msg.last_responded_by }}{% else %}—{% endif %}</div>
+            <div class="mb-2"><span class="text-muted">Resolved at:</span> {% if msg.resolved_at %}{{ msg.resolved_at }}{% else %}-{% endif %}</div>
+            <div class="mb-2"><span class="text-muted">Resolved by:</span> {% if msg.resolved_by %}{{ msg.resolved_by }}{% else %}-{% endif %}</div>
+            <div class="mb-2"><span class="text-muted">Last reply:</span> {% if msg.last_responded_at %}{{ msg.last_responded_at }}{% else %}-{% endif %}</div>
+            <div class="mb-2"><span class="text-muted">Replied by:</span> {% if msg.last_responded_by %}{{ msg.last_responded_by }}{% else %}-{% endif %}</div>
             <div class="mb-2"><span class="text-muted">Reply count:</span> {{ msg.response_count|default:0 }}</div>
           </div>
 

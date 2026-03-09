@@ -57,7 +57,7 @@
               <button type="button" class="btn btn-sm btn-outline-secondary lm-step-btn" data-step-target="4">4. Fulfillment</button>
               <button type="button" class="btn btn-sm btn-outline-secondary lm-step-btn" data-step-target="5">5. Media & Publish</button>
             </div>
-            <div class="text-secondary small">Drafts are allowed — use “Save draft” any time.</div>
+            <div class="text-secondary small">Drafts are allowed - use "Save draft" any time.</div>
           </div>
           <div class="progress mt-2 lm-step-progress">
             <div class="progress-bar" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" data-step-progress></div>
@@ -83,7 +83,7 @@
 
         <div class="row g-3" data-wizard-root>
 
-          {# STEP 1 — Type #}
+          {# STEP 1 - Type #}
           <div class="col-12" data-step="1">
             <div class="row g-3">
               <div class="col-12 col-md-4">
@@ -98,7 +98,7 @@
             </div>
           </div>
 
-          {# STEP 2 — Category #}
+          {# STEP 2 - Category #}
           <div class="col-12" data-step="2">
             <div class="row g-3">
               <div class="col-12 col-md-4">
@@ -112,7 +112,7 @@
             </div>
           </div>
 
-          {# STEP 3 — Details #}
+          {# STEP 3 - Details #}
           <div class="col-12" data-step="3">
             <div class="row g-3">
               <div class="col-12">
@@ -153,7 +153,7 @@
             </div>
           </div>
 
-          {# STEP 4 — Fulfillment / Settings (kind-aware) #}
+          {# STEP 4 - Fulfillment / Settings (kind-aware) #}
           <div class="col-12" data-step="4">
             <div class="row g-3">
 
@@ -207,7 +207,7 @@
                   <div class="col-12 col-md-6">
                     {{ form.delivery_radius_miles.label_tag }}{{ form.delivery_radius_miles }}
                     {% for e in form.delivery_radius_miles.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
-                    <div class="text-secondary small">Optional — used only if delivery is enabled.</div>
+                    <div class="text-secondary small">Optional - used only if delivery is enabled.</div>
                   </div>
 
                   <div class="col-12 col-md-3">
@@ -265,7 +265,7 @@
             </div>
           </div>
 
-          {# STEP 5 — Media & Publish #}
+          {# STEP 5 - Media & Publish #}
           <div class="col-12" data-step="5">
             <div class="row g-3">
               {% if product %}

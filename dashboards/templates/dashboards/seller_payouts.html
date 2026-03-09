@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load money %}
-{% block title %}Payouts · Local Market NE{% endblock %}
+{% block title %}Payouts  - Local Market NE{% endblock %}
 
 {% block content %}
 <div class="container-fluid" style="max-width: 1200px;">
@@ -20,7 +20,7 @@
       </div>
     </div>
     <div class="d-flex gap-2">
-      <a class="btn btn-outline-dark" href="{% url 'dashboards:seller' %}">
+      <a class="btn btn-outline-secondary" href="{% url 'dashboards:seller' %}">
         <i class="bi bi-arrow-left me-1"></i>Seller overview
       </a>
     </div>
@@ -179,7 +179,7 @@
                         {% if ev.meta.amount_cents %}
                           ${{ ev.meta.amount_cents|cents_to_dollars }}
                         {% else %}
-                          —
+                          "
                         {% endif %}
                       </td>
                     </tr>

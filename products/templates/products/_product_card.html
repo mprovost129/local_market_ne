@@ -42,12 +42,12 @@
             ${{ p.price }}
           {% endif %}
         </div>
-        <a class="btn btn-outline-dark btn-sm" href="{% url 'products:detail' p.id p.slug %}">View</a>
+        <a class="btn btn-outline-secondary btn-sm" href="{% url 'products:detail' p.id p.slug %}">View</a>
       </div>
 
       {% if user.is_authenticated %}
         {% if p.kind == "SERVICE" %}
-          <a class="btn btn-dark btn-sm w-100 mt-2" href="{% url 'appointments:request' p.id %}">Request</a>
+          <a class="btn btn-primary btn-sm w-100 mt-2" href="{% url 'appointments:request' p.id %}">Request</a>
         {% else %}
           <form method="post" action="{% url 'cart:add' %}" class="mt-2" data-recaptcha-action="cart_add">
             {% csrf_token %}
@@ -55,11 +55,11 @@
             <input type="hidden" name="product_id" value="{{ p.id }}">
             <input type="hidden" name="next" value="{{ request.path }}">
             <input type="hidden" name="quantity" value="1">
-            <button class="btn btn-dark btn-sm w-100" type="submit">Add to cart</button>
+            <button class="btn btn-primary btn-sm w-100" type="submit">Add to cart</button>
           </form>
         {% endif %}
       {% else %}
-        <a class="btn btn-dark btn-sm w-100 mt-2" href="{% url 'accounts:login' %}?next={{ request.path }}">Sign in</a>
+        <a class="btn btn-primary btn-sm w-100 mt-2" href="{% url 'accounts:login' %}?next={{ request.path }}">Sign in</a>
       {% endif %}
     </div>
   </div>

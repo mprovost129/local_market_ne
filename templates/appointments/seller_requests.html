@@ -7,7 +7,7 @@
       <h1 class="h4 mb-1">Service appointment requests</h1>
       <div class="text-secondary small">Requests from buyers for your services.</div>
     </div>
-    <a class="btn btn-outline-dark" href="{% url 'appointments:seller_availability' %}">Manage availability</a>
+    <a class="btn btn-outline-secondary" href="{% url 'appointments:seller_availability' %}">Manage availability</a>
   </div>
 
   <div class="card shadow-sm lm-card">
@@ -33,7 +33,7 @@
                 <td><span class="badge text-bg-light">{{ r.get_status_display }}</span></td>
                 <td class="text-end">
                   {% if r.status == "REQUESTED" %}
-                    <a class="btn btn-sm btn-dark" href="{% url 'appointments:seller_update' r.pk 'accept' %}">Accept</a>
+                    <a class="btn btn-sm btn-primary" href="{% url 'appointments:seller_update' r.pk 'accept' %}">Accept</a>
                     <a class="btn btn-sm btn-outline-secondary ms-1" href="{% url 'appointments:seller_update' r.pk 'decline' %}">Decline</a>
                   {% elif r.status == "DEPOSIT_PENDING" %}
                     <span class="text-secondary small">Waiting for buyer deposit</span>

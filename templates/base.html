@@ -25,7 +25,7 @@
     {# Open Graph (Facebook, iMessage, Slack, etc.) #}
     <meta property="og:site_name" content="Local Market NE">
     <meta property="og:type" content="{% block og_type %}website{% endblock %}">
-    <meta property="og:title" content="{% block og_title %}Local Market NE – Products &amp; Services{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}Local Market NE - Products &amp; Services{% endblock %}">
     <meta property="og:description" content="{% block og_description %}{{ site_config.seo_default_description|default:"Local Market NE is a local marketplace for individuals and small businesses to buy and sell products and services." }}{% endblock %}">
     <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
 
@@ -33,12 +33,12 @@
     <meta property="og:image" content="{% block og_image %}{% if site_config.seo_default_og_image_url %}{{ site_config.seo_default_og_image_url }}{% else %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/social/og-image-1200x630.png' %}{% endif %}{% endblock %}">
     <meta property="og:image:width" content="{% block og_image_width %}1200{% endblock %}">
     <meta property="og:image:height" content="{% block og_image_height %}630{% endblock %}">
-    <meta property="og:image:alt" content="{% block og_image_alt %}Local Market NE – Products &amp; Services{% endblock %}">
+    <meta property="og:image:alt" content="{% block og_image_alt %}Local Market NE - Products &amp; Services{% endblock %}">
 
     {# Twitter / X #}
     <meta name="twitter:card" content="{% block twitter_card %}summary_large_image{% endblock %}">
     {% if site_config.seo_twitter_handle %}<meta name="twitter:site" content="@{{ site_config.seo_twitter_handle }}">{% endif %}
-    <meta name="twitter:title" content="{% block twitter_title %}Local Market NE – Products &amp; Services{% endblock %}">
+    <meta name="twitter:title" content="{% block twitter_title %}Local Market NE - Products &amp; Services{% endblock %}">
     <meta name="twitter:description" content="{% block twitter_description %}{{ site_config.seo_default_description|default:"Local Market NE is a local marketplace for individuals and small businesses to buy and sell products and services." }}{% endblock %}">
     <meta name="twitter:image" content="{% block twitter_image %}{% if site_config.seo_default_og_image_url %}{{ site_config.seo_default_og_image_url }}{% else %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/social/twitter-card-1200x600.png' %}{% endif %}{% endblock %}">
   {% endblock %}
@@ -78,11 +78,12 @@
 
 
   {# reCAPTCHA v3 (public write actions) #}
-
-  <script src="https://www.google.com/recaptcha/api.js?render=6LftFoQsAAAAAI8QYSNSYg_38kaFpaGgWTWE8fqE"></script>
-  <script>
-     window.__RECAPTCHA_SITE_KEY = "6LftFoQsAAAAAI8QYSNSYg_38kaFpaGgWTWE8fqE";
-  </script>
+  {% if recaptcha_site_key %}
+    <script src="https://www.google.com/recaptcha/api.js?render={{ recaptcha_site_key }}"></script>
+    <script>
+      window.__RECAPTCHA_SITE_KEY = "{{ recaptcha_site_key }}";
+    </script>
+  {% endif %}
 
 
   {# Google AdSense (optional; SiteConfig controlled) #}

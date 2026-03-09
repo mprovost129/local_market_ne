@@ -18,10 +18,10 @@
               <input type="text" name="subject" class="form-control" placeholder="Optional subject" maxlength="180">
             </div>
             <div class="col-12">
-              <textarea name="body" class="form-control" rows="3" placeholder="Ask a question…" required></textarea>
+              <textarea name="body" class="form-control" rows="3" placeholder="Ask a question?" required></textarea>
             </div>
             <div class="col-12 d-flex justify-content-end">
-              <button class="btn btn-dark" type="submit">
+              <button class="btn btn-primary" type="submit">
                 <i class="bi bi-chat-left-text me-1"></i>Post question
               </button>
             </div>
@@ -37,7 +37,7 @@
           <div class="fw-semibold">Want to ask a question?</div>
           <div class="small text-secondary">Log in to post. Only the buyer and seller can reply.</div>
         </div>
-        <a class="btn btn-outline-dark" href="{% url 'accounts:login' %}?next={{ request.path }}#qa">Login</a>
+        <a class="btn btn-outline-secondary" href="{% url 'accounts:login' %}?next={{ request.path }}#qa">Login</a>
       </div>
     </div>
   {% endif %}
@@ -51,7 +51,7 @@
               {% if thread.subject %}{{ thread.subject }}{% else %}Question{% endif %}
             </div>
             <div class="small text-secondary">
-              Started by <strong>{{ thread.buyer.username }}</strong> · {{ thread.created_at|naturaltime }}
+              Started by <strong>{{ thread.buyer.username }}</strong>  - {{ thread.created_at|naturaltime }}
             </div>
           </div>
           <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#thread{{ thread.id }}">
@@ -114,8 +114,8 @@
                 {% csrf_token %}
                 <input type="hidden" name="recaptcha_token" value="">
                 <div class="input-group">
-                  <textarea name="body" class="form-control" rows="2" placeholder="Reply…" required></textarea>
-                  <button class="btn btn-dark" type="submit">Reply</button>
+                  <textarea name="body" class="form-control" rows="2" placeholder="Reply?" required></textarea>
+                  <button class="btn btn-primary" type="submit">Reply</button>
                 </div>
               </form>
             {% else %}

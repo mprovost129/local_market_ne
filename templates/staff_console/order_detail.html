@@ -10,7 +10,7 @@
       <span class="badge text-bg-secondary">{{ order.status }}</span>
     </div>
     <div class="text-muted small">
-      Created: {{ order.created_at|date:"Y-m-d H:i" }} —
+      Created: {{ order.created_at|date:"Y-m-d H:i" }} -
       Buyer: {% if order.buyer %}{{ order.buyer.username }}{% else %}{{ order.guest_email }}{% endif %}
     </div>
   </div>
@@ -44,9 +44,9 @@
                   </td>
                   <td class="small">
                     {% if it.tracking_number %}
-                      {{ it.tracking_carrier }} — {{ it.tracking_number }}
+                      {{ it.tracking_carrier }} - {{ it.tracking_number }}
                     {% else %}
-                      <span class="text-muted">—</span>
+                      <span class="text-muted">-</span>
                     {% endif %}
                   </td>
                 </tr>
@@ -62,8 +62,8 @@
       <div class="card shadow-sm mt-3 lm-card">
         <div class="card-header bg-body fw-semibold lm-card">Shipping Snapshot</div>
         <div class="card-body small lm-card">
-          <div><strong>Name:</strong> {{ order.shipping_name|default:"—" }}</div>
-          <div><strong>Phone:</strong> {{ order.shipping_phone|default:"—" }}</div>
+          <div><strong>Name:</strong> {{ order.shipping_name|default:"-" }}</div>
+          <div><strong>Phone:</strong> {{ order.shipping_phone|default:"-" }}</div>
           <div><strong>Address:</strong> {{ order.shipping_line1 }} {{ order.shipping_line2 }}</div>
           <div>{{ order.shipping_city }} {{ order.shipping_state }} {{ order.shipping_postal_code }} {{ order.shipping_country }}</div>
         </div>
@@ -89,9 +89,9 @@
         <div class="card-header bg-body fw-semibold lm-card">Stripe / Reconciliation</div>
         <div class="card-body small lm-card">
           <div><strong>Payment method:</strong> {{ order.payment_method }}</div>
-          <div><strong>Stripe session:</strong> {{ order.stripe_session_id|default:"—" }}</div>
-          <div><strong>Payment intent:</strong> {{ order.stripe_payment_intent_id|default:"—" }}</div>
-          <div><strong>Paid at:</strong> {{ order.paid_at|date:"Y-m-d H:i"|default:"—" }}</div>
+          <div><strong>Stripe session:</strong> {{ order.stripe_session_id|default:"-" }}</div>
+          <div><strong>Payment intent:</strong> {{ order.stripe_payment_intent_id|default:"-" }}</div>
+          <div><strong>Paid at:</strong> {{ order.paid_at|date:"Y-m-d H:i"|default:"-" }}</div>
         </div>
       </div>
     </div>

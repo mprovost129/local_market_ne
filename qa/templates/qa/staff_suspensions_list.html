@@ -1,13 +1,13 @@
 {# qa/templates/qa/staff_suspensions_list.html #}
 {% extends "base.html" %}
 
-{% block title %}Suspensions · Local Market NE{% endblock %}
+{% block title %}Suspensions  - Local Market NE{% endblock %}
 
 {% block content %}
 <div class="container py-4">
   <div class="d-flex align-items-center justify-content-between mb-3">
     <h1 class="h4 mb-0">Suspended Users</h1>
-    <a class="btn btn-sm btn-outline-dark" href="{% url 'qa:staff_reports_queue' %}">Back to Reports</a>
+    <a class="btn btn-sm btn-outline-secondary" href="{% url 'qa:staff_reports_queue' %}">Back to Reports</a>
   </div>
 
   {% if rows %}
@@ -30,10 +30,10 @@
                 <div class="text-secondary small">{{ row.user.email }}</div>
               </td>
               <td class="text-nowrap">
-                {% if row.suspended_at %}{{ row.suspended_at|date:"Y-m-d H:i" }}{% else %}—{% endif %}
+                {% if row.suspended_at %}{{ row.suspended_at|date:"Y-m-d H:i" }}{% else %}"{% endif %}
               </td>
               <td>
-                {% if row.suspended_by %}{{ row.suspended_by.username }}{% else %}—{% endif %}
+                {% if row.suspended_by %}{{ row.suspended_by.username }}{% else %}"{% endif %}
               </td>
               <td style="max-width: 520px;">
                 <div class="small text-secondary">{{ row.notes|default:"" }}</div>

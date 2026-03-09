@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}FAQs · Local Market NE{% endblock %}
+{% block title %}FAQs  - Local Market NE{% endblock %}
 
 {% block content %}
 <div class="container" style="max-width: 980px;">
@@ -9,8 +9,8 @@
       <div class="text-secondary small">Common questions about buying, selling, payments, fulfillment, and refunds.</div>
     </div>
     <div class="d-flex flex-wrap gap-2">
-      <a class="btn btn-outline-dark btn-sm" href="{% url 'core:help' %}"><i class="bi bi-life-preserver me-1"></i>Help</a>
-      <a class="btn btn-dark btn-sm" href="{% url 'legal:index' %}"><i class="bi bi-shield-check me-1"></i>Policies</a>
+      <a class="btn btn-outline-secondary btn-sm" href="{% url 'core:help' %}"><i class="bi bi-life-preserver me-1"></i>Help</a>
+      <a class="btn btn-primary btn-sm" href="{% url 'legal:index' %}"><i class="bi bi-shield-check me-1"></i>Policies</a>
     </div>
   </div>
 
@@ -38,7 +38,7 @@
       </h2>
       <div id="a2" class="accordion-collapse collapse" aria-labelledby="q2" data-bs-parent="#faqsAccordion">
         <div class="accordion-body small">
-          Yes — reviews are purchase-gated. Only verified purchasers can leave reviews on an item.
+          Yes " reviews are purchase-gated. Only verified purchasers can leave reviews on an item.
         </div>
       </div>
     </div>
@@ -46,12 +46,12 @@
     <div class="accordion-item">
       <h2 class="accordion-header" id="q3">
         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a3" aria-expanded="false" aria-controls="a3">
-          What’s the refund process?
+          Whats the refund process?
         </button>
       </h2>
       <div id="a3" class="accordion-collapse collapse" aria-labelledby="q3" data-bs-parent="#faqsAccordion">
         <div class="accordion-body small">
-          Refunds depend on the seller’s policy and the item type. For physical items, you can submit a refund request; the seller can approve or decline,
+          Refunds depend on the sellers policy and the item type. For physical items, you can submit a refund request; the seller can approve or decline,
           and refunds are processed through Stripe when approved. Marketplace fees are non-refundable.
           <div class="mt-2">
             <a class="text-decoration-none" href="{% url 'legal:refund' %}">Read the Refund Policy <i class="bi bi-arrow-right"></i></a>
@@ -68,7 +68,7 @@
       </h2>
       <div id="a4" class="accordion-collapse collapse" aria-labelledby="q4" data-bs-parent="#faqsAccordion">
         <div class="accordion-body small">
-          Service listings may support appointment booking. When you purchase a service, you’ll be guided through scheduling (when enabled).
+          Service listings may support appointment booking. When you purchase a service, youll be guided through scheduling (when enabled).
           <div class="mt-2">
             <a class="text-decoration-none" href="{% url 'legal:services_policy' %}">Services &amp; Appointments Policy <i class="bi bi-arrow-right"></i></a>
           </div>
@@ -79,7 +79,7 @@
     <div class="accordion-item">
       <h2 class="accordion-header" id="q5">
         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a5" aria-expanded="false" aria-controls="a5">
-          I’m a seller — when do I get paid?
+          Im a seller " when do I get paid?
         </button>
       </h2>
       <div id="a5" class="accordion-collapse collapse" aria-labelledby="q5" data-bs-parent="#faqsAccordion">
@@ -99,7 +99,7 @@
       <div id="a6" class="accordion-collapse collapse" aria-labelledby="q6" data-bs-parent="#faqsAccordion">
         <div class="accordion-body small">
           Sellers choose fulfillment methods. Some local goods are best handled via pickup; others may offer seller delivery or shipping.
-          You’ll see options during checkout.
+          Youll see options during checkout.
         </div>
       </div>
     </div>

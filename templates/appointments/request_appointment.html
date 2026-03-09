@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Request appointment · {{ service.title }}{% endblock %}
+{% block title %}Request appointment  - {{ service.title }}{% endblock %}
 {% block content %}
 <div class="container-fluid" style="max-width: 900px;">
   <div class="mb-3">
@@ -12,7 +12,7 @@
       <div class="mb-3">
         <div class="fw-semibold">Service details</div>
         <div class="text-secondary small">
-          Duration: {{ service.service_duration_minutes }} minutes ·
+          Duration: {{ service.service_duration_minutes }} minutes  -
           Deposit: {% if service.service_deposit_cents %}${{ deposit_amount|floatformat:2 }}{% else %}No deposit{% endif %}
         </div>
       </div>
@@ -46,7 +46,7 @@
           </div>
         {% endif %}
 
-        <button class="btn btn-dark">Send request</button>
+        <button class="btn btn-primary">Send request</button>
         <a class="btn btn-outline-secondary ms-2" href="{% url 'products:detail' service.pk service.slug %}">Back</a>
       </form>
     </div>

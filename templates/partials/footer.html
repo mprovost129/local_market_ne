@@ -91,5 +91,14 @@
         <a class="text-secondary text-decoration-none" href="{% url 'legal:content' %}">Content</a>
       </div>
     </div>
+    {% if recaptcha_site_key %}
+      <div class="text-secondary small mt-2">
+        This site is protected by reCAPTCHA and the Google
+        <a class="text-secondary" href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy Policy</a>
+        and
+        <a class="text-secondary" href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms of Service</a>
+        apply.
+      </div>
+    {% endif %}
   </div>
 </footer>

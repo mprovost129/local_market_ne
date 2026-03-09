@@ -1,7 +1,7 @@
 {# orders/templates/orders/seller_order_detail.html #}
 {% extends "base.html" %}
 {% load money %}
-{% block title %}Seller Order #{{ order.id }} · Local Market NE{% endblock %}
+{% block title %}Seller Order #{{ order.id }}  - Local Market NE{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
@@ -10,12 +10,12 @@
       <h1 class="h4 mb-1">Order #{{ order.id }}</h1>
       <div class="text-secondary small">
         Status: <span class="fw-semibold">{{ order.get_status_display }}</span>
-        · Your total: <span class="fw-semibold">${{ seller_total|floatformat:2 }}</span>
+         - Your total: <span class="fw-semibold">${{ seller_total|floatformat:2 }}</span>
       </div>
     </div>
 
     <div class="d-flex gap-2">
-      <a class="btn btn-outline-dark" href="{% url 'orders:seller_orders_list' %}">
+      <a class="btn btn-outline-secondary" href="{% url 'orders:seller_orders_list' %}">
         <i class="bi bi-arrow-left me-1"></i>Back to orders
       </a>
     </div>
@@ -56,7 +56,7 @@
                             <div>
                               {% if it.tracking_carrier %}Carrier: <span class="font-monospace">{{ it.tracking_carrier }}</span>{% endif %}
                               {% if it.tracking_number %}
-                                {% if it.tracking_carrier %} · {% endif %}
+                                {% if it.tracking_carrier %}  - {% endif %}
                                 Tracking: <span class="font-monospace" data-tracking-value="{{ it.tracking_number }}">{{ it.tracking_number }}</span>
                               {% endif %}
                             </div>
@@ -99,7 +99,7 @@
                             {% if order.status == "PAID" %}
                               <form class="mt-2" method="post" action="{% url 'orders:mark_item_delivered' order.id it.id %}">
                                 {% csrf_token %}
-                                <button class="btn btn-sm btn-outline-dark" type="submit">
+                                <button class="btn btn-sm btn-outline-secondary" type="submit">
                                   <i class="bi bi-check2-circle me-1"></i>Mark delivered
                                 </button>
                               </form>
@@ -126,9 +126,9 @@
                                     <input class="form-control form-control-sm" name="tracking_number" placeholder="Tracking number (optional)" />
                                   </div>
                                 </div>
-                                <div class="form-text small">Add carrier and tracking number from your label/receipt. We’ll email it to the buyer.</div>
+                                <div class="form-text small">Add carrier and tracking number from your label/receipt. Well email it to the buyer.</div>
                                 <div class="mt-2">
-                                  <button class="btn btn-sm btn-dark" type="submit">
+                                  <button class="btn btn-sm btn-primary" type="submit">
                                     <i class="bi bi-truck me-1"></i>Mark shipped
                                   </button>
                                 </div>

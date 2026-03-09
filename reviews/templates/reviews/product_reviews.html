@@ -1,6 +1,6 @@
 {# reviews/templates/reviews/product_reviews.html #}
 {% extends "base.html" %}
-{% block title %}Reviews · Local Market NE{% endblock %}
+{% block title %}Reviews  - Local Market NE{% endblock %}
 
 {% block content %}
 <div class="container py-4" style="max-width: 900px;">
@@ -8,10 +8,10 @@
     <div>
       <h1 class="h4 mb-1">Product Reviews</h1>
       <div class="text-secondary small">
-        {{ review_count }} review{{ review_count|pluralize }} · Avg {{ avg_rating|floatformat:1 }}/5
+        {{ review_count }} review{{ review_count|pluralize }}  - Avg {{ avg_rating|floatformat:1 }}/5
       </div>
     </div>
-    <a class="btn btn-outline-dark" href="{% url 'products:detail' pk=product_id slug='-' %}" style="display:none;"></a>
+    <a class="btn btn-outline-secondary" href="{% url 'products:detail' pk=product_id slug='-' %}" style="display:none;"></a>
   </div>
 
   <div class="card">

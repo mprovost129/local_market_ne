@@ -1,6 +1,6 @@
 {# reviews/templates/reviews/seller_review_form.html #}
 {% extends "base.html" %}
-{% block title %}Rate Seller · Local Market NE{% endblock %}
+{% block title %}Rate Seller  - Local Market NE{% endblock %}
 
 {% block content %}
 <div class="container py-4" style="max-width: 760px;">
@@ -9,7 +9,7 @@
       <h1 class="h4 mb-1">Rate Seller</h1>
       <div class="text-secondary small">Order #{{ order.id }}</div>
     </div>
-    <a class="btn btn-outline-dark" href="{% url 'orders:detail' order.id %}">Back to order</a>
+    <a class="btn btn-outline-secondary" href="{% url 'orders:detail' order.id %}">Back to order</a>
   </div>
 
   <div class="card">
@@ -40,7 +40,7 @@
           {% if form.body.errors %}<div class="text-danger small">{{ form.body.errors }}</div>{% endif %}
         </div>
 
-        <button class="btn btn-dark" type="submit">Post Seller Rating</button>
+        <button class="btn btn-primary" type="submit">Post Seller Rating</button>
       </form>
     </div>
   </div>

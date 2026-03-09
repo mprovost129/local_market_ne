@@ -5,7 +5,7 @@
 <div class="d-flex align-items-center justify-content-between mb-3">
   <div>
     <div class="h4 mb-0">Error Event</div>
-    <div class="text-muted small">{{ ev.created_at|date:"Y-m-d H:i:s" }} • {{ ev.exception_type }} • {{ ev.status_code }}</div>
+    <div class="text-muted small">{{ ev.created_at|date:"Y-m-d H:i:s" }} * {{ ev.exception_type }} * {{ ev.status_code }}</div>
   </div>
   <div>
     <a class="btn btn-outline-secondary" href="{% url 'ops:error_events' %}">Back</a>
@@ -35,10 +35,10 @@
           <dd class="col-sm-9"><code>{{ ev.request_id }}</code></dd>
 
           <dt class="col-sm-3">User</dt>
-          <dd class="col-sm-9">{% if ev.user %}{{ ev.user }}{% else %}<span class="text-muted">—</span>{% endif %}</dd>
+          <dd class="col-sm-9">{% if ev.user %}{{ ev.user }}{% else %}<span class="text-muted">-</span>{% endif %}</dd>
 
           <dt class="col-sm-3">IP</dt>
-          <dd class="col-sm-9">{% if ev.ip_address %}{{ ev.ip_address }}{% else %}<span class="text-muted">—</span>{% endif %}</dd>
+          <dd class="col-sm-9">{% if ev.ip_address %}{{ ev.ip_address }}{% else %}<span class="text-muted">-</span>{% endif %}</dd>
         </dl>
       </div>
     </div>

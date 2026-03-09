@@ -1,6 +1,6 @@
 {# products/templates/products/product_list.html #}
 {% extends "base.html" %}
-{% block title %}Products · Local Market NE{% endblock %}
+{% block title %}Products  - Local Market NE{% endblock %}
 
 {% block content %}
 <div class="container-fluid lm-page-shell">
@@ -10,8 +10,8 @@
       <p class="small lm-page-subtitle">Browse local products listed by sellers.</p>
     </div>
     <div class="lm-page-actions">
-      <a class="btn btn-outline-dark" href="{% url 'products:services' %}"><i class="bi bi-calendar2-check me-1"></i>Services</a>
-      <a class="btn btn-outline-dark" href="{% url 'products:top_sellers' %}"><i class="bi bi-shop me-1"></i>Top sellers</a>
+      <a class="btn btn-outline-secondary" href="{% url 'products:services' %}"><i class="bi bi-calendar2-check me-1"></i>Services</a>
+      <a class="btn btn-outline-secondary" href="{% url 'products:top_sellers' %}"><i class="bi bi-shop me-1"></i>Top sellers</a>
     </div>
   </div>
 
@@ -21,7 +21,7 @@
       {% if category %}
         <input type="hidden" name="category" value="{{ category }}">
       {% endif %}
-      <button class="btn btn-dark" type="submit"><i class="bi bi-search me-1"></i>Search</button>
+      <button class="btn btn-primary" type="submit"><i class="bi bi-search me-1"></i>Search</button>
       {% if q or category %}
         <a class="btn btn-outline-secondary" href="{% url 'products:list' %}">Clear</a>
       {% endif %}
@@ -66,7 +66,7 @@
               {% elif n <= 2 or n > paginator.num_pages|add:"-2" or n|add:"-2" <= page_obj.number and n|add:"2" >= page_obj.number %}
                 <li class="page-item"><a class="page-link" href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}page={{ n }}">{{ n }}</a></li>
               {% elif n == 3 or n == paginator.num_pages|add:"-2" %}
-                <li class="page-item disabled"><span class="page-link">…</span></li>
+                <li class="page-item disabled"><span class="page-link">?</span></li>
               {% endif %}
             {% endfor %}
 

@@ -140,7 +140,7 @@
             <div class="d-flex justify-content-between border-bottom py-2">
               <div>
                 <div class="fw-semibold">{{ a.verb }}</div>
-                <div class="text-muted small">{{ a.created_at|date:"Y-m-d H:i" }} — {{ a.actor|default:"system" }}</div>
+                <div class="text-muted small">{{ a.created_at|date:"Y-m-d H:i" }} - {{ a.actor|default:"system" }}</div>
               </div>
               <div class="text-muted small">{{ a.action }}</div>
             </div>

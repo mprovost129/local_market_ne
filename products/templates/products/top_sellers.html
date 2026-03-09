@@ -1,6 +1,6 @@
 {# products/templates/products/top_sellers.html #}
 {% extends "base.html" %}
-{% block title %}Top sellers · Local Market NE{% endblock %}
+{% block title %}Top sellers  - Local Market NE{% endblock %}
 
 {% block content %}
 <div class="container-fluid" style="max-width: 1100px;">
@@ -40,7 +40,7 @@
           {% elif n <= 2 or n > paginator.num_pages|add:"-2" or n|add:"-2" <= page_obj.number and n|add:"2" >= page_obj.number %}
             <li class="page-item"><a class="page-link" href="?page={{ n }}">{{ n }}</a></li>
           {% elif n == 3 or n == paginator.num_pages|add:"-2" %}
-            <li class="page-item disabled"><span class="page-link">…</span></li>
+            <li class="page-item disabled"><span class="page-link">...</span></li>
           {% endif %}
         {% endfor %}
 

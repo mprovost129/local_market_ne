@@ -49,7 +49,7 @@
         <h2 class="h5">3) Webhook & Payment Incidents</h2>
         <ul class="mb-2">
           <li>If Stripe shows payment succeeded but the order is not marked paid: check webhook logs and re-send the event (Stripe dashboard).</li>
-          <li>Ops should never “edit totals” directly. Prefer idempotent service functions that log <strong>AuditLog</strong> entries.</li>
+          <li>Ops should never "edit totals" directly. Prefer idempotent service functions that log <strong>AuditLog</strong> entries.</li>
           <li>Verify Stripe keys present: <strong>{{ stripe_configured|yesno:"Yes,No" }}</strong>.</li>
         </ul>
         <div class="small text-muted">Pre-deploy gate: <code>python manage.py rc_check --checks --db</code> and <code>python manage.py money_loop_check</code>.</div>

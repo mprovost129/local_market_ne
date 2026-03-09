@@ -27,7 +27,7 @@
         </div>
         <div class="col-6 col-md-2">
           <label class="form-label small text-muted">Verb</label>
-          <input type="text" name="verb" value="{{ verb }}" class="form-control form-control-sm" placeholder="contains…">
+          <input type="text" name="verb" value="{{ verb }}" class="form-control form-control-sm" placeholder="contains...">
         </div>
         <div class="col-6 col-md-2">
           <label class="form-label small text-muted">Actor</label>
@@ -48,7 +48,7 @@
 
       <div class="mt-2 small">
         <a class="link-secondary" href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if action %}action={{ action|urlencode }}&{% endif %}{% if verb %}verb={{ verb|urlencode }}&{% endif %}{% if actor %}actor={{ actor|urlencode }}&{% endif %}{% if date_from %}date_from={{ date_from|urlencode }}&{% endif %}{% if date_to %}date_to={{ date_to|urlencode }}&{% endif %}format=csv">Export CSV</a>
-        <span class="text-muted">•</span>
+        <span class="text-muted">*</span>
         <a class="link-secondary" href="{% url 'ops:audit_log' %}">Clear</a>
       </div>
     </div>
@@ -74,7 +74,7 @@
               <td class="small">{% if a.actor %}{{ a.actor.username }}{% else %}system{% endif %}</td>
               <td class="small">{{ a.action }}</td>
               <td class="small fw-semibold">{{ a.verb }}</td>
-              <td class="small text-muted">{{ a.target_object_id|default:"—" }}</td>
+              <td class="small text-muted">{{ a.target_object_id|default:"-" }}</td>
             </tr>
           {% empty %}
             <tr><td colspan="5" class="py-0">{% include 'partials/empty_state.html' with title='' message='No audit entries.' action_route='ops:dashboard' action_label='Back to Ops' %}</td></tr>

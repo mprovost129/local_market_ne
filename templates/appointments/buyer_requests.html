@@ -33,7 +33,7 @@
                 <td class="text-end">
                   {% if r.status == 'DEPOSIT_PENDING' and r.requires_deposit and r.order %}
                     {% if r.order.status == 'pending' %}
-                      <a class="btn btn-sm btn-dark" href="{% url 'orders:detail' r.order.pk %}">Pay deposit</a>
+                      <a class="btn btn-sm btn-primary" href="{% url 'orders:detail' r.order.pk %}">Pay deposit</a>
                     {% else %}
                       <span class="text-secondary small">Deposit order: {{ r.order.get_status_display }}</span>
                     {% endif %}

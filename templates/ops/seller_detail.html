@@ -6,10 +6,10 @@
 {% block ops_content %}
   <div class="mb-3">
     <h1 class="h4 mb-0">Company: {{ company_name }}</h1>
-    <div class="text-muted small">Seller account: {{ seller.username }} · {{ seller.email }}</div>
+    <div class="text-muted small">Seller account: {{ seller.username }}  - {{ seller.email }}</div>
     <div class="small mt-1">
       <a href="{% url 'ops:consumers_list' %}?q={{ seller.username }}">View related consumers</a>
-      <span class="text-muted">·</span>
+      <span class="text-muted"> -</span>
       <span class="text-muted">{{ consumer_count }} consumers purchased from this company</span>
     </div>
   </div>
@@ -144,7 +144,7 @@
                     <tr>
                       <td class="text-muted small">{{ ev.created_at|date:"Y-m-d H:i" }}</td>
                       <td class="text-nowrap"><a href="{% url 'ops:order_detail' ev.order_id %}">{{ ev.order_id|slice:":8" }}</a></td>
-                      <td class="text-end">{% if ev.meta.amount_cents %}${{ ev.meta.amount_cents|cents_to_dollars }}{% else %}—{% endif %}</td>
+                      <td class="text-end">{% if ev.meta.amount_cents %}${{ ev.meta.amount_cents|cents_to_dollars }}{% else %}-{% endif %}</td>
                       <td class="small font-monospace">{% if ev.meta.transfer_id %}{{ ev.meta.transfer_id }}{% else %}{{ ev.message }}{% endif %}</td>
                     </tr>
                   {% empty %}

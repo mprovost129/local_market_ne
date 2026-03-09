@@ -1,6 +1,6 @@
 {# products/templates/products/seller_shop.html #}
 {% extends "base.html" %}
-{% block title %}{% if profile and profile.public_seller_name %}{{ profile.public_seller_name }}{% else %}{{ seller.username }}{% endif %} · Shop · Local Market NE{% endblock %}
+{% block title %}{% if profile and profile.public_seller_name %}{{ profile.public_seller_name }}{% else %}{{ seller.username }}{% endif %}  - Shop  - Local Market NE{% endblock %}
 
 {% block content %}
 <div class="container-fluid" style="max-width: 1100px;">
@@ -12,10 +12,10 @@
       <div class="text-secondary small">
         Seller storefront
         {% if profile and profile.public_location_label %}
-          · <span class="text-secondary">{{ profile.public_location_label }}</span>
+           - <span class="text-secondary">{{ profile.public_location_label }}</span>
         {% endif %}
         {% if profile and profile.service_radius_miles and profile.service_radius_miles > 0 %}
-          · <span class="text-secondary">Service radius ~{{ profile.service_radius_miles }} mi</span>
+           - <span class="text-secondary">Service radius ~{{ profile.service_radius_miles }} mi</span>
         {% endif %}
       </div>
     </div>
@@ -86,7 +86,7 @@
                   {% for c in store_goods_categories %}
                     <option value="{{ c.id }}" {% if category == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
                     {% for s in c.children.all %}
-                      <option value="{{ s.id }}" {% if category == s.id|stringformat:"s" %}selected{% endif %}>&nbsp;&nbsp;— {{ s.name }}</option>
+                      <option value="{{ s.id }}" {% if category == s.id|stringformat:"s" %}selected{% endif %}>&nbsp;&nbsp;" {{ s.name }}</option>
                     {% endfor %}
                   {% endfor %}
                 </optgroup>
@@ -94,12 +94,12 @@
                   {% for c in store_service_categories %}
                     <option value="{{ c.id }}" {% if category == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
                     {% for s in c.children.all %}
-                      <option value="{{ s.id }}" {% if category == s.id|stringformat:"s" %}selected{% endif %}>&nbsp;&nbsp;— {{ s.name }}</option>
+                      <option value="{{ s.id }}" {% if category == s.id|stringformat:"s" %}selected{% endif %}>&nbsp;&nbsp;" {{ s.name }}</option>
                     {% endfor %}
                   {% endfor %}
                 </optgroup>
               </select>
-              <button class="btn btn-sm btn-dark" type="submit">Filter</button>
+              <button class="btn btn-sm btn-primary" type="submit">Filter</button>
             </form>
           </div>
 
@@ -128,7 +128,7 @@
                   {% elif n <= 2 or n > paginator.num_pages|add:"-2" or n|add:"-2" <= page_obj.number and n|add:"2" >= page_obj.number %}
                     <li class="page-item"><a class="page-link" href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if kind %}kind={{ kind|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}page={{ n }}">{{ n }}</a></li>
                   {% elif n == 3 or n == paginator.num_pages|add:"-2" %}
-                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                    <li class="page-item disabled"><span class="page-link">?</span></li>
                   {% endif %}
                 {% endfor %}
 

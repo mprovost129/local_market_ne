@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Contact · Local Market NE{% endblock %}
+{% block title %}Contact  - Local Market NE{% endblock %}
 
 {% block content %}
 <div class="container" style="max-width: 980px;">
   <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <div>
       <h1 class="h4 mb-1">Contact</h1>
-      <div class="text-secondary small">Questions, issues, or feedback — we’ll get back to you.</div>
+      <div class="text-secondary small">Questions, issues, or feedback " well get back to you.</div>
     </div>
     <div class="d-flex flex-wrap gap-2">
       <a class="btn btn-outline-secondary btn-sm" href="{% url 'core:help' %}"><i class="bi bi-life-preserver me-1"></i>Help</a>
@@ -47,7 +47,7 @@
             </div>
 
             <div class="d-flex align-items-center gap-2">
-              <button class="btn btn-dark" type="submit"><i class="bi bi-send me-1"></i>Send message</button>
+              <button class="btn btn-primary" type="submit"><i class="bi bi-send me-1"></i>Send message</button>
               <a class="btn btn-outline-secondary" href="{% url 'core:home' %}">Back to home</a>
             </div>
           </form>
@@ -68,7 +68,7 @@
             <div class="mb-2">
               <a class="text-decoration-none" href="mailto:{{ support_email }}">{{ support_email }}</a>
             </div>
-            <div class="text-secondary small">If the form doesn’t work, you can email us directly.</div>
+            <div class="text-secondary small">If the form doesnt work, you can email us directly.</div>
           {% else %}
             <div class="text-secondary">Support email is not configured yet.</div>
           {% endif %}

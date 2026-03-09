@@ -1,6 +1,6 @@
 {# dashboards/templates/dashboards/admin_dashboard.html #}
 {% extends "base.html" %}
-{% block title %}Admin Dashboard · Local Market NE{% endblock %}
+{% block title %}Admin Dashboard  - Local Market NE{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
@@ -17,10 +17,10 @@
       <a class="btn btn-outline-primary" href="{% url 'dashboards:admin_ops' %}">
         <i class="bi bi-wrench-adjustable me-1"></i>Ops
       </a>
-      <a class="btn btn-outline-dark" href="{% url 'admin:index' %}">
+      <a class="btn btn-outline-secondary" href="{% url 'admin:index' %}">
         <i class="bi bi-gear me-1"></i>Django Admin
       </a>
-      <a class="btn btn-dark" href="{% url 'products:list' %}">
+      <a class="btn btn-primary" href="{% url 'products:list' %}">
         <i class="bi bi-shop me-1"></i>View Store
       </a>
 
@@ -101,7 +101,7 @@
           </div>
 
           <div class="text-secondary small mt-3">
-            These are DB-backed settings (edit via “Site Settings”).
+            These are DB-backed settings (edit via Site Settings).
           </div>
         </div>
       </div>
@@ -325,7 +325,7 @@
             <div class="text-secondary">
               Native analytics collection is disabled in Site Settings.
               {% if analytics_dashboard_url %}
-                You can still use the “Open Google Analytics” link above.
+                You can still use the Open Google Analytics link above.
               {% endif %}
             </div>
           {% endif %}

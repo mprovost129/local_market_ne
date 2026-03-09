@@ -2,7 +2,7 @@
 {% extends "base.html" %}
 {% load money %}
 
-{% block title %}Refund Requests · Staff · Local Market NE{% endblock %}
+{% block title %}Refund Requests  - Staff  - Local Market NE{% endblock %}
 
 {% block content %}
 <div class="container py-4">
@@ -24,10 +24,10 @@
             <div>
               <div class="fw-semibold">{{ rr.order_item.product.title }}</div>
               <div class="text-muted small">
-                {{ rr.get_status_display }} · {{ rr.get_reason_display }} · Order #{{ rr.order_id }}
+                {{ rr.get_status_display }}  - {{ rr.get_reason_display }}  - Order #{{ rr.order_id }}
               </div>
               <div class="text-muted small">
-                Seller: {{ rr.seller.username }} · Buyer:
+                Seller: {{ rr.seller.username }}  - Buyer:
                 {% if rr.buyer_id %}
                   {{ rr.buyer.username }}
                 {% else %}
