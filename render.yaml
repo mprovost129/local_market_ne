@@ -8,6 +8,8 @@ services:
       python manage.py collectstatic --noinput
     startCommand: bash scripts/render_start.sh
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
       # Core
       - key: DJANGO_SETTINGS_MODULE
         value: config.settings.prod

@@ -1,4 +1,31 @@
 {% extends "legal/_legal_base.html" %}
-{% block doc_content %}
-  {{ doc.body|safe }}
+{% block title %}Seller Agreement · Local Market NE{% endblock %}
+{% block legal_content %}
+<h1>Seller Agreement</h1>
+<p>This Seller Agreement governs seller participation on Local Market NE.</p>
+
+<h2>Seller Obligations</h2>
+<ul>
+  <li>Provide accurate listings, pricing, and fulfillment details.</li>
+  <li>Deliver products/services as described and communicate with buyers in a timely manner.</li>
+  <li>Comply with marketplace policies, prohibited item rules, and applicable laws.</li>
+</ul>
+
+<h2>Stripe and Payouts</h2>
+<p>Sellers must complete Stripe Connect onboarding to accept platform checkout payments and receive payouts.</p>
+
+<h2>Marketplace Sales Fee</h2>
+<p>Local Market NE charges a <strong>10% marketplace sales fee</strong> on each completed sale processed through the platform.</p>
+<ul>
+  <li>The 10% fee is calculated from each order line amount.</li>
+  <li>The fee is deducted before seller net payout is transferred.</li>
+  <li>Tips are treated as seller earnings per platform logic; platform fees remain non-refundable unless required by law.</li>
+</ul>
+<p>For examples, see the <a href="{% url 'legal:seller_fees' %}">Seller Fees</a> page.</p>
+
+<h2>Policy Updates</h2>
+<p>Local Market NE may update seller terms and fee policies. Continued use of seller tools after updates indicates acceptance of revised terms.</p>
+
+<h2>Contact</h2>
+<p>Seller agreement questions can be sent to <a href="mailto:localmarketne@gmail.com">localmarketne@gmail.com</a>.</p>
 {% endblock %}

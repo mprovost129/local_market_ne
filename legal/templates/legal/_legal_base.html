@@ -1,11 +1,23 @@
-{# legal/templates/legal/_legal_base.html #}
-<div class="d-flex flex-wrap gap-2 mb-3">
-  <a class="btn btn-sm btn-outline-secondary" href="{% url 'legal:terms' %}">Terms</a>
-  <a class="btn btn-sm btn-outline-secondary" href="{% url 'legal:privacy' %}">Privacy</a>
-  <a class="btn btn-sm btn-outline-secondary" href="{% url 'legal:refund' %}">Refunds</a>
-  <a class="btn btn-sm btn-outline-secondary" href="{% url 'legal:content' %}">Content</a>
-  <a class="btn btn-sm btn-outline-secondary" href="{% url 'legal:fulfillment_policy' %}">Fulfillment</a>
-  <a class="btn btn-sm btn-outline-secondary" href="{% url 'legal:services_policy' %}">Services</a>
-  <a class="btn btn-sm btn-outline-secondary" href="{% url 'legal:seller_agreement' %}">Seller Agreement</a>
-  <a class="btn btn-sm btn-outline-secondary" href="{% url 'legal:seller_fees' %}">Seller Fees</a>
+{% extends "base.html" %}
+{% block title %}Policies · Local Market NE{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 980px;">
+  <div class="d-flex flex-wrap gap-2 mb-3">
+    <a class="btn btn-sm btn-outline-secondary" href="{% url 'legal:terms' %}">Terms</a>
+    <a class="btn btn-sm btn-outline-secondary" href="{% url 'legal:privacy' %}">Privacy</a>
+    <a class="btn btn-sm btn-outline-secondary" href="{% url 'legal:refund' %}">Refunds</a>
+    <a class="btn btn-sm btn-outline-secondary" href="{% url 'legal:content' %}">Content</a>
+    <a class="btn btn-sm btn-outline-secondary" href="{% url 'legal:fulfillment_policy' %}">Fulfillment</a>
+    <a class="btn btn-sm btn-outline-secondary" href="{% url 'legal:services_policy' %}">Services</a>
+    <a class="btn btn-sm btn-outline-secondary" href="{% url 'legal:seller_agreement' %}">Seller Agreement</a>
+    <a class="btn btn-sm btn-outline-secondary" href="{% url 'legal:seller_fees' %}">Seller Fees</a>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      {% block legal_content %}{% endblock %}
+    </div>
+  </div>
 </div>
+{% endblock %}
