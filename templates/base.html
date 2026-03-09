@@ -68,23 +68,22 @@
   <script defer src="{% static 'js/theme.js' %}"></script>
 
   {# Analytics (Google Analytics 4) #}
-  {% if ga_measurement_id %}
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q9MY1M7M6C"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-Q9MY1M7M6C');
-    </script>
-  {% endif %}
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q9MY1M7M6C"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-Q9MY1M7M6C');
+  </script>
+
 
   {# reCAPTCHA v3 (public write actions) #}
-  {% if recaptcha_site_key %}
-    <script src="https://www.google.com/recaptcha/api.js?render=6LftFoQsAAAAAI8QYSNSYg_38kaFpaGgWTWE8fqE"></script>
-    <script>
-      window.__RECAPTCHA_SITE_KEY = "6LftFoQsAAAAAI8QYSNSYg_38kaFpaGgWTWE8fqE";
-    </script>
-  {% endif %}
+
+  <script src="https://www.google.com/recaptcha/api.js?render=6LftFoQsAAAAAI8QYSNSYg_38kaFpaGgWTWE8fqE"></script>
+  <script>
+     window.__RECAPTCHA_SITE_KEY = "6LftFoQsAAAAAI8QYSNSYg_38kaFpaGgWTWE8fqE";
+  </script>
+
 
   {# Google AdSense (optional; SiteConfig controlled) #}
   {% if site_config.adsense_enabled and site_config.adsense_client_id %}
