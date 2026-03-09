@@ -316,6 +316,25 @@ textarea {
   max-width: 1100px;
 }
 
+.lm-media-64 {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+}
+
+.lm-media-64-empty {
+  width: 64px;
+  height: 64px;
+}
+
+.lm-preline {
+  white-space: pre-line;
+}
+
+.lm-prewrap {
+  white-space: pre-wrap;
+}
+
 /* ------------------------------------------------------------------
    Local Market NE — Pack BL polish
 ------------------------------------------------------------------- */

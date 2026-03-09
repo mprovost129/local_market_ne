@@ -1,9 +1,9 @@
 {# cart/templates/cart/cart_detail.html #}
 {% extends "base.html" %}
-{% block title %}Cart · Local Market NE{% endblock %}
+{% block title %}Cart - Local Market NE{% endblock %}
 
 {% block content %}
-<div class="container-fluid lm-page-shell" style="max-width: 1100px;">
+<div class="container-fluid lm-page-shell lm-page-wrap-lg">
   {% if messages %}
     <div class="mb-3">
       {% for message in messages %}
@@ -19,7 +19,7 @@
     </div>
 
     <div class="lm-page-actions">
-      <a class="btn btn-outline-dark" href="{% url 'products:list' %}">
+      <a class="btn btn-outline-secondary" href="{% url 'products:list' %}">
         <i class="bi bi-arrow-left me-1"></i>Continue shopping
       </a>
       <form method="post" action="{% url 'cart:clear' %}" data-recaptcha-action="cart_clear">
@@ -37,14 +37,14 @@
       <div>
         <div class="fw-semibold">Checkout blocked</div>
         <div class="small">
-          One or more sellers in your cart haven’t completed Stripe payout setup yet:
+          One or more sellers in your cart haven't completed Stripe payout setup yet:
           <strong>{{ unready_sellers|join:", " }}</strong>
         </div>
         <div class="small mt-1">
           You can still keep these items in your cart, but you must remove them to proceed to checkout.
         </div>
       </div>
-      <a class="btn btn-dark" href="{% url 'products:list' %}">
+      <a class="btn btn-primary" href="{% url 'products:list' %}">
         <i class="bi bi-shop me-1"></i>Browse other items
       </a>
     </div>
@@ -70,10 +70,9 @@
                 <div class="d-flex align-items-center gap-3">
                   {% if line.product.primary_image %}
                     <img src="{{ line.product.primary_image.image.url }}" alt="{{ line.product.title }}"
-                         style="width:64px;height:64px;object-fit:cover;" class="rounded border">
+                         class="rounded border lm-media-64">
                   {% else %}
-                    <div class="rounded border bg-light d-flex align-items-center justify-content-center"
-                         style="width:64px;height:64px;">
+                    <div class="rounded border bg-light d-flex align-items-center justify-content-center lm-media-64-empty">
                       <span class="text-secondary small">No image</span>
                     </div>
                   {% endif %}
@@ -83,7 +82,7 @@
                       <a class="text-decoration-none" href="{{ line.product.get_absolute_url }}">{{ line.product.title }}</a>
                     </div>
                     <div class="text-secondary small">
-                      by {{ line.product.seller.username }} · {{ line.product.category.name }}
+                      by {{ line.product.seller.username }} - {{ line.product.category.name }}
                     </div>
 
                     {% if line.is_tip and line.tip_total and line.tip_total > 0 %}
@@ -99,7 +98,7 @@
                         <div class="small fw-semibold">
                           <i class="bi bi-chat-left-text me-1"></i>Buyer notes
                         </div>
-                        <div class="small" style="white-space: pre-wrap;">{{ line.buyer_notes }}</div>
+                        <div class="small lm-prewrap">{{ line.buyer_notes }}</div>
                       </div>
                     {% endif %}
 
@@ -111,7 +110,7 @@
                       <div class="input-group input-group-sm">
                         <span class="input-group-text">Notes</span>
                         <input class="form-control buyer-notes-input" name="buyer_notes" value="{{ line.buyer_notes }}" placeholder="Add a note for the seller (optional)" maxlength="1000" data-maxlength="1000">
-                        <button class="btn btn-outline-dark" type="submit">Save</button>
+                        <button class="btn btn-outline-secondary" type="submit">Save</button>
                       </div>
                       <div class="form-text d-flex justify-content-between">
                         <span>Shown to the seller after purchase.</span>
@@ -136,7 +135,7 @@
                     <input type="hidden" name="recaptcha_token" value="">
                     <input type="hidden" name="product_id" value="{{ line.product.pk }}">
                     <input class="form-control form-control-sm" type="number" name="quantity" min="1" value="{{ line.quantity }}">
-                    <button class="btn btn-sm btn-outline-dark" type="submit">Update</button>
+                    <button class="btn btn-sm btn-outline-secondary" type="submit">Update</button>
                   </form>
                   <div class="form-text">Use the remove button to delete an item.</div>{% endif %}
               </td>
@@ -197,7 +196,7 @@
         <div class="mb-2">
           <label class="form-label small text-secondary mb-1">Email (required for guest checkout)</label>
           <input class="form-control" type="email" name="guest_email" placeholder="you@example.com" required>
-          <div class="form-text">We’ll email you a secure link for order status and services.</div>
+          <div class="form-text">We'll email you a secure link for order status and services.</div>
         </div>
       {% endif %}
 
@@ -240,7 +239,7 @@
         </div>
       {% endif %}
 
-      <button class="btn btn-dark w-100" type="submit" {% if not can_checkout %}disabled{% endif %}>
+      <button class="btn btn-primary w-100" type="submit" {% if not can_checkout %}disabled{% endif %}>
         <i class="bi bi-receipt me-1"></i>Place order (pending payment)
       </button>
 
@@ -249,11 +248,11 @@
           Add items to your cart to continue.
         </div>
       {% elif cart_lines and not can_checkout %}
-        <div class="small mt-2" style="color:#b45309;">
+        <div class="small mt-2 text-warning-emphasis">
           {% if not checkout_enabled %}
             Checkout is disabled right now.
           {% else %}
-            Remove items from sellers who haven’t finished Stripe setup to proceed.
+            Remove items from sellers who haven't finished Stripe setup to proceed.
           {% endif %}
         </div>
       {% endif %}

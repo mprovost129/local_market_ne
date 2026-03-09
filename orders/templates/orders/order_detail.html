@@ -2,7 +2,7 @@
 {% extends "base.html" %}
 {% load money %}
 
-{% block title %}Order · Local Market NE{% endblock %}
+{% block title %}Order - Local Market NE{% endblock %}
 
 {% block content %}
 <div class="container py-4">
@@ -30,26 +30,26 @@
           {% if order_token %}<input type="hidden" name="t" value="{{ order_token }}">{% endif %}
           <input type="hidden" name="recaptcha_token" value="">
           <div class="d-flex flex-wrap gap-2">
-            <button class="btn btn-dark" type="submit" name="payment_method" value="stripe" {% if not checkout_enabled %}disabled{% endif %}>
+            <button class="btn btn-primary" type="submit" name="payment_method" value="stripe" {% if not checkout_enabled %}disabled{% endif %}>
               <i class="bi bi-credit-card me-1"></i>Pay with Stripe
             </button>
             {% if any_venmo %}
-            <button class="btn btn-outline-dark" type="submit" name="payment_method" value="venmo" {% if not checkout_enabled %}disabled{% endif %}>
+            <button class="btn btn-outline-secondary" type="submit" name="payment_method" value="venmo" {% if not checkout_enabled %}disabled{% endif %}>
               Pay with Venmo
             </button>
             {% endif %}
             {% if any_paypal %}
-            <button class="btn btn-outline-dark" type="submit" name="payment_method" value="paypal" {% if not checkout_enabled %}disabled{% endif %}>
+            <button class="btn btn-outline-secondary" type="submit" name="payment_method" value="paypal" {% if not checkout_enabled %}disabled{% endif %}>
               Pay with PayPal
             </button>
             {% endif %}
             {% if any_zelle %}
-            <button class="btn btn-outline-dark" type="submit" name="payment_method" value="zelle" {% if not checkout_enabled %}disabled{% endif %}>
+            <button class="btn btn-outline-secondary" type="submit" name="payment_method" value="zelle" {% if not checkout_enabled %}disabled{% endif %}>
               Pay with Zelle
             </button>
             {% endif %}
             {% if any_cashapp %}
-            <button class="btn btn-outline-dark" type="submit" name="payment_method" value="cashapp" {% if not checkout_enabled %}disabled{% endif %}>
+            <button class="btn btn-outline-secondary" type="submit" name="payment_method" value="cashapp" {% if not checkout_enabled %}disabled{% endif %}>
               Pay with Cash App
             </button>
             {% endif %}
@@ -107,7 +107,7 @@
                 </div>
               {% endfor %}
             </div>
-            <button class="btn btn-sm btn-outline-dark mt-3" type="submit">Update tips</button>
+            <button class="btn btn-sm btn-outline-secondary mt-3" type="submit">Update tips</button>
             <div class="small text-secondary mt-2">Tip can be any amount. Setting 0 removes tip for that seller.</div>
           </form>
         {% endif %}
@@ -130,7 +130,7 @@
               <input type="hidden" name="t" value="{{ request.GET.t }}">
             {% endif %}
             <textarea class="form-control form-control-sm mb-2" name="offplatform_note" rows="2" placeholder="Optional note (e.g., time sent, handle used)">{{ order.offplatform_note }}</textarea>
-            <button class="btn btn-sm btn-outline-dark" type="submit">
+            <button class="btn btn-sm btn-outline-secondary" type="submit">
               <i class="bi bi-check2-circle me-1"></i>I sent payment
             </button>
             {% if order.offplatform_sent_at %}
@@ -182,7 +182,7 @@
                 {% if qr %}
                   <div class="mt-2">
                     <div class="small text-secondary">Seller enabled QR code for this checkout method{% with lbl=offline_label_by_seller|dict_get:item.seller_id %}{% if lbl %}: <span class="fw-semibold">{{ lbl }}</span>{% endif %}{% endwith %}.</div>
-                    <img src="{{ qr }}" class="img-fluid mt-2" style="max-width: 220px;" alt="Payment QR">
+                    <img src="{{ qr }}" class="img-fluid mt-2" alt="Payment QR">
                   </div>
                 {% endif %}
               {% endwith %}
@@ -193,7 +193,7 @@
         {% endfor %}
 {% if order.status == 'pending' %}
   <div class="mt-3">
-    <button class="btn btn-dark" type="submit">Save fulfillment choices</button>
+    <button class="btn btn-primary" type="submit">Save fulfillment choices</button>
   </div>
 </form>
 {% endif %}
@@ -274,19 +274,19 @@
                         <form class="d-inline" method="post" action="{% url 'orders:mark_item_delivered_buyer' order_id=order.id item_id=item.id %}{% if order_token %}?t={{ order_token }}{% endif %}">
                           {% csrf_token %}
                           {% if order_token %}<input type="hidden" name="t" value="{{ order_token }}">{% endif %}
-                          <button class="btn btn-sm btn-outline-dark ms-2" type="submit">
+                          <button class="btn btn-sm btn-outline-secondary ms-2" type="submit">
                             {% if item.fulfillment_method == "pickup" %}Confirm pickup{% else %}Confirm delivered{% endif %}
                           </button>
                         </form>
                       {% elif item.fulfillment_status == "shipped" %}
                         <span class="badge text-bg-success">Shipped</span>
                         {% if item.tracking_number %}
-                          <div class="small text-secondary mt-1">Tracking: {% if item.tracking_carrier %}{{ item.tracking_carrier }} · {% endif %}<span class="text-break">{{ item.tracking_number }}</span></div>
+                          <div class="small text-secondary mt-1">Tracking: {% if item.tracking_carrier %}{{ item.tracking_carrier }} - {% endif %}<span class="text-break">{{ item.tracking_number }}</span></div>
                         {% endif %}
                         <form class="d-inline" method="post" action="{% url 'orders:mark_item_delivered_buyer' order_id=order.id item_id=item.id %}{% if order_token %}?t={{ order_token }}{% endif %}">
                           {% csrf_token %}
                           {% if order_token %}<input type="hidden" name="t" value="{{ order_token }}">{% endif %}
-                          <button class="btn btn-sm btn-outline-dark ms-2" type="submit">
+                          <button class="btn btn-sm btn-outline-secondary ms-2" type="submit">
                             Confirm delivery
                           </button>
                         </form>

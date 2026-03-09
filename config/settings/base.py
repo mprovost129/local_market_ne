@@ -251,24 +251,24 @@ STRIPE_CONNECT_WEBHOOK_SECRET = os.getenv("STRIPE_CONNECT_WEBHOOK_SECRET")
 # ------------------------------------------------------------------------------
 # AWS S3 (optional)
 # ------------------------------------------------------------------------------
-if (USE_S3 := _bool_env("USE_S3", "False")):
-    AWS_ACCESS_KEY_ID = (os.getenv("AWS_ACCESS_KEY_ID") or "").strip()
-    AWS_SECRET_ACCESS_KEY = (os.getenv("AWS_SECRET_ACCESS_KEY") or "").strip()
-    AWS_S3_REGION_NAME = (os.getenv("AWS_S3_REGION_NAME") or "us-east-2").strip()
+AWS_ACCESS_KEY_ID = (os.getenv("AWS_ACCESS_KEY_ID") or "").strip()
+AWS_SECRET_ACCESS_KEY = (os.getenv("AWS_SECRET_ACCESS_KEY") or "").strip()
+AWS_S3_REGION_NAME = (os.getenv("AWS_S3_REGION_NAME") or "us-east-2").strip()
 
-    AWS_S3_MEDIA_BUCKET = (os.getenv("AWS_S3_MEDIA_BUCKET") or os.getenv("AWS_STORAGE_BUCKET_NAME") or "").strip()
+AWS_S3_MEDIA_BUCKET = (os.getenv("AWS_S3_MEDIA_BUCKET") or os.getenv("AWS_STORAGE_BUCKET_NAME") or "").strip()
+AWS_S3_BACKUPS_BUCKET = (os.getenv("AWS_S3_BACKUPS_BUCKET") or "").strip()
 
-    if not AWS_S3_MEDIA_BUCKET:
-        raise RuntimeError("USE_S3=True but AWS_S3_MEDIA_BUCKET is not set.")
+if not AWS_S3_MEDIA_BUCKET:
+    raise RuntimeError("USE_S3=True but AWS_S3_MEDIA_BUCKET is not set.")
 
-    AWS_S3_SIGNATURE_VERSION = "s3v4"
-    AWS_S3_FILE_OVERWRITE = False
-    AWS_DEFAULT_ACL = None
+AWS_S3_SIGNATURE_VERSION = "s3v4"
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None
 
-    # Prefer modern Django storage config
-    STORAGES = {
-        "default": {"BACKEND": "core.storage_backends.MediaStorage"},
-        "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+# Prefer modern Django storage config
+STORAGES = {
+    "default": {"BACKEND": "core.storage_backends.MediaStorage"},
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
     }
 
 # -------------------------

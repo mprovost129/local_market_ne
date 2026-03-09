@@ -1,9 +1,9 @@
 {# products/templates/products/product_detail.html #}
 {% extends "base.html" %}
-{% block title %}{{ product.title }} · Local Market NE{% endblock %}
+{% block title %}{{ product.title }} - Local Market NE{% endblock %}
 
 {% block content %}
-<div class="container-fluid lm-page-shell" style="max-width: 1100px;">
+<div class="container-fluid lm-page-shell lm-page-wrap-lg">
   <div class="lm-page-head">
     <div class="text-secondary small">
       {% if product.kind == "SERVICE" %}
@@ -17,9 +17,9 @@
 
     <div class="lm-page-actions">
       {% if product.kind == "SERVICE" %}
-        <a class="btn btn-outline-dark btn-sm" href="{% url 'products:services' %}"><i class="bi bi-arrow-left me-1"></i>Back to Services</a>
+        <a class="btn btn-outline-secondary btn-sm" href="{% url 'products:services' %}"><i class="bi bi-arrow-left me-1"></i>Back to Services</a>
       {% else %}
-        <a class="btn btn-outline-dark btn-sm" href="{% url 'products:list' %}"><i class="bi bi-arrow-left me-1"></i>Back to Products</a>
+        <a class="btn btn-outline-secondary btn-sm" href="{% url 'products:list' %}"><i class="bi bi-arrow-left me-1"></i>Back to Products</a>
       {% endif %}
     </div>
   </div>
@@ -73,7 +73,7 @@
           <div class="text-secondary small mb-2">
             Listed by <a href="{% url 'products:seller_shop' product.seller_id %}">{{ product.seller.username }}</a>
             {% if review_count %}
-              · <span class="text-body fw-semibold">{{ avg_rating|floatformat:1 }}</span>/5 ({{ review_count }})
+              - <span class="text-body fw-semibold">{{ avg_rating|floatformat:1 }}</span>/5 ({{ review_count }})
             {% endif %}
           </div>
 
@@ -85,7 +85,7 @@
                 <span class="h5 mb-0">${{ product.price }}</span>
               {% endif %}
             </div>
-            <a class="btn btn-outline-dark btn-sm" href="{% url 'products:seller_shop' product.seller_id %}">Store</a>
+            <a class="btn btn-outline-secondary btn-sm" href="{% url 'products:seller_shop' product.seller_id %}">Store</a>
           </div>
 
           {% if product.short_description %}
@@ -114,7 +114,7 @@
             {% else %}
               <div class="d-flex flex-column gap-2 small">
                 {% if product.is_made_to_order %}
-                  <div class="text-secondary"><i class="bi bi-hourglass-split me-1"></i>Made to order{% if product.lead_time_days %} · {{ product.lead_time_days }} day estimate{% endif %}</div>
+                  <div class="text-secondary"><i class="bi bi-hourglass-split me-1"></i>Made to order{% if product.lead_time_days %} - {{ product.lead_time_days }} day estimate{% endif %}</div>
                 {% else %}
                   <div class="text-secondary"><i class="bi bi-box-seam me-1"></i>Stock: {{ product.stock_qty }}</div>
                 {% endif %}
@@ -135,18 +135,18 @@
 
           {% if not can_buy %}
             <div class="alert alert-warning mb-3">
-              This seller isn’t ready to accept payments yet.
+              This seller isn't ready to accept payments yet.
             </div>
           {% endif %}
 
           {% if user.is_authenticated %}
             {% if product.kind == "SERVICE" %}
               {% if can_buy %}
-                <a class="btn btn-dark w-100" href="{% url 'appointments:request' product.id %}">
+                <a class="btn btn-primary w-100" href="{% url 'appointments:request' product.id %}">
                   Request to book
                 </a>
               {% else %}
-                <button class="btn btn-dark w-100" type="button" disabled>Request to book</button>
+                <button class="btn btn-primary w-100" type="button" disabled>Request to book</button>
               {% endif %}
             {% else %}
               <form method="post" action="{% url 'cart:add' %}" data-recaptcha-action="cart_add">
@@ -174,14 +174,14 @@
                   <div class="form-text">Optional: show your appreciation with a tip.</div>
                 </div>
 
-                <button class="btn btn-dark w-100" type="submit" {% if not can_buy %}disabled{% endif %}>
+                <button class="btn btn-primary w-100" type="submit" {% if not can_buy %}disabled{% endif %}>
                   Add to cart
                 </button>
               </form>
-              <a class="btn btn-outline-dark w-100 mt-2" href="{% url 'cart:detail' %}">View cart</a>
+              <a class="btn btn-outline-secondary w-100 mt-2" href="{% url 'cart:detail' %}">View cart</a>
             {% endif %}
           {% else %}
-            <a class="btn btn-dark w-100" href="{% url 'accounts:login' %}?next={{ request.path }}">Sign in to continue</a>
+            <a class="btn btn-primary w-100" href="{% url 'accounts:login' %}?next={{ request.path }}">Sign in to continue</a>
           {% endif %}
         </div>
       </div>
@@ -190,7 +190,7 @@
         <div class="card-body">
           <div class="fw-semibold mb-2">About this {% if product.kind == "SERVICE" %}service{% else %}item{% endif %}</div>
           {% if product.description %}
-            <div class="text-secondary" style="white-space: pre-line;">{{ product.description }}</div>
+            <div class="text-secondary lm-preline">{{ product.description }}</div>
           {% else %}
             <div class="text-secondary">No additional details provided yet.</div>
           {% endif %}
@@ -238,7 +238,7 @@
         {% else %}
           <div class="d-flex align-items-center gap-2 mb-3">
             <div class="h5 mb-0">{{ avg_rating|floatformat:1 }}</div>
-            <div class="text-secondary">Average rating · {{ review_count }} review{{ review_count|pluralize }}</div>
+            <div class="text-secondary">Average rating - {{ review_count }} review{{ review_count|pluralize }}</div>
           </div>
           <div class="vstack gap-3">
             {% for r in recent_reviews %}
@@ -249,12 +249,12 @@
                 </div>
                 <div class="small mb-2">Rating: <span class="fw-semibold">{{ r.rating }}</span>/5</div>
                 {% if r.body %}
-                  <div class="text-secondary" style="white-space: pre-line;">{{ r.body }}</div>
+                  <div class="text-secondary lm-preline">{{ r.body }}</div>
                 {% endif %}
                 {% if r.reply %}
                   <div class="mt-3 bg-light border rounded p-2">
                     <div class="small fw-semibold">Seller reply</div>
-                    <div class="small text-secondary" style="white-space: pre-line;">{{ r.reply.body }}</div>
+                    <div class="small text-secondary lm-preline">{{ r.reply.body }}</div>
                   </div>
                 {% endif %}
               </div>
@@ -270,9 +270,9 @@
 
         <div class="mb-3">
           {% if user.is_authenticated %}
-            <a class="btn btn-outline-dark btn-sm" href="{% url 'qa:thread_create' product.id %}"><i class="bi bi-chat-dots me-1"></i>Ask a question</a>
+            <a class="btn btn-outline-secondary btn-sm" href="{% url 'qa:thread_create' product.id %}"><i class="bi bi-chat-dots me-1"></i>Ask a question</a>
           {% else %}
-            <a class="btn btn-outline-dark btn-sm" href="{% url 'accounts:login' %}?next={{ request.path }}"><i class="bi bi-chat-dots me-1"></i>Sign in to ask</a>
+            <a class="btn btn-outline-secondary btn-sm" href="{% url 'accounts:login' %}?next={{ request.path }}"><i class="bi bi-chat-dots me-1"></i>Sign in to ask</a>
           {% endif %}
         </div>
 
@@ -289,7 +289,7 @@
                     <div class="flex-shrink-0 rounded-circle bg-light border" style="width: 28px; height: 28px;"></div>
                     <div class="flex-grow-1">
                       <div class="small fw-semibold">{{ m.author.username }}</div>
-                      <div class="small text-secondary" style="white-space: pre-line;">{{ m.body }}</div>
+                      <div class="small text-secondary lm-preline">{{ m.body }}</div>
                     </div>
                   </div>
                 {% endfor %}
