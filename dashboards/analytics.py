@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Tuple
+from urllib.parse import urlparse
 
+from django.conf import settings
 from django.db.models import Count
 from django.utils import timezone
 
@@ -35,6 +37,13 @@ def _apply_native_filters(qs):
         return qs
 
     primary_host = (getattr(cfg, "analytics_primary_host", "") or "").strip().lower()
+    if not primary_host:
+        # Safe default: scope to canonical site host if configured.
+        base = (getattr(settings, "SITE_BASE_URL", "") or "").strip()
+        try:
+            primary_host = (urlparse(base).hostname or "").strip().lower()
+        except Exception:
+            primary_host = ""
     if primary_host:
         qs = qs.filter(host=primary_host)
 

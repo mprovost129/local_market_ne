@@ -36,6 +36,14 @@ _BOT_SUBSTRINGS: tuple[str, ...] = (
     "telegrambot",
     "discordbot",
     "twitterbot",
+    "uptimerobot",
+    "pingdom",
+    "statuscake",
+    "datadog",
+    "go-http-client",
+    "python-requests",
+    "curl/",
+    "postmanruntime",
 )
 
 
@@ -75,8 +83,9 @@ def _should_exclude_path(path: str, extra_prefixes: Iterable[str], exclude_admin
 
 def _looks_like_bot(user_agent: str) -> bool:
     ua = (user_agent or "").lower()
+    # Empty UA is typically non-browser automation/monitoring traffic.
     if not ua:
-        return False
+        return True
     return any(s in ua for s in _BOT_SUBSTRINGS)
 
 
@@ -90,11 +99,27 @@ def _normalize_host(host: str) -> str:
     return host
 
 
-def _get_or_create_visitor_id(request) -> str:
+def _derive_anon_visitor_id(*, ip_hash: str, user_agent: str) -> str:
+    # Cookie-less requests (bots, strict privacy clients, probes) can inflate
+    # "unique visitors" if we mint a random UUID each hit. Build a stable
+    # anonymous id from hashed IP + coarse UA fingerprint instead.
+    ua = (user_agent or "").strip().lower()[:120]
+    seed = f"{ip_hash}|{ua}"
+    if not seed.strip("|"):
+        return str(uuid.uuid4())
+    return hashlib.sha256(seed.encode("utf-8", errors="ignore")).hexdigest()[:36]
+
+
+def _get_or_create_visitor_id(request, *, ip_hash: str, user_agent: str) -> str:
     vid = (request.COOKIES.get("hc_vid") or "").strip()
     if len(vid) >= 8:
         return vid[:36]
-    return str(uuid.uuid4())
+
+    user = getattr(request, "user", None)
+    if user and getattr(user, "is_authenticated", False):
+        return f"u-{int(user.pk)}"[:36]
+
+    return _derive_anon_visitor_id(ip_hash=ip_hash, user_agent=user_agent)
 
 
 def _get_or_rotate_session_id(request, now: timezone.datetime, inactivity_seconds: int) -> tuple[str, int]:
@@ -144,7 +169,7 @@ class RequestAnalyticsMiddleware:
 
         try:
             method = (request.method or "GET").upper()
-            if method not in ("GET", "HEAD"):
+            if method != "GET":
                 return response
 
             if response.status_code >= 400:
@@ -173,7 +198,10 @@ class RequestAnalyticsMiddleware:
 
             now = timezone.now()
 
-            vid = _get_or_create_visitor_id(request)
+            ip = _get_client_ip(request)
+            ip_hash = _hash_ip(ip)
+
+            vid = _get_or_create_visitor_id(request, ip_hash=ip_hash, user_agent=ua)
             inactivity_seconds = int(getattr(settings, "ANALYTICS_SESSION_INACTIVITY_SECONDS", 1800) or 1800)
             sid, now_ts = _get_or_rotate_session_id(request, now, inactivity_seconds)
 
@@ -187,9 +215,6 @@ class RequestAnalyticsMiddleware:
                 response.set_cookie("hc_slt", str(now_ts), max_age=31536000, samesite="Lax", secure=not settings.DEBUG)
                 return response
             cache.set(cache_key, 1, throttle_seconds)
-
-            ip = _get_client_ip(request)
-            ip_hash = _hash_ip(ip)
 
             session_key = getattr(getattr(request, "session", None), "session_key", "") or ""
             ref = request.META.get("HTTP_REFERER", "") or ""
