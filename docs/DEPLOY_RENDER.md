@@ -24,6 +24,14 @@ You should have:
 
 ## 1) Render service settings
 
+### Python runtime
+
+Use **Python 3.12.x** (recommended: `3.12.7`).
+
+- This repo pins `python-3.12.7` in `runtime.txt`.
+- Blueprint env includes `PYTHON_VERSION=3.12.7`.
+- Start script fails fast on Python `>=3.14` to prevent known admin/template runtime errors with current dependency set.
+
 ### Build command
 
 Use:

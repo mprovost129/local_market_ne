@@ -53,7 +53,7 @@
                     <a class="btn btn-sm btn-outline-secondary me-1" href="{% url 'appointments:seller_reschedule' r.pk %}">Reschedule</a>
                     <form method="post" action="{% url 'appointments:seller_complete' r.pk %}" class="d-inline">
                       {% csrf_token %}
-                      <button class="btn btn-sm btn-dark" type="submit">Mark completed</button>
+                      <button class="btn btn-sm btn-primary" type="submit">Mark completed</button>
                     </form>
                     <form method="post" action="{% url 'appointments:seller_cancel' r.pk %}" class="d-inline">
                       {% csrf_token %}

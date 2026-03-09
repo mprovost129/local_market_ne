@@ -16,6 +16,7 @@ Use `.env.example` for local development and the Render dashboard (or Blueprint 
 | `CSRF_TRUSTED_ORIGINS_EXTRA` | optional | Comma-separated additional trusted origins (`https://...`) (advanced). |
 | `COOKIE_DOMAIN` | optional | Defaults to `.<PRIMARY_DOMAIN>`; override only if needed. |
 | `SITE_BASE_URL` | ✅ (prod) | Used in emails and absolute URL generation. |
+| `PYTHON_VERSION` | ✅ (Render) | Set to `3.12.7` (or another `3.12.x`). Do not use `3.14` with current pinned Django version. |
 
 ## Database
 

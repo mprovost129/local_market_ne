@@ -7,7 +7,7 @@
     <h2 style="margin-top:0;">Profile</h2>
     <div class="help">Username (public): <strong>{{ request.user.username }}</strong></div>
 
-    <form method="post" enctype="multipart/form-data" novalidate style="margin-top:14px;">
+    <form method="post" enctype="multipart/form-data" novalidate style="margin-top:14px;" class="profile-form">
       {% csrf_token %}
 
       {% if form.non_field_errors %}
@@ -232,8 +232,10 @@
       </div>
 
       <div class="actions">
-        <button class="btn" type="submit">Save</button>
+        <button class="btn btn-primary" type="submit">Save</button>
+        <button class="btn btn-secondary" type="reset">Clear Changes</button>
       </div>
     </form>
   </div>
 {% endblock %}
+

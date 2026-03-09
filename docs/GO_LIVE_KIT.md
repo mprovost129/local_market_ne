@@ -24,6 +24,7 @@ Core:
 - `DJANGO_SETTINGS_MODULE=config.settings.prod`
 - `DJANGO_SECRET_KEY=<strong random>`
 - `DEBUG=0`
+- `PYTHON_VERSION=3.12.7` (Render service env; keep runtime on 3.12.x)
 - `PRIMARY_DOMAIN=localmarketne.com`
 - `RENDER_EXTERNAL_HOSTNAME=<your-service>.onrender.com` (recommended)
 - `ALLOWED_HOSTS_EXTRA=` (optional)
@@ -61,6 +62,7 @@ Typical commands:
 Notes:
 - For first deploy safety, keep `RUN_MIGRATIONS_ON_START=0` and run migrations manually from Render Shell.
 - After first successful deploy, you may set `RUN_MIGRATIONS_ON_START=1` to auto-run migrations at boot.
+- Keep Python runtime on `3.12.x` for current stack; avoid `3.14` unless Django/runtime compatibility is intentionally upgraded and tested.
 - Deploy gate on startup (recommended default):
   - `RUN_LAUNCH_GATE_ON_START=1`
   - `LAUNCH_GATE_FAIL_ON_WARNING=1` (strict mode: warning also blocks start)

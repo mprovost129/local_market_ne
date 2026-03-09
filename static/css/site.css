@@ -86,17 +86,35 @@
 .form-control:focus,
 .form-select:focus {
   background-color: #fff;
-  border-color: #86b7fe;
-  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+  border-color: var(--lm-secondary);
+  box-shadow: 0 0 0 0.2rem rgba(243, 111, 33, 0.2);
 }
 
-/* Force white form controls even if Django widgets lack Bootstrap classes */
+/* Global form consistency */
+form label:not(.form-check-label):not(.form-check) {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-weight: 600;
+}
+
+form .row,
+form .form-row,
+form .form-row-1 {
+  align-items: start;
+}
+
+/* Force white form controls even if widgets lack Bootstrap classes */
 input[type="text"],
 input[type="email"],
 input[type="number"],
 input[type="password"],
+input[type="tel"],
 input[type="url"],
 input[type="search"],
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+input[type="file"],
 select,
 textarea {
   background-color: #fff !important;

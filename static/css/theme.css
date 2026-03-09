@@ -336,6 +336,39 @@ header.bg-body {
   box-shadow: 0 0 0 0.2rem rgba(243, 111, 33, 0.2);
 }
 
+/* Profile form layout polish */
+.profile-form .form-row {
+  align-items: start;
+  gap: 14px;
+}
+
+.profile-form .form-row > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-form label:not(.form-check-label):not(.form-check) {
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.profile-form .form-control,
+.profile-form .form-select,
+.profile-form textarea,
+.profile-form input[type="text"],
+.profile-form input[type="email"],
+.profile-form input[type="number"],
+.profile-form input[type="url"] {
+  background-color: #fff !important;
+  color: #212529;
+}
+
+@media (max-width: 768px) {
+  .profile-form .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 :root[data-bs-theme="dark"] .form-control,
 :root[data-bs-theme="dark"] .form-select,
 :root[data-bs-theme="dark"] .input-group-text {
@@ -346,6 +379,18 @@ header.bg-body {
 
 :root[data-bs-theme="dark"] .form-control::placeholder {
   color: #bdc8b9;
+}
+
+:root[data-bs-theme="dark"] .profile-form .form-control,
+:root[data-bs-theme="dark"] .profile-form .form-select,
+:root[data-bs-theme="dark"] .profile-form textarea,
+:root[data-bs-theme="dark"] .profile-form input[type="text"],
+:root[data-bs-theme="dark"] .profile-form input[type="email"],
+:root[data-bs-theme="dark"] .profile-form input[type="number"],
+:root[data-bs-theme="dark"] .profile-form input[type="url"] {
+  background-color: #fff !important;
+  color: #212529;
+  border-color: #cfc6b5;
 }
 
 /* Tables and list rows */

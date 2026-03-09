@@ -183,11 +183,17 @@ class ProfileForm(forms.ModelForm):
         self.user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
 
-        # Bootstrap-friendly checkbox styling
+        # Bootstrap-friendly widget styling
         for name, field in list(self.fields.items()):
             if isinstance(field.widget, forms.CheckboxInput):
-                cls = field.widget.attrs.get('class', '')
-                field.widget.attrs['class'] = (cls + ' form-check-input').strip()
+                cls = field.widget.attrs.get("class", "")
+                field.widget.attrs["class"] = (cls + " form-check-input").strip()
+            elif isinstance(field.widget, forms.FileInput):
+                cls = field.widget.attrs.get("class", "")
+                field.widget.attrs["class"] = (cls + " form-control").strip()
+            else:
+                cls = field.widget.attrs.get("class", "")
+                field.widget.attrs["class"] = (cls + " form-control").strip()
 
         # Owner/admin flags should not be editable here
         if "is_owner" in self.fields:
