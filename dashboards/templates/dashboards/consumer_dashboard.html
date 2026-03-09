@@ -4,15 +4,15 @@
 {% block title %}Consumer Dashboard · Local Market NE{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+<div class="container-fluid lm-page-shell">
+  <div class="lm-page-head">
     <div>
-      <h1 class="h4 mb-1">Consumer Dashboard</h1>
+      <h1 class="h4 lm-page-title">Consumer Dashboard</h1>
       <div class="small text-secondary">Tip <span class="text-secondary" data-bs-toggle="tooltip" title="Start by browsing nearby listings, then save items to your cart or favorites for quick access later."><i class="bi bi-info-circle"></i></span></div>
-      <div class="text-secondary small">Your purchases, services, and account activity.</div>
+      <p class="text-secondary small lm-page-subtitle">Your purchases, services, and account activity.</p>
     </div>
 
-    <div class="d-flex flex-wrap gap-2">
+    <div class="lm-page-actions">
       <a class="btn btn-outline-dark" href="{% url 'orders:my_orders' %}">
         <i class="bi bi-bag-check me-1"></i>My Orders
       </a>
@@ -30,7 +30,7 @@
 
   <div class="row g-3 mb-3">
     <div class="col-12 col-md-4">
-      <div class="card h-100">
+      <div class="card h-100 lm-panel lm-metric-card">
         <div class="card-body">
           <div class="d-flex align-items-center justify-content-between">
             <div>
@@ -44,7 +44,7 @@
     </div>
 
     <div class="col-12 col-md-4">
-      <div class="card h-100">
+      <div class="card h-100 lm-panel lm-metric-card">
         <div class="card-body">
           <div class="d-flex align-items-center justify-content-between">
             <div>
@@ -58,7 +58,7 @@
     </div>
 
     <div class="col-12 col-md-4">
-      <div class="card h-100">
+      <div class="card h-100 lm-panel lm-metric-card">
         <div class="card-body">
           <div class="d-flex align-items-center justify-content-between">
             <div>
@@ -76,7 +76,7 @@
   </div>
 
   {% if not user.profile.is_seller %}
-  <div class="card mb-3 border-primary bg-light">
+  <div class="card mb-3 border-primary bg-light lm-panel">
     <div class="card-body">
       <div class="d-flex align-items-center justify-content-between">
         <div>
@@ -95,7 +95,7 @@
   </div>
   {% endif %}
 
-  <div class="card">
+  <div class="card lm-panel">
     <div class="card-header bg-white d-flex align-items-center justify-content-between">
       <div class="fw-semibold">Recent Orders</div>
       <a class="small text-decoration-none" href="{% url 'orders:my_orders' %}">View all</a>

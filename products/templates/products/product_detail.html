@@ -3,8 +3,8 @@
 {% block title %}{{ product.title }} · Local Market NE{% endblock %}
 
 {% block content %}
-<div class="container-fluid" style="max-width: 1100px;">
-  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+<div class="container-fluid lm-page-shell" style="max-width: 1100px;">
+  <div class="lm-page-head">
     <div class="text-secondary small">
       {% if product.kind == "SERVICE" %}
         <a class="text-decoration-none" href="{% url 'products:services' %}">Services</a>
@@ -15,7 +15,7 @@
       <span class="text-body">{{ product.title }}</span>
     </div>
 
-    <div class="d-flex gap-2">
+    <div class="lm-page-actions">
       {% if product.kind == "SERVICE" %}
         <a class="btn btn-outline-dark btn-sm" href="{% url 'products:services' %}"><i class="bi bi-arrow-left me-1"></i>Back to Services</a>
       {% else %}
@@ -26,7 +26,7 @@
 
   <div class="row g-4 align-items-start">
     <div class="col-12 col-lg-7">
-      <div class="card shadow-sm lm-card">
+      <div class="card shadow-sm lm-card lm-panel">
         <div class="card-body">
           {% with img=product.primary_image %}
             {% if img %}
@@ -53,7 +53,7 @@
     </div>
 
     <div class="col-12 col-lg-5">
-      <div class="card shadow-sm lm-card">
+      <div class="card shadow-sm lm-card lm-panel">
         <div class="card-body">
           <div class="d-flex flex-wrap gap-2 mb-2">
             {% if product.kind == "SERVICE" %}
@@ -186,7 +186,7 @@
         </div>
       </div>
 
-      <div class="card shadow-sm lm-card mt-3">
+      <div class="card shadow-sm lm-card lm-panel mt-3">
         <div class="card-body">
           <div class="fw-semibold mb-2">About this {% if product.kind == "SERVICE" %}service{% else %}item{% endif %}</div>
           {% if product.description %}
@@ -198,7 +198,7 @@
 
 
 
-<div class="card shadow-sm lm-card mt-3">
+<div class="card shadow-sm lm-card lm-panel mt-3">
   <div class="card-body">
     <div class="fw-semibold mb-2">Policies</div>
     {% if product.kind == "SERVICE" %}
@@ -221,7 +221,7 @@
     </div>
   </div>
 
-  <div class="mt-4">
+  <div class="mt-4 lm-section">
     <ul class="nav nav-tabs" id="detailTabs" role="tablist">
       <li class="nav-item" role="presentation">
         <button class="nav-link active" id="tab-reviews" data-bs-toggle="tab" data-bs-target="#pane-reviews" type="button" role="tab">Reviews ({{ review_count }})</button>
@@ -231,7 +231,7 @@
       </li>
     </ul>
 
-    <div class="tab-content border border-top-0 rounded-bottom p-3">
+    <div class="tab-content border border-top-0 rounded-bottom p-3 lm-tab-shell">
       <div class="tab-pane fade show active" id="pane-reviews" role="tabpanel">
         {% if review_count == 0 %}
           <div class="text-secondary">No reviews yet.</div>
@@ -304,7 +304,7 @@
     </div>
   </div>
 
-  <div class="mt-4">
+  <div class="mt-4 lm-section">
     <div class="d-flex align-items-center justify-content-between mb-2">
       <h2 class="h5 mb-0">More from this seller</h2>
       <a class="small" href="{% url 'products:seller_shop' product.seller_id %}">View seller shop</a>
@@ -320,7 +320,7 @@
     </div>
   </div>
 
-  <div class="mt-4">
+  <div class="mt-4 lm-section">
     <h2 class="h5 mb-2">More items like this from other sellers</h2>
     <div class="row g-3">
       {% for p in more_from_others %}

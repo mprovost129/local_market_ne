@@ -1,5 +1,8 @@
 {# templates/partials/empty_state.html #}
 <div class="lm-empty text-center py-4">
+  <div class="lm-empty-icon mx-auto mb-2" aria-hidden="true">
+    <i class="bi bi-inboxes-fill"></i>
+  </div>
   {% if title %}<div class="h6 mb-1">{{ title }}</div>{% endif %}
   <div class="text-secondary mb-3">{{ message }}</div>
 
@@ -24,9 +27,9 @@
     <div class="small text-secondary mt-3">
       Need help?
       <a href="{% url 'core:help' %}" class="text-decoration-none">Help</a>
-      ·
+      &middot;
       <a href="{% url 'core:faqs' %}" class="text-decoration-none">FAQs</a>
-      ·
+      &middot;
       <a href="{% url 'core:contact' %}" class="text-decoration-none">Contact</a>
     </div>
   {% endif %}

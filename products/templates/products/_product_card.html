@@ -1,7 +1,7 @@
 {# products/templates/products/_product_card.html #}
 {# expects: p (Product) #}
 
-<div class="card h-100 shadow-sm lm-card">
+<div class="card h-100 shadow-sm lm-card lm-product-card">
   <a href="{% url 'products:detail' p.id p.slug %}" class="text-decoration-none text-dark">
     <div class="lm-card-media-wrap">
       {% with img=p.primary_image %}
@@ -16,7 +16,7 @@
 
   <div class="card-body d-flex flex-column">
     <div class="d-flex align-items-start justify-content-between gap-2">
-      <div class="fw-semibold" style="line-height:1.15;">{{ p.title }}</div>
+      <div class="fw-semibold lm-product-title" style="line-height:1.15;">{{ p.title }}</div>
       <div class="d-flex gap-1">
         {% if p.is_trending or p.id in trending_badge_ids %}
           <span class="badge text-bg-warning text-dark flex-shrink-0">Trending</span>

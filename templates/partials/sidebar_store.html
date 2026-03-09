@@ -58,7 +58,7 @@
         id="goodsCategoryFilterInput"
         type="text"
         class="form-control form-control-sm"
-        placeholder="Search categories…"
+        placeholder="Search categories..."
         autocomplete="off"
       >
     </div>
@@ -91,7 +91,7 @@
                 <ul class="list-unstyled ms-3 mt-1">
                   {% for sub in cat.children.all %}
                     <li class="mb-1" data-cat-name="{{ sub.name|lower }}">
-                      <a class="hc3-cat-link {% if request.resolver_match.url_name == 'list' and request.GET.category == sub.id|stringformat:'s' %}is-active{% endif %}" href="{% url 'products:list' %}?{% if request.GET.q %}q={{ request.GET.q|urlencode }}&{% endif %}category={{ sub.id }}">— {{ sub.name }}</a>
+                      <a class="hc3-cat-link {% if request.resolver_match.url_name == 'list' and request.GET.category == sub.id|stringformat:'s' %}is-active{% endif %}" href="{% url 'products:list' %}?{% if request.GET.q %}q={{ request.GET.q|urlencode }}&{% endif %}category={{ sub.id }}">- {{ sub.name }}</a>
                     </li>
                   {% endfor %}
                 </ul>
@@ -132,7 +132,7 @@
                     <ul class="list-unstyled ms-3 mt-1">
                       {% for sub in cat.children.all %}
                         <li class="mb-1" data-cat-name="{{ sub.name|lower }}">
-                          <a class="hc3-cat-link {% if request.resolver_match.url_name == 'list' and request.GET.category == sub.id|stringformat:'s' %}is-active{% endif %}" href="{% url 'products:list' %}?{% if request.GET.q %}q={{ request.GET.q|urlencode }}&{% endif %}category={{ sub.id }}">— {{ sub.name }}</a>
+                          <a class="hc3-cat-link {% if request.resolver_match.url_name == 'list' and request.GET.category == sub.id|stringformat:'s' %}is-active{% endif %}" href="{% url 'products:list' %}?{% if request.GET.q %}q={{ request.GET.q|urlencode }}&{% endif %}category={{ sub.id }}">- {{ sub.name }}</a>
                         </li>
                       {% endfor %}
                     </ul>
@@ -183,7 +183,7 @@
         id="serviceCategoryFilterInput"
         type="text"
         class="form-control form-control-sm"
-        placeholder="Search service categories…"
+        placeholder="Search service categories..."
         autocomplete="off"
       >
     </div>
@@ -216,7 +216,7 @@
                 <ul class="list-unstyled ms-3 mt-1">
                   {% for sub in cat.children.all %}
                     <li class="mb-1" data-cat-name="{{ sub.name|lower }}">
-                      <a class="hc3-cat-link {% if request.resolver_match.url_name == 'services' and request.GET.category == sub.id|stringformat:'s' %}is-active{% endif %}" href="{% url 'products:services' %}?{% if request.GET.q %}q={{ request.GET.q|urlencode }}&{% endif %}{% if request.GET.state %}state={{ request.GET.state|urlencode }}&{% endif %}{% if request.GET.radius %}radius={{ request.GET.radius|urlencode }}&{% endif %}category={{ sub.id }}">— {{ sub.name }}</a>
+                      <a class="hc3-cat-link {% if request.resolver_match.url_name == 'services' and request.GET.category == sub.id|stringformat:'s' %}is-active{% endif %}" href="{% url 'products:services' %}?{% if request.GET.q %}q={{ request.GET.q|urlencode }}&{% endif %}{% if request.GET.state %}state={{ request.GET.state|urlencode }}&{% endif %}{% if request.GET.radius %}radius={{ request.GET.radius|urlencode }}&{% endif %}category={{ sub.id }}">- {{ sub.name }}</a>
                     </li>
                   {% endfor %}
                 </ul>
@@ -257,7 +257,7 @@
                     <ul class="list-unstyled ms-3 mt-1">
                       {% for sub in cat.children.all %}
                         <li class="mb-1" data-cat-name="{{ sub.name|lower }}">
-                          <a class="hc3-cat-link {% if request.resolver_match.url_name == 'services' and request.GET.category == sub.id|stringformat:'s' %}is-active{% endif %}" href="{% url 'products:services' %}?{% if request.GET.q %}q={{ request.GET.q|urlencode }}&{% endif %}{% if request.GET.state %}state={{ request.GET.state|urlencode }}&{% endif %}{% if request.GET.radius %}radius={{ request.GET.radius|urlencode }}&{% endif %}category={{ sub.id }}">— {{ sub.name }}</a>
+                          <a class="hc3-cat-link {% if request.resolver_match.url_name == 'services' and request.GET.category == sub.id|stringformat:'s' %}is-active{% endif %}" href="{% url 'products:services' %}?{% if request.GET.q %}q={{ request.GET.q|urlencode }}&{% endif %}{% if request.GET.state %}state={{ request.GET.state|urlencode }}&{% endif %}{% if request.GET.radius %}radius={{ request.GET.radius|urlencode }}&{% endif %}category={{ sub.id }}">- {{ sub.name }}</a>
                         </li>
                       {% endfor %}
                     </ul>
@@ -344,3 +344,4 @@
   </script>
 
 </div>
+

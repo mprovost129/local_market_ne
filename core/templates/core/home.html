@@ -11,10 +11,10 @@
 {% block content %}
   
   {% include "includes/home_banner.html" %}
-  <br>
+  <div class="lm-page-shell">
   
   {% if ad_banner %}
-  <div class="container mb-4">
+  <div class="container mb-4 px-0">
     <div class="row justify-content-center">
       <div class="col-12 col-md-10">
         <div class="alert alert-warning p-0 border-0 rounded-3 overflow-hidden position-relative">
@@ -34,7 +34,7 @@
   </div>
   {% endif %}
 <!-- Hero Section -->
-<div class="bg-light border-bottom mb-5">
+<div class="lm-hero">
   <div class="container py-5">
     <div class="row align-items-center g-4">
       <div class="col-lg-6">
@@ -56,7 +56,7 @@
       </div>
 
       <div class="col-lg-6 text-center">
-        <div class="bg-secondary-subtle p-4 rounded-3 h-100 d-flex align-items-center justify-content-center">
+        <div class="lm-hero-media p-4 rounded-3 h-100 d-flex align-items-center justify-content-center">
           <img
             src="{% static 'images/localmarketne_facebook.png' %}"
             alt=" printer in action printing a dragon"
@@ -69,24 +69,24 @@
 </div>
 
 <!-- Category Quick Links -->
-<div class="container mb-5">
+<div class="container mb-5 px-0">
   <div class="row g-3">
     <div class="col-md-4">
-      <div class="card h-100 text-center p-4 border-0 bg-light">
+      <div class="card lm-grid-card h-100 text-center p-4 border-0">
         <h5 class="card-title mb-2">Products</h5>
         <p class="text-secondary small mb-3">Browse local products</p>
         <a href="{% url 'products:list' %}" class="btn btn-sm btn-outline-dark">Browse Products</a>
       </div>
     </div>
     <div class="col-md-4">
-      <div class="card h-100 text-center p-4 border-0 bg-light">
+      <div class="card lm-grid-card h-100 text-center p-4 border-0">
         <h5 class="card-title mb-2">Services</h5>
         <p class="text-secondary small mb-3">Hire a local professional</p>
         <a href="{% url 'products:services' %}" class="btn btn-sm btn-outline-dark">Browse Services</a>
       </div>
     </div>
     <div class="col-md-4">
-      <div class="card h-100 text-center p-4 border-0 bg-light">
+      <div class="card lm-grid-card h-100 text-center p-4 border-0">
         <h5 class="card-title mb-2">Top Sellers</h5>
         <p class="text-secondary small mb-3">Trusted sellers</p>
         <a href="{% url 'products:top_sellers' %}" class="btn btn-sm btn-outline-dark">View Sellers</a>
@@ -95,10 +95,10 @@
   </div>
 </div>
 
-<div class="container">
+<div class="container px-0">
   {% if trending %}
-    <div class="mb-5">
-      <div class="d-flex justify-content-between align-items-center mb-4">
+    <section class="lm-section">
+      <div class="lm-section-head">
         <div>
           <h2 class="h3 mb-1">🔥 Trending Now</h2>
           <p class="text-secondary">Hot products everyone's talking about</p>
@@ -112,12 +112,12 @@
           </div>
         {% endfor %}
       </div>
-    </div>
+    </section>
   {% endif %}
 
   {% if new_items %}
-    <div class="mb-5">
-      <div class="d-flex justify-content-between align-items-center mb-4">
+    <section class="lm-section">
+      <div class="lm-section-head">
         <div>
           <h2 class="h3 mb-1">✨ Just Added</h2>
           <p class="text-secondary">Latest designs uploaded</p>
@@ -131,12 +131,12 @@
           </div>
         {% endfor %}
       </div>
-    </div>
+    </section>
   {% endif %}
 
   {% if recently_purchased_list %}
-    <div class="mb-5">
-      <div class="d-flex justify-content-between align-items-center mb-4">
+    <section class="lm-section">
+      <div class="lm-section-head">
         <div>
           <h2 class="h3 mb-1">⭐ Customer Favorites</h2>
           <p class="text-secondary">Popular purchases in the last 30 days</p>
@@ -150,12 +150,12 @@
           </div>
         {% endfor %}
       </div>
-    </div>
+    </section>
   {% endif %}
 
   {% if most_purchaseed_list %}
-    <div class="mb-5">
-      <div class="d-flex justify-content-between align-items-center mb-4">
+    <section class="lm-section">
+      <div class="lm-section-head">
         <div>
           <h2 class="h3 mb-1">📥 Most Popular</h2>
           <p class="text-secondary">Top services everyone's getting</p>
@@ -169,12 +169,12 @@
           </div>
         {% endfor %}
       </div>
-    </div>
+    </section>
   {% endif %}
 
   {% if featured %}
-    <div class="mb-5">
-      <div class="d-flex justify-content-between align-items-center mb-4">
+    <section class="lm-section">
+      <div class="lm-section-head">
         <div>
           <h2 class="h3 mb-1">🎯 Featured Picks</h2>
           <p class="text-secondary">Curated selections from our store</p>
@@ -188,7 +188,7 @@
           </div>
         {% endfor %}
       </div>
-    </div>
+    </section>
   {% endif %}
 
   <br>
@@ -218,7 +218,7 @@
 
   <br>
 
-  <div class="bg-dark text-white rounded-3 p-5 mb-5 text-center">
+  <div class="lm-cta-band rounded-3 p-5 mb-5 text-center">
     <h2 class="mb-3">Start Selling!</h2>
     <p class="lead text-light mb-4">Are you a small business owner or individual with products to sell? Sign up and reach local consumers!</p>
     {% if not user.is_authenticated %}
@@ -227,5 +227,6 @@
       <a href="{% url 'payments:connect_status' %}" class="btn btn-light btn-lg">Become a Seller</a>
     {% endif %}
   </div>
+</div>
 </div>
 {% endblock %}

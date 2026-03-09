@@ -65,7 +65,7 @@ def _send_refund_requested_email(rr: RefundRequest) -> None:
         return
 
     base = _site_base_url()
-    logo_url = _absolute_static_url("images/local_market_logo.png")
+    logo_url = _absolute_static_url("images/logos/localmarketne_logo_600x156.png")
     order_link = _seller_order_link(rr, base)
 
     item_title = getattr(rr.order_item.product, "title", "Item")
@@ -128,7 +128,7 @@ def _send_refund_decision_email(rr: RefundRequest) -> None:
     buyer_user = getattr(rr, "buyer", None)
 
     base = _site_base_url()
-    logo_url = _absolute_static_url("images/local_market_logo.png")
+    logo_url = _absolute_static_url("images/logos/localmarketne_logo_600x156.png")
     order_link = _order_link_for_refund(rr, base)
 
     item_title = getattr(rr.order_item.product, "title", "Item")
@@ -207,7 +207,7 @@ def _send_refund_processed_email(rr: RefundRequest) -> None:
         return
 
     base = _site_base_url()
-    logo_url = _absolute_static_url("images/local_market_logo.png")
+    logo_url = _absolute_static_url("images/logos/localmarketne_logo_600x156.png")
     order_link = _order_link_for_refund(rr, base)
 
     item_title = getattr(rr.order_item.product, "title", "Item")

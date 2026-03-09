@@ -7,7 +7,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>{% block title %}Local Market NE{% endblock %}</title>
-  <link rel="icon" href="{% static 'images/favicon.ico' %}">
+  <link rel="icon" href="{% static 'images/favicon.ico' %}" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicons/icon-32x32.png' %}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicons/icon-16x16.png' %}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/favicons/icon-180x180.png' %}">
+  <link rel="manifest" href="{% static 'images/site.webmanifest' %}">
 
   {# -------------------- SEO / Canonical -------------------- #}
   {% block meta_head %}
@@ -26,7 +30,7 @@
     <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
 
     {# Default OG image (override this per product/page) #}
-    <meta property="og:image" content="{% block og_image %}{% if site_config.seo_default_og_image_url %}{{ site_config.seo_default_og_image_url }}{% else %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/localmarketne_facebook.png' %}{% endif %}{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{% if site_config.seo_default_og_image_url %}{{ site_config.seo_default_og_image_url }}{% else %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/social/og-image-1200x630.png' %}{% endif %}{% endblock %}">
     <meta property="og:image:width" content="{% block og_image_width %}1200{% endblock %}">
     <meta property="og:image:height" content="{% block og_image_height %}630{% endblock %}">
     <meta property="og:image:alt" content="{% block og_image_alt %}Local Market NE – Products &amp; Services{% endblock %}">
@@ -36,7 +40,7 @@
     {% if site_config.seo_twitter_handle %}<meta name="twitter:site" content="@{{ site_config.seo_twitter_handle }}">{% endif %}
     <meta name="twitter:title" content="{% block twitter_title %}Local Market NE – Products &amp; Services{% endblock %}">
     <meta name="twitter:description" content="{% block twitter_description %}{{ site_config.seo_default_description|default:"Local Market NE is a local marketplace for individuals and small businesses to buy and sell products and services." }}{% endblock %}">
-    <meta name="twitter:image" content="{% block twitter_image %}{% if site_config.seo_default_og_image_url %}{{ site_config.seo_default_og_image_url }}{% else %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/localmarketne_facebook.png' %}{% endif %}{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}{% if site_config.seo_default_og_image_url %}{{ site_config.seo_default_og_image_url }}{% else %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/social/twitter-card-1200x600.png' %}{% endif %}{% endblock %}">
   {% endblock %}
 
   
@@ -47,6 +51,9 @@
 
   <!-- Bootstrap Icons (CDN) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap" rel="stylesheet">
 
   <!-- Theme tokens from SiteConfig -->
   {% include "includes/theme_css_vars.html" %}
@@ -94,7 +101,7 @@
 
   {% include "partials/navbar.html" %}
 
-  <div class="bg-body-tertiary border-bottom">
+  <div class="bg-body-tertiary border-bottom lm-trust-strip">
     <div class="container-fluid py-2">
       <div class="d-flex flex-wrap align-items-center justify-content-center gap-3 small text-secondary">
         <span><i class="bi bi-shield-check me-1"></i>Secure payments</span>
@@ -117,11 +124,11 @@
 
   <div class="container-fluid">
     <div class="row">
-      <aside class="d-none d-lg-block col-lg-3 col-xl-2 border-end bg-body-tertiary min-vh-100 p-0">
+      <aside class="d-none d-lg-block col-lg-3 col-xl-2 border-end bg-body-tertiary min-vh-100 p-0 lm-sidebar-shell">
         {% include "partials/sidebar.html" %}
       </aside>
 
-      <main class="col-12 col-lg-9 col-xl-10 p-3 p-md-4">
+      <main class="col-12 col-lg-9 col-xl-10 p-3 p-md-4 lm-main-shell">
         {% block content %}{% endblock %}
       </main>
     </div>
