@@ -174,7 +174,12 @@
               <a class="nav-link dropdown-toggle px-0 px-lg-2" href="#" data-lm-ignore-deadend id="userDropdown" role="button"
                  data-bs-toggle="dropdown" aria-expanded="false">
                 {% if user.profile.avatar %}
-                  <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="rounded-circle me-1" style="width: 32px; height: 32px; object-fit: cover;">
+                  <img src="{{ user.profile.avatar.url }}"
+                       alt="{{ user.username }}"
+                       class="rounded-circle me-1"
+                       style="width: 32px; height: 32px; object-fit: cover;"
+                       onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                  <i class="bi bi-person-circle me-1" style="display:none;"></i>
                 {% else %}
                   <i class="bi bi-person-circle me-1"></i>
                 {% endif %}

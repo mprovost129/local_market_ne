@@ -18,7 +18,7 @@ USE_S3=True
 AWS_ACCESS_KEY_ID=<your-access-key-id>
 AWS_SECRET_ACCESS_KEY=<your-secret-access-key>
 AWS_S3_REGION_NAME=us-east-2
-AWS_S3_MEDIA_BUCKET=localmarketne-media
+AWS_S3_MEDIA_BUCKET=localmarketne-prod-media
 AWS_S3_orders_BUCKET=localmarketne-orders
 ```
 
@@ -85,7 +85,7 @@ This will show:
 
 1. Upload an image through seller panel
 2. Check `/products/seller/{id}/images/` - image should appear
-3. Check S3 console: bucket `localmarketne-media` → folder `media/product_images/`
+3. Check S3 console: bucket `localmarketne-prod-media` → folder `media/product_images/`
 4. File should be there with path like: `media/product_images/image_abc123.jpg`
 
 ## Current Status
