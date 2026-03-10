@@ -5,6 +5,31 @@ Release / Commit: ____________________
 Operator(s): ____________________
 Environment: `staging`
 
+## Latest Automated Snapshot (2026-03-10, local env)
+
+Executed commands:
+
+```bash
+python manage.py launch_gate --json
+python manage.py launch_gate --json --fail-on-warning
+python manage.py post_deploy_check
+python manage.py first_live_validate
+```
+
+Observed results:
+- `launch_gate --json`: `ok=true`, `critical_count=0`, `warning_count=0`
+- `launch_gate --json --fail-on-warning`: `ok=true`
+- `post_deploy_check`: `NOT OK` (fatal)
+- `first_live_validate`: `NOT OK` (inherits post_deploy_check failure)
+
+Current blockers from automated checks:
+- `DEBUG is True in the current settings module`
+- `STRIPE_CONNECT_WEBHOOK_SECRET` missing in the active environment
+
+Notes:
+- This snapshot is not a staging signoff; it is a local preflight reference.
+- Complete this template in real staging after environment variables and settings are corrected.
+
 ## 0) Pre-checks
 
 - Ensure test Stripe keys/webhook secret are configured for staging.

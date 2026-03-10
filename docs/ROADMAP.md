@@ -1,3 +1,24 @@
+## Current Focus (2026-03-10)
+
+Use this section as the active shortlist. Historical pack logs below remain unchanged for traceability.
+
+### Remaining Launch Tasks
+- [ ] Fix environment blockers found in automated preflight:
+  - `DEBUG=False` in target deploy settings
+  - `STRIPE_CONNECT_WEBHOOK_SECRET` set
+- [ ] Complete manual RC run and record results in `docs/PRODUCTION_SIGNOFF_STAGING.md`.
+- [ ] Complete production deploy validation runbook (`docs/GO_LIVE_KIT.md` + `docs/POST_DEPLOY_CHECKLIST.md`).
+- [ ] Verify Stripe end-to-end in environment:
+  - checkout session creation
+  - webhook payment completion
+  - transfer creation/reversal behavior
+- [ ] Finalize S3 media signing/region configuration in production.
+- [ ] Run final signoff and archive release notes in `docs/PRODUCTION_SIGNOFF.md`.
+
+### Notes
+- `docs/STATUS.md` is the single source of truth for “now.”
+- Entries below are historical pack updates and longer-horizon roadmap items.
+
 ## 2026-02-20 — Pack CZ — Prod host/origin env config ✅
 
 **Completed**

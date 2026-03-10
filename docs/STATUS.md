@@ -1,6 +1,8 @@
 # Status
 
-## Done
+Last updated: 2026-03-10 (America/New_York)
+
+## Completed Packs
 - Pack CL — RC checklist runner (`rc_report`)
 - Pack CK — RC UI pass (tooltips + mobile navbar spacing)
 - Pack CJ — RC URL reverse audit
@@ -22,9 +24,24 @@
 - Pack CY — Env var audit + docs alignment
 - Pack CZ — Prod host/origin env config
 
-## Doing
-- Manual run of `docs/RC_CHECKLIST.md` (Stripe test mode) + fix blockers
+## In Progress
+- Final documentation sync and UI polish follow-ups.
 
-## Left
-- Production deploy on Render + first-live validation (docs/GO_LIVE_KIT.md)
+## Remaining Before Production Signoff
+- Resolve automated gate blockers in target environment:
+  - set `DEBUG=False`
+  - set `STRIPE_CONNECT_WEBHOOK_SECRET`
+- Complete manual RC run in Stripe test mode and capture results in `docs/PRODUCTION_SIGNOFF_STAGING.md`.
+- Run post-deploy/first-live validation sequence on deployed environment:
+  - `python manage.py launch_gate --json`
+  - `python manage.py post_deploy_check`
+  - `python manage.py first_live_validate --base-url https://localmarketne.com`
+- Close checklist items in:
+  - `docs/RC_CHECKLIST.md`
+  - `docs/POST_DEPLOY_CHECKLIST.md`
+  - `docs/PRODUCTION_SIGNOFF.md`
 
+## Source of Truth
+- Use `docs/STATUS.md` for current state.
+- Use `docs/ROADMAP.md` for historical pack log + planned improvements.
+- Treat `docs/AUDIT.md` as historical context only.

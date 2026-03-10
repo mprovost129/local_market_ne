@@ -1,6 +1,14 @@
 # Local Market NE - Application Audit Report
 Date: February 3, 2026
 
+## Historical Note (Updated 2026-03-10)
+This document is a point-in-time audit snapshot and is no longer the active execution tracker.
+
+For current status and remaining launch tasks, use:
+- `docs/STATUS.md` (source of truth for now)
+- `docs/ROADMAP.md` (pack history and planned work)
+- `docs/POST_DEPLOY_CHECKLIST.md` and `docs/PRODUCTION_SIGNOFF*.md` (release execution)
+
 ## ✅ COMPLETE & WORKING
 
 ### Core Infrastructure
