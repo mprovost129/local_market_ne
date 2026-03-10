@@ -1140,16 +1140,18 @@ textarea {
 
 .lm-hero .display-5 {
   font-size: clamp(2rem, 3.2vw, 3.1rem);
-  max-width: 20ch;
+  max-width: none;
   line-height: 1.12;
   text-wrap: balance;
+  width: 100%;
 }
 
 .lm-hero-lead {
   color: var(--bs-secondary-color);
   font-size: clamp(1rem, 1.35vw, 1.17rem);
   line-height: 1.55;
-  max-width: 58ch;
+  max-width: none;
+  width: 100%;
 }
 
 .lm-hero-actions .btn {
