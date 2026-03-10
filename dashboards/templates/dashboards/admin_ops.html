@@ -19,6 +19,51 @@
   </div>
 
   <div class="row g-3 mb-3">
+    <div class="col-12">
+      <div class="card lm-card shadow-sm">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="fw-semibold">Automations Health (24h)</div>
+            {% if alerts_status == "critical" %}
+              <span class="badge text-bg-danger">critical</span>
+            {% elif alerts_status == "warning" %}
+              <span class="badge text-bg-warning">warning</span>
+            {% else %}
+              <span class="badge text-bg-success">ok</span>
+            {% endif %}
+          </div>
+          <div class="row g-2 mt-2 small">
+            <div class="col-12 col-md-4">
+              <div class="text-secondary">Saved search scheduler</div>
+              {% if alerts_metrics.saved_search_scheduler_stale %}
+                <div><span class="badge text-bg-warning">stale</span></div>
+              {% else %}
+                <div><span class="badge text-bg-success">healthy</span></div>
+              {% endif %}
+            </div>
+            <div class="col-12 col-md-4">
+              <div class="text-secondary">Last run</div>
+              <div>{{ alerts_metrics.saved_search_scheduler_last_run_at|default:"-" }}</div>
+            </div>
+            <div class="col-12 col-md-4">
+              <div class="text-secondary">Last run activity</div>
+              <div>checked: {{ alerts_metrics.saved_search_scheduler_checked|default:0 }}, alerted: {{ alerts_metrics.saved_search_scheduler_alerted|default:0 }}</div>
+            </div>
+          </div>
+          {% if alerts_critical_reasons %}
+            <div class="small mt-2 text-danger">
+              Critical: {{ alerts_critical_reasons|join:", " }}
+            </div>
+          {% endif %}
+          {% if alerts_warning_reasons %}
+            <div class="small mt-1 text-secondary">
+              Warnings: {{ alerts_warning_reasons|join:", " }}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
     <div class="col-12 col-lg-6">
       <div class="card lm-card shadow-sm">
         <div class="card-body">

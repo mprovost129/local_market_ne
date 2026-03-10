@@ -68,13 +68,15 @@
   <script defer src="{% static 'js/theme.js' %}"></script>
 
   {# Analytics (Google Analytics 4) #}
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q9MY1M7M6C"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-Q9MY1M7M6C');
-  </script>
+  {% if ga_measurement_id %}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ ga_measurement_id }}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '{{ ga_measurement_id }}');
+    </script>
+  {% endif %}
 
 
   {# reCAPTCHA v3 (public write actions) #}
@@ -118,14 +120,14 @@
       <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body p-0">
-      {% include "partials/sidebar.html" %}
+      {% include "partials/sidebar.html" with sidebar_variant="mobile" %}
     </div>
   </div>
 
   <div class="container-fluid">
     <div class="row">
       <aside class="d-none d-lg-block col-lg-3 col-xl-2 border-end bg-body-tertiary min-vh-100 p-0 lm-sidebar-shell">
-        {% include "partials/sidebar.html" %}
+        {% include "partials/sidebar.html" with sidebar_variant="desktop" %}
       </aside>
 
       <main class="col-12 col-lg-9 col-xl-10 p-3 p-md-4 lm-main-shell">

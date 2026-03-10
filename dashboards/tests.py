@@ -33,6 +33,19 @@ class StartSellingFlowTests(TestCase):
         profile.refresh_from_db()
         self.assertTrue(profile.is_seller)
 
+    def test_start_selling_marks_seller_and_redirects_unverified_to_verify_with_next(self):
+        profile = self.user.profile
+        profile.email_verified = False
+        profile.save(update_fields=["email_verified", "updated_at"])
+
+        resp = self.client.post(reverse("dashboards:start_selling"))
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn(reverse("accounts:verify_email_status"), resp["Location"])
+        self.assertIn(reverse("payments:connect_status"), resp["Location"])
+
+        profile.refresh_from_db()
+        self.assertTrue(profile.is_seller)
+
 
 class SellerBulkActivateWaiverTests(TestCase):
     def setUp(self):
@@ -75,15 +88,22 @@ class SellerBulkActivateWaiverTests(TestCase):
         self.assertEqual(resp["Location"], reverse("dashboards:seller"))
         self.assertEqual(SellerFeeWaiver.objects.filter(user=self.seller).count(), 1)
 
-    def test_start_selling_marks_seller_and_redirects_unverified_to_verify_with_next(self):
-        profile = self.user.profile
-        profile.email_verified = False
-        profile.save(update_fields=["email_verified", "updated_at"])
 
-        resp = self.client.post(reverse("dashboards:start_selling"))
-        self.assertEqual(resp.status_code, 302)
-        self.assertIn(reverse("accounts:verify_email_status"), resp["Location"])
-        self.assertIn(reverse("payments:connect_status"), resp["Location"])
+class AdminOpsPanelTests(TestCase):
+    def setUp(self):
+        self.owner = User.objects.create_user(
+            username="owner_ops_panel",
+            email="owner_ops_panel@example.com",
+            password="pw123456",
+        )
+        prof = self.owner.profile
+        prof.is_owner = True
+        prof.email_verified = True
+        prof.save(update_fields=["is_owner", "email_verified", "updated_at"])
+        self.client.force_login(self.owner)
 
-        profile.refresh_from_db()
-        self.assertTrue(profile.is_seller)
+    def test_admin_ops_renders_automations_health_panel(self):
+        resp = self.client.get(reverse("dashboards:admin_ops"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Automations Health")
+        self.assertContains(resp, "Saved search scheduler")

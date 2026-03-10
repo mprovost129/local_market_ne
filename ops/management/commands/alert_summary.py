@@ -42,6 +42,8 @@ class Command(BaseCommand):
 
         payload = build_alert_summary(hours=hours, reconciliation_days=reconciliation_days)
         status = str(payload.get("status") or "ok")
+        critical_reasons = list(payload.get("critical_reasons") or [])
+        warning_reasons = list(payload.get("warning_reasons") or [])
 
         if emit_json:
             self.stdout.write(json.dumps(payload, sort_keys=True, indent=2))

@@ -4,12 +4,14 @@ import json
 from decimal import Decimal
 from io import StringIO
 from unittest.mock import patch
+import os
 
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from django.core.management import call_command
+from django.core.cache import cache
 from django.http import HttpResponse
 from django.test import RequestFactory
 from django.test import TestCase
@@ -323,6 +325,26 @@ class AlertSummaryCommandTests(TestCase):
         payload = json.loads(out.getvalue())
         self.assertEqual(payload["status"], "critical")
         self.assertIn("webhook_errors_recent", payload["critical_reasons"])
+
+    def test_alert_summary_text_mode_runs_without_name_error(self):
+        out = StringIO()
+        call_command("alert_summary", hours=24, reconciliation_days=7, stdout=out)
+        rendered = out.getvalue()
+        self.assertIn("Alert summary", rendered)
+
+    def test_alert_summary_warning_when_saved_search_scheduler_heartbeat_stale(self):
+        env = {
+            "SAVED_SEARCH_ALERTS_MONITOR_ENABLED": "1",
+            "SAVED_SEARCH_ALERTS_ENABLED": "1",
+            "SAVED_SEARCH_ALERTS_EXPECTED_INTERVAL_MINUTES": "15",
+        }
+        with patch.dict(os.environ, env, clear=False):
+            cache.delete("ops:saved_search_alerts:last_run")
+            out = StringIO()
+            call_command("alert_summary", hours=24, reconciliation_days=7, json=True, stdout=out)
+        payload = json.loads(out.getvalue())
+        self.assertEqual(payload["status"], "warning")
+        self.assertIn("saved_search_scheduler_stale", payload["warning_reasons"])
 
 
 class LaunchGateCommandTests(TestCase):

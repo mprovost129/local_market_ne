@@ -9,7 +9,7 @@ We check `app_name` because `namespace` is often empty unless you explicitly pas
 {% endcomment %}
 
 {% if request.resolver_match and request.resolver_match.app_name == "dashboards" %}
-  {% include "partials/sidebar_dashboard.html" %}
+  {% include "partials/sidebar_dashboard.html" with sidebar_variant=sidebar_variant %}
 {% else %}
-  {% include "partials/sidebar_store.html" %}
+  {% include "partials/sidebar_store.html" with sidebar_variant=sidebar_variant %}
 {% endif %}

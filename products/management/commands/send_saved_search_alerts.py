@@ -4,6 +4,7 @@ import os
 from urllib.parse import urlencode
 
 from django.conf import settings
+from django.core.cache import cache
 from django.core.management.base import BaseCommand
 from django.db.models import Q
 from django.urls import reverse
@@ -15,6 +16,7 @@ from products.models import Product, SavedSearchAlert
 
 class Command(BaseCommand):
     help = "Send saved-search alerts for new matching listings (in-app, optionally email)."
+    HEARTBEAT_CACHE_KEY = "ops:saved_search_alerts:last_run"
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -131,6 +133,13 @@ class Command(BaseCommand):
                 s.save(update_fields=["last_notified_at", "updated_at"])
                 alerted += 1
 
+        self._write_heartbeat(
+            ran_at=now,
+            checked=checked,
+            alerted=alerted,
+            dry_run=dry_run,
+            limit=limit,
+        )
         self.stdout.write(f"checked={checked} alerted={alerted} dry_run={dry_run}")
 
     def _abs_url(self, path: str) -> str:
@@ -140,3 +149,14 @@ class Command(BaseCommand):
         if path.startswith("http://") or path.startswith("https://"):
             return path
         return f"{base}{path}"
+
+    def _write_heartbeat(self, *, ran_at, checked: int, alerted: int, dry_run: bool, limit: int) -> None:
+        payload = {
+            "ran_at": ran_at.isoformat(),
+            "checked": int(checked or 0),
+            "alerted": int(alerted or 0),
+            "dry_run": bool(dry_run),
+            "limit": int(limit or 0),
+        }
+        # Keep 7 days of heartbeat visibility for ops investigation.
+        cache.set(self.HEARTBEAT_CACHE_KEY, payload, timeout=7 * 24 * 60 * 60)

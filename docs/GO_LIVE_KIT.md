@@ -49,6 +49,8 @@ Optional:
 - `USE_S3=1` (if using S3 media)
 - `SAVED_SEARCH_ALERTS_ENABLED=1`
 - `SAVED_SEARCH_ALERTS_LIMIT=500`
+- `SAVED_SEARCH_ALERTS_MONITOR_ENABLED=1`
+- `SAVED_SEARCH_ALERTS_EXPECTED_INTERVAL_MINUTES=15`
 
 Recommended quick check after setting env vars:
 - `python manage.py env_audit`
@@ -109,6 +111,9 @@ Use one of these before promoting a release:
 - Ensure recurring job exists (Render Cron): every 10-15 minutes.
 - Dry-run validation:
   - `python manage.py send_saved_search_alerts --enabled --dry-run --limit 50`
+- Ops monitoring validation:
+  - `python manage.py alert_summary --json`
+  - Confirm `saved_search_scheduler_stale` is `0` after first real cron run.
 
 ## First-live validation (Stripe)
 

@@ -36,7 +36,7 @@ def _send_welcome_email(user) -> None:
         return
 
     subject = "Welcome to Local Market NE"
-    logo_url = _absolute_static_url("images/logos/localmarketne_logo_600x156.png")
+    logo_url = _absolute_static_url("images/local_market_logo.png")
 
     ctx = {
         "subject": subject,

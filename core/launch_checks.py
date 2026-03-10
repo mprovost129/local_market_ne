@@ -245,8 +245,8 @@ def run_launch_checks() -> List[CheckResult]:
     # URL wiring / dead-end guardrail
     # These are the core operator surfaces that should always be routable.
     url_names = [
-        "dashboards:consumer_dashboard",
-        "dashboards:seller_dashboard",
+        "dashboards:consumer",
+        "dashboards:seller",
         "dashboards:admin_ops",
         "ops:dashboard",
         "ops:ops_health",
@@ -257,7 +257,7 @@ def run_launch_checks() -> List[CheckResult]:
         "ops:failed_emails",
         "ops:funnel_dashboard",
         "products:list",
-        "products:services_list",
+        "products:services",
         "products:top_sellers",
         "cart:view",
     ]

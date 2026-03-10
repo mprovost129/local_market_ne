@@ -84,6 +84,10 @@ services:
         value: "1"
       - key: SAVED_SEARCH_ALERTS_LIMIT
         value: "500"
+      - key: SAVED_SEARCH_ALERTS_MONITOR_ENABLED
+        value: "1"
+      - key: SAVED_SEARCH_ALERTS_EXPECTED_INTERVAL_MINUTES
+        value: "15"
 
   - type: cron
     name: localmarketne-saved-search-alerts
@@ -127,6 +131,10 @@ services:
         value: "1"
       - key: SAVED_SEARCH_ALERTS_LIMIT
         value: "500"
+      - key: SAVED_SEARCH_ALERTS_MONITOR_ENABLED
+        value: "1"
+      - key: SAVED_SEARCH_ALERTS_EXPECTED_INTERVAL_MINUTES
+        value: "15"
 
 databases:
   - name: localmarketne-db

@@ -1,5 +1,6 @@
 {# templates/partials/sidebar_store.html #}
 {% load static %}
+{% with sid=sidebar_variant|default:"shared" %}
 
 <div class="p-3 hc3-sidebar">
 
@@ -42,9 +43,9 @@
       class="btn btn-sm btn-outline-secondary"
       type="button"
       data-bs-toggle="collapse"
-      data-bs-target="#goodsCategoryFilter"
+      data-bs-target="#goodsCategoryFilter-{{ sid }}"
       aria-expanded="false"
-      aria-controls="goodsCategoryFilter"
+      aria-controls="goodsCategoryFilter-{{ sid }}"
       title="Filter categories"
     >
       <i class="bi bi-funnel"></i>
@@ -52,10 +53,10 @@
     </button>
   </div>
 
-  <div class="collapse" id="goodsCategoryFilter">
+  <div class="collapse" id="goodsCategoryFilter-{{ sid }}">
     <div class="mb-2">
       <input
-        id="goodsCategoryFilterInput"
+        id="goodsCategoryFilterInput-{{ sid }}"
         type="text"
         class="form-control form-control-sm"
         placeholder="Search categories..."
@@ -64,7 +65,7 @@
     </div>
   </div>
 
-  <div id="goodsCategoriesContainer" class="mb-3">
+  <div id="goodsCategoriesContainer-{{ sid }}" class="mb-3">
     <ul class="list-unstyled mb-2">
       {% for cat in store_goods_categories %}
         {% if forloop.counter <= 8 %}
@@ -76,9 +77,9 @@
                   class="btn btn-sm btn-link text-decoration-none"
                   type="button"
                   data-bs-toggle="collapse"
-                  data-bs-target="#goodsSubcats{{ cat.id }}"
+                  data-bs-target="#goodsSubcats{{ cat.id }}-{{ sid }}"
                   aria-expanded="false"
-                  aria-controls="goodsSubcats{{ cat.id }}"
+                  aria-controls="goodsSubcats{{ cat.id }}-{{ sid }}"
                   title="Show subcategories"
                 >
                   <i class="bi bi-chevron-down"></i>
@@ -87,7 +88,7 @@
             </div>
 
             {% if cat.children.all %}
-              <div class="collapse" id="goodsSubcats{{ cat.id }}">
+              <div class="collapse" id="goodsSubcats{{ cat.id }}-{{ sid }}">
                 <ul class="list-unstyled ms-3 mt-1">
                   {% for sub in cat.children.all %}
                     <li class="mb-1" data-cat-name="{{ sub.name|lower }}">
@@ -105,7 +106,7 @@
     </ul>
 
     {% if store_goods_categories|length > 8 %}
-      <div class="collapse" id="goodsCategoriesMore">
+      <div class="collapse" id="goodsCategoriesMore-{{ sid }}">
         <ul class="list-unstyled mb-2">
           {% for cat in store_goods_categories %}
             {% if forloop.counter > 8 %}
@@ -117,9 +118,9 @@
                       class="btn btn-sm btn-link text-decoration-none"
                       type="button"
                       data-bs-toggle="collapse"
-                      data-bs-target="#goodsSubcats{{ cat.id }}"
+                      data-bs-target="#goodsSubcats{{ cat.id }}-{{ sid }}"
                       aria-expanded="false"
-                      aria-controls="goodsSubcats{{ cat.id }}"
+                      aria-controls="goodsSubcats{{ cat.id }}-{{ sid }}"
                       title="Show subcategories"
                     >
                       <i class="bi bi-chevron-down"></i>
@@ -128,7 +129,7 @@
                 </div>
 
                 {% if cat.children.all %}
-                  <div class="collapse" id="goodsSubcats{{ cat.id }}">
+                  <div class="collapse" id="goodsSubcats{{ cat.id }}-{{ sid }}">
                     <ul class="list-unstyled ms-3 mt-1">
                       {% for sub in cat.children.all %}
                         <li class="mb-1" data-cat-name="{{ sub.name|lower }}">
@@ -148,9 +149,9 @@
         class="btn btn-sm btn-outline-secondary w-100"
         type="button"
         data-bs-toggle="collapse"
-        data-bs-target="#goodsCategoriesMore"
+        data-bs-target="#goodsCategoriesMore-{{ sid }}"
         aria-expanded="false"
-        aria-controls="goodsCategoriesMore"
+        aria-controls="goodsCategoriesMore-{{ sid }}"
       >
         <span class="js-more-label" data-more="More" data-less="Less">More</span>
       </button>
@@ -167,9 +168,9 @@
       class="btn btn-sm btn-outline-secondary"
       type="button"
       data-bs-toggle="collapse"
-      data-bs-target="#serviceCategoryFilter"
+      data-bs-target="#serviceCategoryFilter-{{ sid }}"
       aria-expanded="false"
-      aria-controls="serviceCategoryFilter"
+      aria-controls="serviceCategoryFilter-{{ sid }}"
       title="Filter service categories"
     >
       <i class="bi bi-funnel"></i>
@@ -177,10 +178,10 @@
     </button>
   </div>
 
-  <div class="collapse" id="serviceCategoryFilter">
+  <div class="collapse" id="serviceCategoryFilter-{{ sid }}">
     <div class="mb-2">
       <input
-        id="serviceCategoryFilterInput"
+        id="serviceCategoryFilterInput-{{ sid }}"
         type="text"
         class="form-control form-control-sm"
         placeholder="Search service categories..."
@@ -189,7 +190,7 @@
     </div>
   </div>
 
-  <div id="serviceCategoriesContainer" class="mb-0">
+  <div id="serviceCategoriesContainer-{{ sid }}" class="mb-0">
     <ul class="list-unstyled mb-2">
       {% for cat in store_service_categories %}
         {% if forloop.counter <= 8 %}
@@ -201,9 +202,9 @@
                   class="btn btn-sm btn-link text-decoration-none"
                   type="button"
                   data-bs-toggle="collapse"
-                  data-bs-target="#serviceSubcats{{ cat.id }}"
+                  data-bs-target="#serviceSubcats{{ cat.id }}-{{ sid }}"
                   aria-expanded="false"
-                  aria-controls="serviceSubcats{{ cat.id }}"
+                  aria-controls="serviceSubcats{{ cat.id }}-{{ sid }}"
                   title="Show subcategories"
                 >
                   <i class="bi bi-chevron-down"></i>
@@ -212,7 +213,7 @@
             </div>
 
             {% if cat.children.all %}
-              <div class="collapse" id="serviceSubcats{{ cat.id }}">
+              <div class="collapse" id="serviceSubcats{{ cat.id }}-{{ sid }}">
                 <ul class="list-unstyled ms-3 mt-1">
                   {% for sub in cat.children.all %}
                     <li class="mb-1" data-cat-name="{{ sub.name|lower }}">
@@ -230,7 +231,7 @@
     </ul>
 
     {% if store_service_categories|length > 8 %}
-      <div class="collapse" id="serviceCategoriesMore">
+      <div class="collapse" id="serviceCategoriesMore-{{ sid }}">
         <ul class="list-unstyled mb-2">
           {% for cat in store_service_categories %}
             {% if forloop.counter > 8 %}
@@ -242,9 +243,9 @@
                       class="btn btn-sm btn-link text-decoration-none"
                       type="button"
                       data-bs-toggle="collapse"
-                      data-bs-target="#serviceSubcats{{ cat.id }}"
+                      data-bs-target="#serviceSubcats{{ cat.id }}-{{ sid }}"
                       aria-expanded="false"
-                      aria-controls="serviceSubcats{{ cat.id }}"
+                      aria-controls="serviceSubcats{{ cat.id }}-{{ sid }}"
                       title="Show subcategories"
                     >
                       <i class="bi bi-chevron-down"></i>
@@ -253,7 +254,7 @@
                 </div>
 
                 {% if cat.children.all %}
-                  <div class="collapse" id="serviceSubcats{{ cat.id }}">
+                  <div class="collapse" id="serviceSubcats{{ cat.id }}-{{ sid }}">
                     <ul class="list-unstyled ms-3 mt-1">
                       {% for sub in cat.children.all %}
                         <li class="mb-1" data-cat-name="{{ sub.name|lower }}">
@@ -273,9 +274,9 @@
         class="btn btn-sm btn-outline-secondary w-100"
         type="button"
         data-bs-toggle="collapse"
-        data-bs-target="#serviceCategoriesMore"
+        data-bs-target="#serviceCategoriesMore-{{ sid }}"
         aria-expanded="false"
-        aria-controls="serviceCategoriesMore"
+        aria-controls="serviceCategoriesMore-{{ sid }}"
       >
         <span class="js-more-label" data-more="More" data-less="Less">More</span>
       </button>
@@ -334,14 +335,15 @@
       }
 
       document.addEventListener('DOMContentLoaded', function () {
-        wireFilter('goodsCategoryFilterInput', 'goodsCategoriesContainer');
-        wireFilter('serviceCategoryFilterInput', 'serviceCategoriesContainer');
+        wireFilter('goodsCategoryFilterInput-{{ sid }}', 'goodsCategoriesContainer-{{ sid }}');
+        wireFilter('serviceCategoryFilterInput-{{ sid }}', 'serviceCategoriesContainer-{{ sid }}');
 
-        wireMoreCollapse('goodsCategoriesMore', 'lmne.goodsCats.more');
-        wireMoreCollapse('serviceCategoriesMore', 'lmne.serviceCats.more');
+        wireMoreCollapse('goodsCategoriesMore-{{ sid }}', 'lmne.goodsCats.more.{{ sid }}');
+        wireMoreCollapse('serviceCategoriesMore-{{ sid }}', 'lmne.serviceCats.more.{{ sid }}');
       });
     })();
   </script>
 
 </div>
+{% endwith %}
 

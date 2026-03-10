@@ -16,21 +16,26 @@
   </div>
 
   <div class="lm-sticky-bar mb-3">
-    <form class="d-flex flex-wrap gap-2" method="get">
-      <input class="form-control" name="q" value="{{ q }}" placeholder="Search services..." style="min-width: 240px;">
-      <input class="form-control" name="zip" value="{{ zip }}" placeholder="ZIP code" inputmode="numeric" pattern="[0-9]{5}(-[0-9]{4})?" style="max-width: 160px;">
-      <select class="form-select" name="sort" style="min-width: 170px;">
+    <div class="d-lg-none mb-2">
+      <button class="btn btn-outline-secondary w-100" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-controls="sidebarOffcanvas">
+        <i class="bi bi-funnel me-1"></i>Filters & categories
+      </button>
+    </div>
+    <form class="lm-browse-form d-flex flex-wrap gap-2" method="get">
+      <input class="form-control lm-browse-q" name="q" value="{{ q }}" placeholder="Search services...">
+      <input class="form-control lm-browse-zip" name="zip" value="{{ zip }}" placeholder="ZIP code" inputmode="numeric" pattern="[0-9]{5}(-[0-9]{4})?">
+      <select class="form-select lm-browse-sort" name="sort">
         {% for key,label in sort_choices %}
           <option value="{{ key }}" {% if sort == key %}selected{% endif %}>{{ label }}</option>
         {% endfor %}
       </select>
       {% if user.is_authenticated and user.profile.zip_code %}
-        <a class="btn btn-outline-secondary" href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}{% if radius %}radius={{ radius|urlencode }}&{% endif %}{% if sort %}sort={{ sort|urlencode }}&{% endif %}zip={{ user.profile.zip_code|urlencode }}">
+        <a class="btn btn-outline-secondary lm-browse-zip-me" href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}{% if radius %}radius={{ radius|urlencode }}&{% endif %}{% if sort %}sort={{ sort|urlencode }}&{% endif %}zip={{ user.profile.zip_code|urlencode }}">
           Use my ZIP ({{ user.profile.zip_code }})
         </a>
       {% endif %}
 
-      <select class="form-select" name="radius" style="min-width: 170px;">
+      <select class="form-select lm-browse-radius" name="radius">
         <option value="">Any service radius</option>
         {% for miles in radius_choices %}
           <option value="{{ miles }}" {% if radius|stringformat:"s" == miles|stringformat:"s" %}selected{% endif %}>Seller travels {{ miles }} mi+</option>
@@ -41,9 +46,9 @@
         <input type="hidden" name="category" value="{{ category }}">
       {% endif %}
 
-      <button class="btn btn-primary" type="submit"><i class="bi bi-search me-1"></i>Search</button>
+      <button class="btn btn-primary lm-browse-submit" type="submit"><i class="bi bi-search me-1"></i>Search</button>
       {% if q or category or zip or radius or sort != 'new' %}
-        <a class="btn btn-outline-secondary" href="{% url 'products:services' %}">Clear</a>
+        <a class="btn btn-outline-secondary lm-browse-clear" href="{% url 'products:services' %}">Clear</a>
       {% endif %}
     </form>
     {% if user.is_authenticated %}
@@ -76,19 +81,39 @@
     {% if q or category or zip or radius or sort != 'new' %}
       <div class="d-flex flex-wrap gap-2 mt-2">
         {% if q %}
-          <span class="badge text-bg-light border">Search: {{ q }}</span>
+          <a class="badge text-bg-light border text-decoration-none lm-filter-chip"
+             href="?{% if zip %}zip={{ zip|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}{% if radius %}radius={{ radius|urlencode }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort|urlencode }}&{% endif %}"
+             aria-label="Remove search filter">
+            Search: {{ q }} <i class="bi bi-x-lg"></i>
+          </a>
         {% endif %}
         {% if zip %}
-          <span class="badge text-bg-light border">ZIP: {{ zip }}</span>
+          <a class="badge text-bg-light border text-decoration-none lm-filter-chip"
+             href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}{% if radius %}radius={{ radius|urlencode }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort|urlencode }}&{% endif %}"
+             aria-label="Remove ZIP filter">
+            ZIP: {{ zip }} <i class="bi bi-x-lg"></i>
+          </a>
         {% endif %}
         {% if category and selected_category_name %}
-          <span class="badge text-bg-light border">Category: {{ selected_category_name }}</span>
+          <a class="badge text-bg-light border text-decoration-none lm-filter-chip"
+             href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if zip %}zip={{ zip|urlencode }}&{% endif %}{% if radius %}radius={{ radius|urlencode }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort|urlencode }}&{% endif %}"
+             aria-label="Remove category filter">
+            Category: {{ selected_category_name }} <i class="bi bi-x-lg"></i>
+          </a>
         {% endif %}
         {% if radius %}
-          <span class="badge text-bg-light border">Radius: {{ radius }}+ mi</span>
+          <a class="badge text-bg-light border text-decoration-none lm-filter-chip"
+             href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if zip %}zip={{ zip|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort|urlencode }}&{% endif %}"
+             aria-label="Remove radius filter">
+            Radius: {{ radius }}+ mi <i class="bi bi-x-lg"></i>
+          </a>
         {% endif %}
-        {% if sort and sort != 'new' %}
-          <span class="badge text-bg-light border">Sort: {{ sort|title }}</span>
+        {% if request.GET.sort and sort and sort != 'new' %}
+          <a class="badge text-bg-light border text-decoration-none lm-filter-chip"
+             href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if zip %}zip={{ zip|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}{% if radius %}radius={{ radius|urlencode }}&{% endif %}"
+             aria-label="Remove sort filter">
+            Sort: {{ sort|title }} <i class="bi bi-x-lg"></i>
+          </a>
         {% endif %}
       </div>
     {% endif %}

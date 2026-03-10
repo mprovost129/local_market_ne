@@ -1264,3 +1264,87 @@ Move from "working and branded" to "production-consistent UX" with a tracked, ph
 - Verify cron service is enabled in production and monitor first 24h of notification volume.
 
 
+## 2026-03-09 - Pack DH - Saved search scheduler heartbeat monitoring
+
+### Completed
+- Added saved-search scheduler heartbeat writes in `send_saved_search_alerts` (cache key: `ops:saved_search_alerts:last_run`).
+- Added ops alerting for stale scheduler heartbeat in `ops.alerts.build_alert_summary`.
+- Added environment toggles for heartbeat monitoring:
+  - `SAVED_SEARCH_ALERTS_MONITOR_ENABLED`
+  - `SAVED_SEARCH_ALERTS_EXPECTED_INTERVAL_MINUTES`
+- Fixed `alert_summary` command text-mode output bug (undefined `critical_reasons` / `warning_reasons`).
+- Added ops regression test for stale heartbeat warning behavior.
+- Updated Render/env/deploy/go-live docs to include heartbeat monitoring config and validation.
+
+### Next
+- Confirm heartbeat metric clears after first production cron cycle and stays healthy over 24h.
+
+
+## 2026-03-09 - Pack DI - URL wiring and seller analytics runtime fixes
+
+### Completed
+- Fixed launch-check URL wiring names to match actual route names:
+  - `dashboards:consumer`
+  - `dashboards:seller`
+  - `products:services`
+- Fixed seller analytics runtime NameError by removing undefined context keys.
+- Cleaned seller analytics per-listing table structure (removed stray placeholder cell, corrected empty-state colspan).
+- Added URL-name integrity test to catch route-name drift in future changes.
+
+### Next
+- Run full test packs (`core.tests`, `ops.tests`, `dashboards/tests if present`) in CI/local and patch any remaining regressions.
+
+
+## 2026-03-09 - Pack DJ - Home template dead-end and metadata cleanup
+
+### Completed
+- Fixed home template to use stable marketplace metadata (removed product-scoped OG values on home).
+- Fixed home section data key typo:
+  - `most_purchaseed_list` -> `most_popular_list`
+- Fixed dead-end reverse on home page:
+  - `products:files` -> `products:services`
+- Removed stale filament-recommendation block that referenced undefined `product` on home.
+- Added home render regression test (`core.tests.HomePageRenderTests`).
+
+### Next
+- Run `core.tests` and `launch_check` on staging/prod and verify home + launch gate remain green.
+
+
+## 2026-03-09 - Pack DK - Admin Ops automation health surface
+
+### Completed
+- Added Admin Ops "Automations Health" panel using `ops.alerts.build_alert_summary`.
+- Surfaced saved-search scheduler heartbeat health in Admin Ops:
+  - stale/healthy status
+  - last run timestamp
+  - checked/alerted counters from last run
+- Surfaced alert summary warning/critical reasons directly in Admin Ops for faster triage.
+
+### Next
+- Validate panel values in production after cron executes at least one cycle.
+
+
+## 2026-03-09 - Pack DL - Regression tests for ops/admin reliability
+
+### Completed
+- Fixed misplaced dashboard test method that referenced an undefined fixture (`self.user`) in the wrong test class.
+- Added dashboard tests:
+  - unverified start-selling redirect flow
+  - Admin Ops automation panel render check
+- Added ops command regression test to ensure `alert_summary` text mode runs without NameError.
+
+### Next
+- Run `dashboards.tests` and `ops.tests` in CI/local and confirm all new reliability coverage passes.
+
+
+## 2026-03-09 - Pack DM - Analytics config safety in base layout
+
+### Completed
+- Removed hardcoded GA4 measurement ID from base template.
+- Updated GA script injection to use configured `ga_measurement_id` only when present.
+- Prevents cross-environment analytics contamination and keeps production/dev analytics separation clean.
+
+### Next
+- Verify GA events appear under the intended property ID in production after deploy.
+
+

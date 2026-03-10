@@ -67,6 +67,8 @@ Use `.env.example` for local development and the Render dashboard (or Blueprint 
 |---|---:|---|
 | `SAVED_SEARCH_ALERTS_ENABLED` | optional | Set to `1` to allow scheduled saved-search dispatch. |
 | `SAVED_SEARCH_ALERTS_LIMIT` | optional | Per-run cap for evaluated searches (default `500`). |
+| `SAVED_SEARCH_ALERTS_MONITOR_ENABLED` | optional | Set to `1` to include scheduler heartbeat checks in ops alert summary. |
+| `SAVED_SEARCH_ALERTS_EXPECTED_INTERVAL_MINUTES` | optional | Expected cron interval minutes (default `15`) for stale heartbeat detection. |
 
 ## Helpful Commands
 

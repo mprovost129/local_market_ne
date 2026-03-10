@@ -89,6 +89,8 @@ Database:
 
 - `SAVED_SEARCH_ALERTS_ENABLED=1`
 - `SAVED_SEARCH_ALERTS_LIMIT=500`
+- `SAVED_SEARCH_ALERTS_MONITOR_ENABLED=1`
+- `SAVED_SEARCH_ALERTS_EXPECTED_INTERVAL_MINUTES=15`
 - Create a Render Cron Job to run every 10-15 minutes:
   - `python manage.py send_saved_search_alerts --enabled --limit 500`
 

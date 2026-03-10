@@ -89,3 +89,28 @@ class RecaptchaPublicFormsTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp["Location"], url)
         self.assertEqual(WaitlistEntry.objects.count(), 0)
+
+
+class UrlNameIntegrityTests(SimpleTestCase):
+    """Keep critical named routes aligned with launch/deploy checks."""
+
+    def test_critical_named_routes_reverse(self):
+        names = [
+            "dashboards:consumer",
+            "dashboards:seller",
+            "dashboards:admin_ops",
+            "products:list",
+            "products:services",
+            "products:top_sellers",
+            "cart:view",
+        ]
+        for name in names:
+            with self.subTest(name=name):
+                self.assertTrue(reverse(name))
+
+
+class HomePageRenderTests(TestCase):
+    def test_home_page_renders(self):
+        resp = self.client.get(reverse("core:home"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Local Market NE")

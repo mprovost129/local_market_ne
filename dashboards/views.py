@@ -39,6 +39,7 @@ from payments.services_fee_waiver import ensure_fee_waiver_for_new_seller
 from products.models import Product, ProductEngagementEvent, SavedSearchAlert
 from products.permissions import is_owner_user, is_seller_user
 from payments.services import get_seller_balance_cents
+from ops.alerts import build_alert_summary
 
 from notifications.models import Notification
 from notifications.services import notify_email_and_in_app
@@ -467,8 +468,6 @@ def seller_analytics(request):
         "paid_qty": paid_qty,
         "refunded_qty": refunded_qty,
         "net_units_sold": net_units_sold,
-            "open_fulfillment_tasks_count": open_fulfillment_tasks_count,
-            "open_fulfillment_tasks_preview": open_fulfillment_tasks_preview,
         "gross_dollars": _cents_to_dollars(int(paid_totals["gross_cents"] or 0)),
         "net_dollars": _cents_to_dollars(int(paid_totals["net_cents"] or 0)),
         "order_count": int(paid_totals["order_count"] or 0),
@@ -831,6 +830,24 @@ def admin_ops(request):
         .order_by("-created_at")[:25]
     )
 
+    alerts_payload = {}
+    alerts_metrics = {}
+    alerts_status = "ok"
+    alerts_warning_reasons = []
+    alerts_critical_reasons = []
+    try:
+        alerts_payload = build_alert_summary(hours=24, reconciliation_days=7) or {}
+        alerts_metrics = alerts_payload.get("metrics") or {}
+        alerts_status = str(alerts_payload.get("status") or "ok")
+        alerts_warning_reasons = list(alerts_payload.get("warning_reasons") or [])
+        alerts_critical_reasons = list(alerts_payload.get("critical_reasons") or [])
+    except Exception:
+        alerts_payload = {}
+        alerts_metrics = {}
+        alerts_status = "warning"
+        alerts_warning_reasons = ["alert_summary_unavailable"]
+        alerts_critical_reasons = []
+
     return render(
         request,
         "dashboards/admin_ops.html",
@@ -841,6 +858,11 @@ def admin_ops(request):
             "refund_attempt_counts": refund_attempt_counts,
             "refund_failures_24h": refund_failures_24h,
             "recent_order_warnings": recent_order_warnings,
+            "alerts_payload": alerts_payload,
+            "alerts_metrics": alerts_metrics,
+            "alerts_status": alerts_status,
+            "alerts_warning_reasons": alerts_warning_reasons,
+            "alerts_critical_reasons": alerts_critical_reasons,
         },
     )
 

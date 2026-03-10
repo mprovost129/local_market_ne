@@ -137,15 +137,9 @@
               <td class="text-end">{{ r.paid_qty }}</td>
               <td class="text-end">{{ r.refunded_qty }}</td>
               <td class="text-end fw-semibold">{{ r.net_units_sold }}</td>
-              <td class="text-end">
-                {% if r.product.kind == "FILE" %}
-                {% else %}
-                  <span class="text-secondary">"</span>
-                {% endif %}
-              </td>
             </tr>
           {% empty %}
-            <tr><td colspan="8" class="py-0">{% include 'partials/empty_state.html' with title='' message='No listings found.' action_route='core:help' action_label='Help' show_support_links=True %}</td></tr>
+            <tr><td colspan="7" class="py-0">{% include 'partials/empty_state.html' with title='' message='No listings found.' action_route='core:help' action_label='Help' show_support_links=True %}</td></tr>
           {% endfor %}
           </tbody>
         </table>
