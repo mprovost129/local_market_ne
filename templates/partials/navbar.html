@@ -7,9 +7,9 @@
     <!-- BOX 1: LEFT (brand + mobile buttons) -->
     <div class="d-flex align-items-center gap-2">
       {# Send logo to the store home (safe for logged-in and logged-out users) #}
-      <a class="navbar-brand py-0 m-0" href="{% url 'core:home' %}">
+      <a class="navbar-brand py-0 m-0 lm-brand-lockup" href="{% url 'core:home' %}">
         <img src="{% static 'images/logos/localmarketne_logo_600x156.png' %}" alt="Local Market NE"
-             class="lm-logo" style="width:auto;">
+             class="lm-logo lm-brand-word" style="width:auto;">
       </a>
 
       <button class="btn btn-sm btn-outline-secondary d-lg-none" type="button"

@@ -21,8 +21,8 @@
   --lm-info-bg: #e7f1ff;
   --lm-warning-bg: #fff3d9;
   --lm-success-bg: #e4f3e4;
-  --lm-font-body: "Manrope", "Segoe UI", sans-serif;
-  --lm-font-heading: "Fraunces", Georgia, serif;
+  --lm-font-body: sans-serif;
+  --lm-font-heading: sans-serif;
 }
 
 :root[data-bs-theme="light"] {
@@ -64,7 +64,7 @@ body {
 
 body {
   color: var(--bs-body-color);
-  font-family: var(--lm-font-body);
+  font-family: sans-serif;
   line-height: 1.55;
 }
 
@@ -75,7 +75,7 @@ h4,
 h5,
 h6,
 .navbar-brand {
-  font-family: var(--lm-font-heading);
+  font-family: sans-serif;
   letter-spacing: 0.005em;
   line-height: 1.2;
 }

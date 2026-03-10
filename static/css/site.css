@@ -1215,6 +1215,24 @@ textarea {
 .lm-hero-media {
   background: color-mix(in srgb, var(--lm-primary) 8%, var(--lm-surface));
   border: 1px solid var(--bs-border-color);
+  min-height: clamp(260px, 34vw, 360px);
+  overflow: hidden;
+}
+
+.lm-hero-media-row .col-12 {
+  display: flex;
+}
+
+.lm-hero-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .lm-section {
@@ -1368,6 +1386,10 @@ textarea {
     justify-content: center;
   }
 
+  .lm-hero-media {
+    min-height: 240px;
+  }
+
   .lm-hero-popular {
     gap: 0.38rem;
   }
@@ -1499,6 +1521,24 @@ main {
   margin-right: 0.3rem;
 }
 
+.lm-brand-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lm-brand-mark {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  border-radius: 0.55rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
+}
+
+.lm-brand-word {
+  display: block;
+}
+
 .lm-navbar .navbar-nav .nav-link {
   padding: 0.45rem 0.65rem;
   border-radius: 0.55rem;
@@ -1578,6 +1618,14 @@ main {
   width: auto;
 }
 
+.lm-footer-mark {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
 .lm-footer-head {
   font-size: 0.68rem;
   letter-spacing: 0.08em;
@@ -1620,6 +1668,11 @@ main {
   .lm-logo {
     height: 46px;
     max-height: 46px;
+  }
+
+  .lm-brand-mark {
+    width: 27px;
+    height: 27px;
   }
 
   .lm-navbar .navbar-collapse {
@@ -1672,6 +1725,20 @@ main {
 }
 
 @media (max-width: 575.98px) {
+  .lm-brand-lockup {
+    gap: 0.4rem;
+  }
+
+  .lm-brand-mark {
+    width: 24px;
+    height: 24px;
+  }
+
+  .lm-footer-mark {
+    width: 24px;
+    height: 24px;
+  }
+
   .lm-trust-strip .container-fluid {
     padding-left: 0.8rem;
     padding-right: 0.8rem;
