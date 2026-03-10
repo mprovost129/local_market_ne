@@ -25,7 +25,7 @@
   <div class="card shadow-sm lm-card">
     <div class="table-responsive">
       <div class="lm-table">
-<table class="table table-sm mb-0">
+<table class="table table-sm mb-0 lm-table-mobile-cards">
         <thead>
           <tr>
             <th>Created</th>
@@ -39,12 +39,12 @@
         <tbody>
           {% for o in page_obj %}
             <tr>
-              <td class="text-muted small">{{ o.created_at|date:"Y-m-d H:i" }}</td>
-              <td><a href="{% url 'ops:order_detail' o.pk %}">{{ o.pk }}</a></td>
-              <td class="small">
+              <td class="text-muted small" data-label="Created">{{ o.created_at|date:"Y-m-d H:i" }}</td>
+              <td data-label="Order"><a href="{% url 'ops:order_detail' o.pk %}">{{ o.pk }}</a></td>
+              <td class="small" data-label="Buyer">
                 {% if o.buyer %}{{ o.buyer.username }}{% else %}{{ o.guest_email }}{% endif %}
               </td>
-              <td class="small">
+              <td class="small" data-label="Company">
                 {% with it=o.items.all|first %}
                   {% if it %}
                     {% if it.seller.profile.shop_name %}{{ it.seller.profile.shop_name }}{% else %}{{ it.seller.username }}{% endif %}
@@ -54,8 +54,8 @@
                   {% endif %}
                 {% endwith %}
               </td>
-              <td><span class="badge text-bg-secondary">{{ o.status }}</span></td>
-              <td class="text-end">${{ o.total_cents|cents_to_dollars }}</td>
+              <td data-label="Status"><span class="badge text-bg-secondary">{{ o.status }}</span></td>
+              <td class="text-end" data-label="Total">${{ o.total_cents|cents_to_dollars }}</td>
             </tr>
           {% empty %}
             <tr><td colspan="6" class="py-0">{% include 'partials/empty_state.html' with title='' message='No orders.' action_route='ops:dashboard' action_label='Back to Ops' %}</td></tr>

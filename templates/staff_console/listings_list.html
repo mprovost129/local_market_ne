@@ -30,7 +30,7 @@
 <div class="card shadow-sm lm-card">
   <div class="table-responsive">
     <div class="lm-table">
-<table class="table table-sm align-middle mb-0">
+<table class="table table-sm align-middle mb-0 lm-table-mobile-cards">
       <thead class="table-light">
         <tr>
           <th>Listing</th>
@@ -44,12 +44,12 @@
       <tbody>
         {% for p in listings %}
           <tr>
-            <td class="fw-semibold">
+            <td class="fw-semibold" data-label="Listing">
               <a href="{% url 'products:detail' p.pk p.slug %}">{{ p.title }}</a>
               <div class="small text-muted">#{{ p.pk }}  - {{ p.kind }}</div>
             </td>
-            <td>{{ p.seller.username }}</td>
-            <td class="small">
+            <td data-label="Seller">{{ p.seller.username }}</td>
+            <td class="small" data-label="Category">
               {{ p.category.name }}
               {% if p.category.is_prohibited %}<span class="badge text-bg-danger ms-1">Prohibited</span>{% endif %}
               {% if p.category.requires_age_18 %}<span class="badge text-bg-warning ms-1">18+</span>{% endif %}
@@ -60,15 +60,15 @@
                 </div>
               {% endif %}
             </td>
-            <td>
+            <td data-label="Status">
               {% if p.is_active %}
                 <span class="badge text-bg-success">Active</span>
               {% else %}
                 <span class="badge text-bg-secondary">Inactive</span>
               {% endif %}
             </td>
-            <td class="text-end">${{ p.price|floatformat:2|intcomma }}</td>
-            <td class="text-end">
+            <td class="text-end" data-label="Price">${{ p.price|floatformat:2|intcomma }}</td>
+            <td class="text-end" data-label="Actions">
               <a class="btn btn-sm btn-outline-secondary" href="{% url 'staff_console:listing_edit' p.pk %}">
                 Edit
               </a>

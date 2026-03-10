@@ -461,6 +461,28 @@ textarea {
   min-width: 170px;
 }
 
+.lm-browse-kind {
+  flex: 0 1 160px;
+  min-width: 150px;
+}
+
+.lm-browse-category {
+  flex: 0 1 220px;
+  min-width: 180px;
+}
+
+.lm-sticky-bar--inner {
+  position: static;
+  top: auto;
+  z-index: 1;
+  backdrop-filter: none;
+}
+
+.lm-browse-form--compact .lm-browse-q {
+  flex: 1 1 220px;
+  min-width: 180px;
+}
+
 .lm-browse-submit,
 .lm-browse-clear,
 .lm-browse-zip-me {
@@ -486,6 +508,32 @@ textarea {
   background: color-mix(in srgb, var(--lm-primary) 9%, var(--lm-surface)) !important;
 }
 
+.lm-saved-search-row {
+  align-items: center;
+}
+
+.lm-saved-search-form {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lm-saved-search-check {
+  margin-right: 0 !important;
+}
+
+.lm-saved-search-check .form-check-label {
+  white-space: nowrap;
+}
+
+.lm-saved-searches-status-form .form-check-label {
+  white-space: nowrap;
+}
+
+.lm-table-mobile-cards td[data-label]::before {
+  display: none;
+}
+
 @media (min-width: 992px) {
   .lm-sticky-bar {
     top: 1rem;
@@ -509,7 +557,9 @@ textarea {
 
   .lm-browse-zip,
   .lm-browse-sort,
-  .lm-browse-radius {
+  .lm-browse-radius,
+  .lm-browse-kind,
+  .lm-browse-category {
     flex: 1 1 calc(50% - 0.25rem);
     min-width: 0;
     max-width: none;
@@ -524,6 +574,106 @@ textarea {
   .lm-browse-submit,
   .lm-browse-clear {
     flex: 1 1 calc(50% - 0.25rem);
+    justify-content: center;
+  }
+
+  .lm-saved-search-row {
+    gap: 0.45rem !important;
+  }
+
+  .lm-saved-search-form,
+  .lm-saved-search-btn {
+    width: 100%;
+  }
+
+  .lm-saved-search-form {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .lm-saved-search-check {
+    width: 100%;
+    margin-left: 0 !important;
+  }
+
+  .lm-saved-search-btn {
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .lm-table-mobile-cards thead {
+    display: none;
+  }
+
+  .lm-table-mobile-cards,
+  .lm-table-mobile-cards tbody,
+  .lm-table-mobile-cards tr,
+  .lm-table-mobile-cards td {
+    display: block;
+    width: 100%;
+  }
+
+  .lm-table-mobile-cards tr {
+    border-top: 1px solid var(--bs-border-color);
+    padding: 0.45rem 0.2rem 0.55rem;
+  }
+
+  .lm-table-mobile-cards td {
+    border: 0 !important;
+    padding: 0.28rem 0.5rem !important;
+    text-align: left !important;
+  }
+
+  .lm-table-mobile-cards td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--bs-secondary-color);
+    margin-bottom: 0.14rem;
+  }
+
+  .lm-saved-searches-table thead {
+    display: none;
+  }
+
+  .lm-saved-searches-table,
+  .lm-saved-searches-table tbody,
+  .lm-saved-searches-table tr,
+  .lm-saved-searches-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .lm-saved-searches-table tr {
+    border-top: 1px solid var(--bs-border-color);
+    padding: 0.45rem 0.2rem 0.55rem;
+  }
+
+  .lm-saved-searches-table td {
+    border: 0 !important;
+    padding: 0.28rem 0.5rem !important;
+    text-align: left !important;
+  }
+
+  .lm-saved-searches-table td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--bs-secondary-color);
+    margin-bottom: 0.14rem;
+  }
+
+  .lm-saved-searches-save-btn,
+  .lm-saved-searches-remove-btn {
+    width: 100%;
     justify-content: center;
   }
 }

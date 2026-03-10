@@ -57,7 +57,7 @@
   <div class="card shadow-sm lm-card">
     <div class="table-responsive">
       <div class="lm-table">
-<table class="table table-sm mb-0">
+<table class="table table-sm mb-0 lm-table-mobile-cards">
         <thead>
           <tr>
             <th>When</th>
@@ -70,11 +70,11 @@
         <tbody>
           {% for a in page_obj %}
             <tr>
-              <td class="text-muted small">{{ a.created_at|date:"Y-m-d H:i" }}</td>
-              <td class="small">{% if a.actor %}{{ a.actor.username }}{% else %}system{% endif %}</td>
-              <td class="small">{{ a.action }}</td>
-              <td class="small fw-semibold">{{ a.verb }}</td>
-              <td class="small text-muted">{{ a.target_object_id|default:"-" }}</td>
+              <td class="text-muted small" data-label="When">{{ a.created_at|date:"Y-m-d H:i" }}</td>
+              <td class="small" data-label="Actor">{% if a.actor %}{{ a.actor.username }}{% else %}system{% endif %}</td>
+              <td class="small" data-label="Action">{{ a.action }}</td>
+              <td class="small fw-semibold" data-label="Verb">{{ a.verb }}</td>
+              <td class="small text-muted" data-label="Target">{{ a.target_object_id|default:"-" }}</td>
             </tr>
           {% empty %}
             <tr><td colspan="5" class="py-0">{% include 'partials/empty_state.html' with title='' message='No audit entries.' action_route='ops:dashboard' action_label='Back to Ops' %}</td></tr>

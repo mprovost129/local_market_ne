@@ -17,7 +17,7 @@
   <div class="card shadow-sm lm-card">
     <div class="table-responsive">
       <div class="lm-table">
-<table class="table table-sm mb-0">
+<table class="table table-sm mb-0 lm-table-mobile-cards">
         <thead>
           <tr>
             <th>Created</th>
@@ -31,12 +31,12 @@
         <tbody>
           {% for r in page_obj %}
             <tr>
-              <td class="text-muted small">{{ r.created_at|date:"Y-m-d H:i" }}</td>
-              <td class="small">{{ r.message.thread.product.title }}</td>
-              <td class="small">{{ r.reason }}</td>
-              <td class="small">{{ r.reporter.username }}</td>
-              <td><span class="badge text-bg-secondary">{{ r.status }}</span></td>
-              <td class="text-end">
+              <td class="text-muted small" data-label="Created">{{ r.created_at|date:"Y-m-d H:i" }}</td>
+              <td class="small" data-label="Product">{{ r.message.thread.product.title }}</td>
+              <td class="small" data-label="Reason">{{ r.reason }}</td>
+              <td class="small" data-label="Reporter">{{ r.reporter.username }}</td>
+              <td data-label="Status"><span class="badge text-bg-secondary">{{ r.status }}</span></td>
+              <td class="text-end" data-label="Actions">
                 {% if r.status == "open" %}
                   <form method="post" action="{% url 'ops:qa_report_resolve' r.pk %}" class="d-inline">
                     {% csrf_token %}

@@ -21,7 +21,7 @@
   <div class="card shadow-sm lm-card">
     <div class="table-responsive">
       <div class="lm-table">
-<table class="table table-sm mb-0">
+<table class="table table-sm mb-0 lm-table-mobile-cards">
         <thead>
           <tr>
             <th>Created</th>
@@ -35,12 +35,12 @@
         <tbody>
           {% for rr in page_obj %}
             <tr>
-              <td class="text-muted small">{{ rr.created_at|date:"Y-m-d H:i" }}</td>
-              <td><a href="{% url 'ops:order_detail' rr.order.pk %}">{{ rr.order.pk }}</a></td>
-              <td class="small">{{ rr.buyer.username|default:rr.order.guest_email }}</td>
-              <td class="small">{{ rr.seller.username }}</td>
-              <td><span class="badge text-bg-secondary">{{ rr.status }}</span></td>
-              <td class="text-end">${{ rr.amount_cents|cents_to_dollars }}</td>
+              <td class="text-muted small" data-label="Created">{{ rr.created_at|date:"Y-m-d H:i" }}</td>
+              <td data-label="Order"><a href="{% url 'ops:order_detail' rr.order.pk %}">{{ rr.order.pk }}</a></td>
+              <td class="small" data-label="Buyer">{{ rr.buyer.username|default:rr.order.guest_email }}</td>
+              <td class="small" data-label="Seller">{{ rr.seller.username }}</td>
+              <td data-label="Status"><span class="badge text-bg-secondary">{{ rr.status }}</span></td>
+              <td class="text-end" data-label="Amount">${{ rr.amount_cents|cents_to_dollars }}</td>
             </tr>
           {% empty %}
             <tr><td colspan="6" class="text-center text-muted py-3">No refund requests.</td></tr>

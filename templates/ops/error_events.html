@@ -35,7 +35,7 @@
   <div class="card-body p-0 lm-card">
     <div class="table-responsive">
       <div class="lm-table">
-<table class="table table-sm mb-0">
+<table class="table table-sm mb-0 lm-table-mobile-cards">
         <thead>
           <tr>
             <th>When</th>
@@ -49,20 +49,20 @@
         <tbody>
           {% for ev in page_obj %}
           <tr>
-            <td class="text-nowrap">{{ ev.created_at|date:"Y-m-d H:i" }}</td>
-            <td>
+            <td class="text-nowrap" data-label="When">{{ ev.created_at|date:"Y-m-d H:i" }}</td>
+            <td data-label="Status">
               {% if ev.is_resolved %}
                 <span class="badge bg-success">Resolved</span>
               {% else %}
                 <span class="badge bg-danger">Open</span>
               {% endif %}
             </td>
-            <td class="text-nowrap">{{ ev.exception_type }}</td>
-            <td>
+            <td class="text-nowrap" data-label="Type">{{ ev.exception_type }}</td>
+            <td data-label="Path">
               <a href="{% url 'ops:error_event_detail' ev.pk %}">{{ ev.path|default:"(no path)" }}</a>
             </td>
-            <td class="text-muted text-nowrap">{{ ev.request_id }}</td>
-            <td class="text-nowrap">{% if ev.user %}{{ ev.user }}{% else %}<span class="text-muted">-</span>{% endif %}</td>
+            <td class="text-muted text-nowrap" data-label="Request ID">{{ ev.request_id }}</td>
+            <td class="text-nowrap" data-label="User">{% if ev.user %}{{ ev.user }}{% else %}<span class="text-muted">-</span>{% endif %}</td>
           </tr>
           {% empty %}
           <tr>

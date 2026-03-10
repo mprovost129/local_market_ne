@@ -43,28 +43,28 @@
       {% endif %}
     </form>
     {% if user.is_authenticated %}
-      <div class="mt-2 d-flex flex-wrap gap-2">
+      <div class="mt-2 d-flex flex-wrap gap-2 lm-saved-search-row">
         {% if saved_search %}
-          <form method="post" action="{% url 'products:saved_search_delete' saved_search.id %}" class="d-inline">
+          <form method="post" action="{% url 'products:saved_search_delete' saved_search.id %}" class="d-inline lm-saved-search-form">
             {% csrf_token %}
-            <button class="btn btn-sm btn-outline-danger" type="submit">Remove saved search</button>
+            <button class="btn btn-sm btn-outline-danger lm-saved-search-btn" type="submit">Remove saved search</button>
           </form>
         {% else %}
-          <form method="post" action="{% url 'products:saved_search_create' %}" class="d-inline">
+          <form method="post" action="{% url 'products:saved_search_create' %}" class="d-inline lm-saved-search-form">
             {% csrf_token %}
             <input type="hidden" name="kind" value="GOOD">
             <input type="hidden" name="q" value="{{ q }}">
             <input type="hidden" name="category" value="{{ category }}">
             <input type="hidden" name="zip" value="{{ zip }}">
             <input type="hidden" name="sort" value="{{ sort }}">
-            <div class="form-check form-check-inline align-middle mx-1">
+            <div class="form-check form-check-inline align-middle mx-1 mb-0 lm-saved-search-check">
               <input class="form-check-input" type="checkbox" id="save-search-email-good" name="email_enabled" value="1">
               <label class="form-check-label small" for="save-search-email-good">Email alerts</label>
             </div>
-            <button class="btn btn-sm btn-outline-primary" type="submit">Save this search</button>
+            <button class="btn btn-sm btn-outline-primary lm-saved-search-btn" type="submit">Save this search</button>
           </form>
         {% endif %}
-        <a class="btn btn-sm btn-outline-secondary" href="{% url 'products:saved_search_list' %}">Manage saved searches</a>
+        <a class="btn btn-sm btn-outline-secondary lm-saved-search-btn" href="{% url 'products:saved_search_list' %}">Manage saved searches</a>
       </div>
     {% endif %}
 

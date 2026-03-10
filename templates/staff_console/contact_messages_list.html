@@ -46,7 +46,7 @@
     <div class="card-body p-0 lm-card">
       <div class="table-responsive">
         <div class="lm-table">
-          <table class="table table-hover align-middle mb-0">
+          <table class="table table-hover align-middle mb-0 lm-table-mobile-cards">
             <thead>
               <tr>
                 <th>Email</th>
@@ -61,12 +61,12 @@
             <tbody>
               {% for m in page_obj.object_list %}
                 <tr>
-                  <td class="text-truncate" style="max-width: 260px;">
+                  <td class="text-truncate" style="max-width: 260px;" data-label="Email">
                     <div class="fw-semibold">{{ m.email }}</div>
                     {% if m.name %}<div class="text-muted small">{{ m.name }}</div>{% endif %}
                   </td>
-                  <td class="text-truncate" style="max-width: 380px;">{{ m.subject|default:"(no subject)" }}</td>
-                  <td>
+                  <td class="text-truncate" style="max-width: 380px;" data-label="Subject">{{ m.subject|default:"(no subject)" }}</td>
+                  <td data-label="SLA">
                     {% if m.sla_tag == 'urgent' %}
                       <span class="badge text-bg-danger">Urgent</span>
                     {% elif m.sla_tag == 'high' %}
@@ -77,18 +77,18 @@
                       <span class="badge text-bg-info">Normal</span>
                     {% endif %}
                   </td>
-                  <td>
+                  <td data-label="Status">
                     {% if m.is_resolved %}
                       <span class="badge text-bg-success">Resolved</span>
                     {% else %}
                       <span class="badge text-bg-warning">Open</span>
                     {% endif %}
                   </td>
-                  <td class="text-muted small">
+                  <td class="text-muted small" data-label="Last reply">
                     {% if m.last_responded_at %}{{ m.last_responded_at }}{% else %}-{% endif %}
                   </td>
-                  <td class="text-muted small">{{ m.created_at }}</td>
-                  <td class="text-end">
+                  <td class="text-muted small" data-label="Created">{{ m.created_at }}</td>
+                  <td class="text-end" data-label="Actions">
                     <a class="btn btn-sm btn-outline-primary" href="{% url 'staff_console:contact_message_detail' m.id %}">View</a>
                   </td>
                 </tr>

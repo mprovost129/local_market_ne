@@ -604,11 +604,30 @@ def top_sellers(request: HttpRequest) -> HttpResponse:
         .annotate(active_listings_count=Count("products", filter=Q(products__is_active=True)))
         .order_by("-active_listings_count", "username")
     )
+    q = (request.GET.get("q") or "").strip()[:MAX_QUERY_LEN]
+    if q:
+        qs = qs.filter(
+            Q(username__icontains=q)
+            | Q(first_name__icontains=q)
+            | Q(last_name__icontains=q)
+            | Q(profile__public_seller_name__icontains=q)
+            | Q(profile__public_location_label__icontains=q)
+        )
+
+    zip_code = _normalized_zip_prefix(request.GET.get("zip"))
+    if zip_code:
+        qs = qs.filter(profile__zip_code__istartswith=zip_code)
 
     page_obj = _paginate(request, qs, per_page=50)
 
     return _maybe_cached_render(
         request,
         "products/top_sellers.html",
-        {"sellers": page_obj.object_list, "page_obj": page_obj, "paginator": page_obj.paginator},
+        {
+            "sellers": page_obj.object_list,
+            "page_obj": page_obj,
+            "paginator": page_obj.paginator,
+            "q": q,
+            "zip": zip_code,
+        },
     )

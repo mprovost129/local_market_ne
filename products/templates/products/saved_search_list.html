@@ -16,7 +16,7 @@
 
   <div class="card lm-panel">
     <div class="lm-table table-responsive">
-      <table class="table table-sm align-middle mb-0">
+      <table class="table table-sm align-middle mb-0 lm-saved-searches-table">
         <thead class="table-light">
           <tr>
             <th>Type</th>
@@ -29,16 +29,16 @@
         <tbody>
           {% for s in saved_searches %}
             <tr>
-              <td>{{ s.get_kind_display }}</td>
-              <td class="small text-secondary">
+              <td data-label="Type"><span class="fw-semibold">{{ s.get_kind_display }}</span></td>
+              <td class="small text-secondary" data-label="Filters">
                 {% if s.query %}Query: {{ s.query }}{% endif %}
                 {% if s.zip_prefix %}{% if s.query %} - {% endif %}ZIP: {{ s.zip_prefix }}{% endif %}
                 {% if s.category_id_filter %} - Category #{{ s.category_id_filter }}{% endif %}
                 {% if s.kind == 'SERVICE' and s.radius_miles %} - Radius: {{ s.radius_miles }}+ mi{% endif %}
                 {% if s.sort %} - Sort: {{ s.sort }}{% endif %}
               </td>
-              <td>
-                <form method="post" action="{% url 'products:saved_search_update' s.id %}" class="d-flex flex-column gap-1 align-items-start">
+              <td data-label="Status">
+                <form method="post" action="{% url 'products:saved_search_update' s.id %}" class="d-flex flex-column gap-1 align-items-start lm-saved-searches-status-form">
                   {% csrf_token %}
                   <label class="form-check small mb-0">
                     <input class="form-check-input" type="checkbox" name="is_active" value="1" {% if s.is_active %}checked{% endif %}>
@@ -48,14 +48,14 @@
                     <input class="form-check-input" type="checkbox" name="email_enabled" value="1" {% if s.email_enabled %}checked{% endif %}>
                     <span class="form-check-label">Email alerts</span>
                   </label>
-                  <button class="btn btn-sm btn-outline-secondary" type="submit">Save</button>
+                  <button class="btn btn-sm btn-outline-secondary lm-saved-searches-save-btn" type="submit">Save</button>
                 </form>
               </td>
-              <td class="small">{% if s.last_notified_at %}{{ s.last_notified_at|date:"Y-m-d H:i" }}{% else %}-{% endif %}</td>
-              <td class="text-end">
+              <td class="small" data-label="Last alert">{% if s.last_notified_at %}{{ s.last_notified_at|date:"Y-m-d H:i" }}{% else %}-{% endif %}</td>
+              <td class="text-end" data-label="Actions">
                 <form method="post" action="{% url 'products:saved_search_delete' s.id %}" class="d-inline">
                   {% csrf_token %}
-                  <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+                  <button class="btn btn-sm btn-outline-danger lm-saved-searches-remove-btn" type="submit">Remove</button>
                 </form>
               </td>
             </tr>

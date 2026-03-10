@@ -71,7 +71,7 @@
   <div class="card shadow-sm lm-card">
     <div class="table-responsive">
       <div class="lm-table">
-<table class="table table-sm mb-0">
+<table class="table table-sm mb-0 lm-table-mobile-cards">
         <thead>
           <tr>
             <th>Created</th>
@@ -84,13 +84,13 @@
         <tbody>
           {% for e in page_obj %}
             <tr>
-              <td class="text-muted small">{{ e.created_at|date:"Y-m-d H:i" }}</td>
-              <td><span class="badge {% if e.status == 'error' %}text-bg-danger{% elif e.status == 'processed' %}text-bg-success{% else %}text-bg-secondary{% endif %}">{{ e.status }}</span></td>
-              <td class="small">{{ e.event_type }}</td>
-              <td class="small">
+              <td class="text-muted small" data-label="Created">{{ e.created_at|date:"Y-m-d H:i" }}</td>
+              <td data-label="Status"><span class="badge {% if e.status == 'error' %}text-bg-danger{% elif e.status == 'processed' %}text-bg-success{% else %}text-bg-secondary{% endif %}">{{ e.status }}</span></td>
+              <td class="small" data-label="Type">{{ e.event_type }}</td>
+              <td class="small" data-label="Stripe event id">
                 <a href="{% url 'ops:webhook_detail' e.pk %}">{{ e.stripe_event_id }}</a>
               </td>
-              <td class="text-end">{{ e.delivery_count|intcomma }}</td>
+              <td class="text-end" data-label="Deliveries">{{ e.delivery_count|intcomma }}</td>
             </tr>
           {% empty %}
             <tr><td colspan="5" class="py-0">{% include 'partials/empty_state.html' with title='' message='No events found.' action_route='ops:dashboard' action_label='Back to Ops' %}</td></tr>

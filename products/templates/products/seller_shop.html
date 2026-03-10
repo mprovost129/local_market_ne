@@ -71,16 +71,16 @@
     <div class="col-12 col-lg-8">
       <div class="card shadow-sm">
         <div class="card-body">
-          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-            <div class="fw-semibold">Listings</div>
-            <form class="d-flex flex-wrap gap-2" method="get">
-              <input class="form-control form-control-sm" name="q" value="{{ q|default:'' }}" placeholder="Search" style="min-width: 180px;">
-              <select class="form-select form-select-sm" name="kind" style="min-width: 160px;">
+          <div class="fw-semibold mb-2">Listings</div>
+          <div class="lm-sticky-bar lm-sticky-bar--inner mb-3">
+            <form class="lm-browse-form lm-browse-form--compact d-flex flex-wrap gap-2" method="get">
+              <input class="form-control form-control-sm lm-browse-q" name="q" value="{{ q|default:'' }}" placeholder="Search listings...">
+              <select class="form-select form-select-sm lm-browse-kind" name="kind">
                 <option value="">All</option>
                 <option value="products" {% if kind == 'products' or kind == 'goods' %}selected{% endif %}>Products</option>
                 <option value="services" {% if kind == 'services' or kind == 'service' %}selected{% endif %}>Services</option>
               </select>
-              <select class="form-select form-select-sm" name="category" style="min-width: 180px;">
+              <select class="form-select form-select-sm lm-browse-category" name="category">
                 <option value="">All categories</option>
                 <optgroup label="Products">
                   {% for c in store_goods_categories %}
@@ -99,8 +99,37 @@
                   {% endfor %}
                 </optgroup>
               </select>
-              <button class="btn btn-sm btn-primary" type="submit">Filter</button>
+              <button class="btn btn-sm btn-primary lm-browse-submit" type="submit">Search</button>
+              {% if q or kind or category %}
+                <a class="btn btn-sm btn-outline-secondary lm-browse-clear" href="{% url 'products:seller_shop' seller.id %}">Clear</a>
+              {% endif %}
             </form>
+
+            {% if q or kind or category %}
+              <div class="d-flex flex-wrap gap-2 mt-2">
+                {% if q %}
+                  <a class="badge text-bg-light border text-decoration-none lm-filter-chip"
+                     href="?{% if kind %}kind={{ kind|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}"
+                     aria-label="Remove search filter">
+                    Search: {{ q }} <i class="bi bi-x-lg"></i>
+                  </a>
+                {% endif %}
+                {% if kind %}
+                  <a class="badge text-bg-light border text-decoration-none lm-filter-chip"
+                     href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}"
+                     aria-label="Remove type filter">
+                    Type: {{ kind|title }} <i class="bi bi-x-lg"></i>
+                  </a>
+                {% endif %}
+                {% if category %}
+                  <a class="badge text-bg-light border text-decoration-none lm-filter-chip"
+                     href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if kind %}kind={{ kind|urlencode }}&{% endif %}"
+                     aria-label="Remove category filter">
+                    Category <i class="bi bi-x-lg"></i>
+                  </a>
+                {% endif %}
+              </div>
+            {% endif %}
           </div>
 
           <div class="row g-3">

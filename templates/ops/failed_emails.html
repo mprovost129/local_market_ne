@@ -43,7 +43,7 @@
   <div class="card shadow-sm lm-card">
     <div class="table-responsive">
       <div class="lm-table">
-<table class="table table-sm mb-0">
+<table class="table table-sm mb-0 lm-table-mobile-cards">
         <thead>
           <tr>
             <th>Created</th>
@@ -57,15 +57,15 @@
         <tbody>
           {% for a in page_obj %}
             <tr>
-              <td class="text-muted small">{{ a.created_at|date:"Y-m-d H:i" }}</td>
-              <td class="small"><span class="badge text-bg-secondary">{{ a.notification.kind }}</span></td>
-              <td class="small">
+              <td class="text-muted small" data-label="Created">{{ a.created_at|date:"Y-m-d H:i" }}</td>
+              <td class="small" data-label="Kind"><span class="badge text-bg-secondary">{{ a.notification.kind }}</span></td>
+              <td class="small" data-label="To">
                 <div class="fw-semibold">{{ a.to_email }}</div>
                 <div class="text-muted">User: {{ a.notification.user.username }}</div>
               </td>
-              <td class="small">{{ a.subject }}</td>
-              <td class="small text-muted">{{ a.error|truncatechars:140 }}</td>
-              <td class="text-end">
+              <td class="small" data-label="Subject">{{ a.subject }}</td>
+              <td class="small text-muted" data-label="Error">{{ a.error|truncatechars:140 }}</td>
+              <td class="text-end" data-label="Actions">
                 <a class="btn btn-sm btn-outline-primary" href="{% url 'ops:failed_email_detail' a.pk %}">View</a>
               </td>
             </tr>
