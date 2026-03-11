@@ -5,9 +5,12 @@ from unittest.mock import patch
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
+from decimal import Decimal
 
 from catalog.models import Category
-from payments.models import SellerFeeWaiver, SellerStripeAccount
+from core.models import SiteConfig
+from payments.models import SellerFeePlan, SellerFeeWaiver, SellerStripeAccount
+from payments.services_fee_waiver import get_effective_marketplace_sales_percent_for_seller
 from products.models import Product
 
 
@@ -117,3 +120,56 @@ class SellerFeeWaiverStartTriggerTests(TestCase):
         listing.is_active = True
         listing.save(update_fields=["is_active"])
         self.assertEqual(SellerFeeWaiver.objects.filter(user=self.seller).count(), 1)
+
+
+class SellerFeePlanOverrideTests(TestCase):
+    def setUp(self):
+        self.seller = User.objects.create_user(
+            username="seller_fee_plan_test",
+            email="seller_fee_plan_test@example.com",
+            password="pw123456",
+        )
+        cfg, _ = SiteConfig.objects.get_or_create(pk=1)
+        cfg.marketplace_sales_percent = Decimal("10.00")
+        cfg.seller_fee_waiver_enabled = True
+        cfg.save()
+
+    def test_default_percent_when_no_plan_or_waiver(self):
+        pct = get_effective_marketplace_sales_percent_for_seller(seller_user=self.seller)
+        self.assertEqual(pct, Decimal("10.00"))
+
+    def test_waiver_sets_effective_percent_to_zero(self):
+        SellerFeeWaiver.ensure_for_seller(user=self.seller, waiver_days=30)
+        pct = get_effective_marketplace_sales_percent_for_seller(seller_user=self.seller)
+        self.assertEqual(pct, Decimal("0.00"))
+
+    def test_active_fixed_plan_overrides_waiver(self):
+        SellerFeeWaiver.ensure_for_seller(user=self.seller, waiver_days=30)
+        SellerFeePlan.objects.create(
+            user=self.seller,
+            is_active=True,
+            custom_sales_percent=Decimal("3.50"),
+            discount_percent=Decimal("0.00"),
+        )
+        pct = get_effective_marketplace_sales_percent_for_seller(seller_user=self.seller)
+        self.assertEqual(pct, Decimal("3.50"))
+
+    def test_discount_plan_applies_to_global_percent(self):
+        SellerFeePlan.objects.create(
+            user=self.seller,
+            is_active=True,
+            custom_sales_percent=None,
+            discount_percent=Decimal("25.00"),
+        )
+        pct = get_effective_marketplace_sales_percent_for_seller(seller_user=self.seller)
+        self.assertEqual(pct, Decimal("7.50"))
+
+    def test_discount_100_percent_comps_fee(self):
+        SellerFeePlan.objects.create(
+            user=self.seller,
+            is_active=True,
+            custom_sales_percent=None,
+            discount_percent=Decimal("100.00"),
+        )
+        pct = get_effective_marketplace_sales_percent_for_seller(seller_user=self.seller)
+        self.assertEqual(pct, Decimal("0.00"))

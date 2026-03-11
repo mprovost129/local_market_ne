@@ -72,5 +72,5 @@ Use `.env.example` for local development and the Render dashboard (or Blueprint 
 
 ## Helpful Commands
 
-- `python manage.py env_audit` — prints what’s present/missing (recommended/required).
-- `python manage.py env_audit --strict` — exits non-zero if required vars are missing.
+- `python manage.py env_audit` - prints what’s present/missing (recommended/required).
+- `python manage.py env_audit --strict` - exits non-zero if required vars are missing.

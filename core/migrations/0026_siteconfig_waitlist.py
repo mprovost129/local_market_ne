@@ -62,7 +62,7 @@ class Migration(migrations.Migration):
                 default=(
                     "Thanks for joining the Local Market NE waitlist!\n\n"
                     "We’ll email you when we launch.\n\n"
-                    "— Local Market NE"
+                    "- Local Market NE"
                 ),
                 help_text="Body for the waitlist confirmation email (plain text).",
             ),

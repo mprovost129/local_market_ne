@@ -133,7 +133,7 @@ class SiteConfig(models.Model):
         default=(
             "Thanks for joining the Local Market NE waitlist!\n\n"
             "We’ll email you when we launch.\n\n"
-            "— Local Market NE"
+            "- Local Market NE"
         ),
         help_text="Body for the waitlist confirmation email (plain text).",
     )
@@ -181,7 +181,7 @@ class SiteConfig(models.Model):
         default=(
             "Thanks for reaching out to Local Market NE.\n\n"
             "We received your message and will get back to you as soon as possible.\n\n"
-            "— Local Market NE"
+            "- Local Market NE"
         ),
         help_text="Body for the support auto-reply email (plain text).",
     )
@@ -796,7 +796,7 @@ class ContactMessage(models.Model):
     def __str__(self) -> str:
         base = self.email
         if self.subject:
-            base = f"{base} — {self.subject}"
+            base = f"{base} - {self.subject}"
         return base
 
 

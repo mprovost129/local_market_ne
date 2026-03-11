@@ -1,4 +1,4 @@
-# Local Market NE — Site Audit & Recommendations (Feb 5, 2026)
+# Local Market NE - Site Audit & Recommendations (Feb 5, 2026)
 
 ## Scope
 High‑level UX, content, and technical review across major user flows (buyer, seller, admin, legal, payments).

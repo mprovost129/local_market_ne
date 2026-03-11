@@ -55,7 +55,7 @@ def notify_appointment_event(
 
     # Subject
     service_name = getattr(ar.service, "title", None) or getattr(ar.service, "name", None) or "Service"
-    subject = f"Appointment update: {service_name} — {ctx['status_label']}"
+    subject = f"Appointment update: {service_name} - {ctx['status_label']}"
 
     # Determine action URL by role
     for_seller = (recipient_user == ar.seller)

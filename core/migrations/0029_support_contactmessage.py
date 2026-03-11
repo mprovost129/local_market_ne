@@ -50,7 +50,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="siteconfig",
             name="support_auto_reply_body",
-            field=models.TextField(blank=True, default="Thanks for reaching out to Local Market NE.\n\nWe received your message and will get back to you as soon as possible.\n\n— Local Market NE", help_text="Body for the support auto-reply email (plain text)."),
+            field=models.TextField(blank=True, default="Thanks for reaching out to Local Market NE.\n\nWe received your message and will get back to you as soon as possible.\n\n- Local Market NE", help_text="Body for the support auto-reply email (plain text)."),
         ),
         migrations.CreateModel(
             name="ContactMessage",

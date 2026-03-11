@@ -1,4 +1,4 @@
-# LocalMarketNE — Go-Live Kit (Pack CE)
+# LocalMarketNE - Go-Live Kit (Pack CE)
 
 This document is the operational runbook for deploying and validating a release candidate.
 

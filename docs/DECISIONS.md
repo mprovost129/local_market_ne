@@ -1,24 +1,24 @@
-## 2026-02-18 — RC reporting
+## 2026-02-18 - RC reporting
 
 - Decision: Add `rc_report` as a convenience wrapper to summarize RC readiness across multiple checks.
 - Rationale: reduces “works on my machine” drift by standardizing the same preflight checks before deploy.
 - Note: Stripe checkout/webhook flows remain a manual RC checklist item (cannot be fully automated without Stripe events).
 
 
-## 2026-02-18 — Templates must not hard-crash on missing route names
+## 2026-02-18 - Templates must not hard-crash on missing route names
 
 - For optional CTA routes in shared partials, use `{% url name as var %}` and render only when `var` is non-empty.
 - This prevents `NoReverseMatch` runtime crashes when route names evolve during late-stage refactors.
 
 ---
 
-## 2026-02-17 — Listing Form UX: Kind-aware sections
+## 2026-02-17 - Listing Form UX: Kind-aware sections
 
 Seller listing create/edit UI must only display fields relevant to the selected listing kind (Product vs Service).
 Implementation uses template `data-kind` wrappers + JS toggling (hide + disable inputs). This prevents confusion and reduces invalid submissions.
 
 
-## 2026-02-17 — Browse UX: Category sidebar filter/search
+## 2026-02-17 - Browse UX: Category sidebar filter/search
 
 Decision:
 - Provide a lightweight, client-side category filter/search on browse pages (desktop sidebar + mobile offcanvas) to reduce friction when category lists are long.
@@ -34,9 +34,9 @@ Implementation:
 - `SiteConfig` cache must be invalidated on every save (via model save + post_save signal).
 - UI-only helper fields (CSV, repeated rows) must be translated in the form `save()` method.
 
-# Local Market NE — DECISIONS
+# Local Market NE - DECISIONS
 
-## 2026-02-16 — Pack BL — Avoid duplicated sidebar JS
+## 2026-02-16 - Pack BL - Avoid duplicated sidebar JS
 
 Decision:
 - Do not load legacy HC3 sidebar scripts globally in `base.html`.
@@ -47,7 +47,7 @@ Rationale:
 - Centralizing the behavior reduces regressions and keeps the sidebar deterministic.
 
 
-## 2026-02-16 — Pack BH — Smoke check extras are opt-in
+## 2026-02-16 - Pack BH - Smoke check extras are opt-in
 
 - `smoke_check` remains lightweight by default (route reverse + template compile only).
 - Optional flags enable deeper validation when needed:
@@ -56,7 +56,7 @@ Rationale:
 - Smoke-check route names must match the **current** URL namespaces (e.g., legal pages live under the `legal:` namespace).
 - Rationale: keep the default command fast for frequent use, while providing stronger signals during RC hardening and deploy verification.
 
-## 2026-02-16 — Pack BI — Public health endpoint is lightweight
+## 2026-02-16 - Pack BI - Public health endpoint is lightweight
 
 Decision:
 - Provide a public `/healthz/` endpoint that is safe for Render/uplink checks and uptime monitors.
@@ -67,7 +67,7 @@ Rationale:
 - Hosting providers often need a stable health endpoint; keeping it lightweight avoids false negatives during DB maintenance.
 - Smoke-check coverage prevents regressions where the endpoint is accidentally removed.
 
-## 2026-02-16 — Crawl protection for private areas (Pack BF)
+## 2026-02-16 - Crawl protection for private areas (Pack BF)
 
 Decision:
 - Private areas must be protected from indexing using both layers:
@@ -77,7 +77,7 @@ Rationale:
 - Robots.txt is advisory and can be ignored; the response header provides an additional safety net.
 - Prevents accidental indexing of operational pages and authenticated dashboards.
 
-## 2026-02-16 — Required RC smoke check command (Pack BG)
+## 2026-02-16 - Required RC smoke check command (Pack BG)
 
 Decision:
 - A fast, local smoke test command (`python manage.py smoke_check`) is the required first step of RC validation.
@@ -86,7 +86,7 @@ Rationale:
 - Recent RC issues were caused by template/runtime dead-ends (missing keys, invalid template expressions, schema drift).
 - A lightweight command catches these regressions immediately without needing external services.
 
-## 2026-02-16 — Launch Check: security posture checks (Pack BE)
+## 2026-02-16 - Launch Check: security posture checks (Pack BE)
 
 Decision:
 - Launch Check is the authoritative go-live gate and now includes explicit **security posture** validation when `DEBUG=False`:
@@ -99,7 +99,7 @@ Rationale:
 - These settings are easy to overlook and materially affect authentication, session integrity, and HTTPS correctness in production.
 - Explicit checks prevent “looks fine locally” misconfigurations from reaching production.
 
-## 2026-02-16 — Reconciliation CSV exports
+## 2026-02-16 - Reconciliation CSV exports
 
 - Ops reconciliation exports are provided as CSV via `?format=csv`.
 - Exports are **capped at 5,000 rows** to avoid large downloads impacting production.
@@ -109,7 +109,7 @@ Rationale:
 Last updated: 2026-02-16 (America/New_York)
 
 
-## 2026-02-16 — Buyer delivery confirmation rules (Pack AY)
+## 2026-02-16 - Buyer delivery confirmation rules (Pack AY)
 Decision:
 - Buyers can confirm fulfillment for physical items:
   - **Shipping** items: confirm after seller marks **SHIPPED**.
@@ -121,7 +121,7 @@ Rationale:
 - Throttling provides abuse resistance without introducing CAPTCHA friction.
 
 
-## 2026-02-16 — Ops “Money Loop” KPIs use ledger + refund snapshots (Pack AW)
+## 2026-02-16 - Ops “Money Loop” KPIs use ledger + refund snapshots (Pack AW)
 Decision:
 - Ops dashboard “Money Loop” tiles are computed from:
   - `OrderItem.marketplace_fee_cents` and `OrderItem.seller_net_cents` for **PAID** orders (ledger truth), and
@@ -132,7 +132,7 @@ Rationale:
 - RefundRequest snapshot totals are the authoritative “what was refunded” numbers.
 
 
-## 2026-02-16 — Seller fulfillment tasks use `is_done` (hotfix)
+## 2026-02-16 - Seller fulfillment tasks use `is_done` (hotfix)
 Decision:
 - The canonical completion flag on `SellerFulfillmentTask` is `is_done`.
 - Views/templates must not reference legacy names like `is_completed`.
@@ -140,7 +140,7 @@ Rationale:
 - Prevents FieldError crashes and keeps task completion semantics consistent across the app.
 
 
-## 2026-02-16 — Fulfillment task lifecycle is tied to payment + delivery (Pack AX)
+## 2026-02-16 - Fulfillment task lifecycle is tied to payment + delivery (Pack AX)
 Decision:
 - `SellerFulfillmentTask` rows are created when an order is marked **PAID** (idempotent).
 - A task represents a single seller-owned `OrderItem` that requires fulfillment.
@@ -150,7 +150,7 @@ Rationale:
 - The per-item model avoids ambiguity when a single order contains items from multiple sellers.
 
 
-## 2026-02-16 — Public seller location is approximate (Pack AU)
+## 2026-02-16 - Public seller location is approximate (Pack AU)
 Decision:
 - Seller storefronts may show an **approximate** public location (city/state) via `Profile.public_city` / `Profile.public_state`.
 - Exact seller address remains private and is never required for storefront browsing.
@@ -161,13 +161,13 @@ Rationale:
 
 
 
-## 2026-02-16 — Funnel reporting basis (Pack AM)
+## 2026-02-16 - Funnel reporting basis (Pack AM)
 - Funnel reporting supports both:
   - **Event-based** counts (can double-count within a session), and
   - **Unique-session** funnel (preferred for conversions) based on first-party `hc_sid` → `AnalyticsEvent.session_id`.
 - Host/environment breakouts are included to detect environment drift (e.g., paid events appearing only in prod).
 
-## 2026-02-15 — Observability: DB-backed error capture (v1)
+## 2026-02-15 - Observability: DB-backed error capture (v1)
 Decision:
 - LocalMarketNE captures unhandled server exceptions into a DB model (`ops.ErrorEvent`) instead of requiring an external service.
 - Capture includes: request id, path, method, user (if authenticated), exception type, short message, and a compact traceback.
@@ -181,7 +181,7 @@ Guardrails:
 - Admin registrations must not reference models that are not defined in `models.py` and migrated; model/admin/migration changes ship together in the same pack.
 
 
-## 2026-02-14 — reCAPTCHA v3 enforcement for public write actions (v1)
+## 2026-02-14 - reCAPTCHA v3 enforcement for public write actions (v1)
 Decision:
 - reCAPTCHA v3 is enforced server-side on **POST** for the highest-risk public write actions:
   - account registration
@@ -194,7 +194,7 @@ Rationale:
 - Cuts automated spam/abuse without adding visible friction (v3 score-based). Standard wiring prevents “one-off” template drift.
 
 
-## 2026-02-13 — Legal acceptance recording (v1)
+## 2026-02-13 - Legal acceptance recording (v1)
 Decision:
 - On checkout, LocalMarketNE records acceptance of the latest published: Terms, Privacy, Refund Policy, and Content & Safety Policy.
 - If a cart includes service items, checkout also records acceptance of the Services & Appointments Policy.
@@ -203,7 +203,7 @@ Rationale:
 - Keeps a durable audit trail tied to exact document versions (hash-based), while minimizing UX friction.
 
 
-## 2026-02-13 — Appointment rescheduling + notifications (v1)
+## 2026-02-13 - Appointment rescheduling + notifications (v1)
 Decision:
 - Appointment rescheduling is **seller-driven** in v1 (seller can set new scheduled start; end derived from duration snapshot).
 - All appointment lifecycle transitions emit **in-app notifications + email** via the central `notifications.services.notify_email_and_in_app` helper.
@@ -211,7 +211,7 @@ Rationale:
 - Keeps a single audit trail (Notification records) even if email fails; reduces duplicated email logic.
 
 
-## 2026-02-16 — Email delivery attempts + Ops resend tooling
+## 2026-02-16 - Email delivery attempts + Ops resend tooling
 Decision:
 - Track outbound email send attempts in the database (`notifications.EmailDeliveryAttempt`) linked to the originating `Notification`.
 - Ops may resend an email using the stored rendered bodies on the `Notification` (subject/text/html), which records a new attempt.
@@ -220,7 +220,7 @@ Rationale:
 - Resend is deterministic (uses stored rendered content) and safe (records attempts; does not mutate historical notification content).
 
 
-## 2026-02-13 — Fulfillment and off-platform payment decisions (LocalMarketNE)
+## 2026-02-13 - Fulfillment and off-platform payment decisions (LocalMarketNE)
 ### ZIP-only delivery radius enforcement (v1)
 Decision:
 - For v1, delivery radius enforcement is **ZIP-only** with a conservative approximation:
@@ -293,7 +293,7 @@ Implementation:
 
 # docs/DECISIONS.md
 
-# Local Market NE — Decisions (Locked + Current)
+# Local Market NE - Decisions (Locked + Current)
 
 Last updated: 2026-02-13 (America/New_York)
 
@@ -374,7 +374,7 @@ This file records decisions that govern implementation and must not be silently 
 
 ### Allocation rules (CURRENT)
 - Tax is allocated proportionally across all order items by `line_total_cents`.
-- Shipping is allocated proportionally across shippable items (where `fulfillment_mode_snapshot == "shipping"` — exposed as `requires_shipping` property) by `line_total_cents`.
+- Shipping is allocated proportionally across shippable items (where `fulfillment_mode_snapshot == "shipping"` - exposed as `requires_shipping` property) by `line_total_cents`.
 - `OrderItem.line_total_cents` is a stored ledger field; dashboards and reports should **not** annotate using the same name (Django raises an annotation conflict). If a computed expression is ever needed, use a different alias (e.g., `line_total_calc_cents`).
 - Refund amount is stored as snapshots on `RefundRequest` at creation and becomes the source of truth.
 
@@ -488,7 +488,7 @@ Guardrails:
 - `orders.StripeWebhookDelivery` is treated as append-only ops logging; schema uses `delivered_at` (and references `StripeWebhookEvent.created_at`).
 - If local dev migration history becomes inconsistent (e.g., a downstream app migration is marked applied before its dependency), the supported recovery is: **drop/recreate the local DB and rerun migrations**.
 
-## 2026-02-10 — Analytics provider
+## 2026-02-10 - Analytics provider
 - Google Analytics 4 is the active analytics provider (Plausible deprecated).
 - Client-side tracking uses GA4 Measurement ID from environment variable `GOOGLE_MEASUREMENT_ID` mapped to `settings.GA_MEASUREMENT_ID`.
 - Server-side dashboard reporting (optional) uses GA4 Data API with service-account credentials provided via env (`GOOGLE_ANALYTICS_*`). If not configured, admin dashboard links out to GA.
@@ -504,7 +504,7 @@ Guardrails:
 - `orders.OrderEvent.meta` is used (additively) to record structured payout transfer metadata for `TRANSFER_CREATED` events: `seller_id`, `transfer_id`, `amount_cents`, and `stripe_account_id`. Legacy transfer events may lack metadata and are treated as “unknown attribution” in reconciliation surfaces.
 
 
-## 2026-02-10 — Analytics dashboard linking
+## 2026-02-10 - Analytics dashboard linking
 
 - GA4 Data API service-account keys may be blocked by org policy; the app must not require GA credentials to function.
 - `SiteConfig.google_analytics_dashboard_url` provides an optional **Open Google Analytics** link in the admin dashboard.
@@ -516,7 +516,7 @@ Guardrails:
 - Throttle hits are recorded in native analytics as `THROTTLE` events for admin visibility.
 - Abuse signals are informational in v1 (no auto-blocking beyond throttle).
 
-### 2026-02-16 — Checkout / refunds throttle placement
+### 2026-02-16 - Checkout / refunds throttle placement
 - The checkout initiation endpoint (`orders:checkout_start`) is POST-only and is the **only** place where the checkout-start throttle + reCAPTCHA applies.
 - Fulfillment-choice persistence (`orders:set_fulfillment`) is POST-only and uses a separate throttle bucket (`orders:set_fulfillment`) to avoid blocking checkout start.
 
@@ -529,23 +529,23 @@ Guardrails:
 
 
 
-## 2026-02-10 — Seller order ops
+## 2026-02-10 - Seller order ops
 - Sellers must be notified for ALL paid sales (service + physical) via email + in-app notification; tips excluded.
 - Physical orders create persistent SellerFulfillmentTask per seller+order; tasks close automatically when no pending shippable items remain.
 - Licenses & Policies must be discoverable from global navigation (References + Footer).
 
 
-## 2026-02-10 — Free service listings cap enforcement
+## 2026-02-10 - Free service listings cap enforcement
 - Sellers may publish up to `SiteConfig.free_digital_listing_cap` active FREE FILE listings without Stripe onboarding.
 - Publishing beyond the cap requires **verified email** first, and **Stripe Connect onboarding** (seller readiness).
 - Enforcement points: listing activation and listing duplication guard.
 
-## 2026-02-10 — Fulfillment UX
+## 2026-02-10 - Fulfillment UX
 - Seller fulfillment queue is driven by **OrderItem fulfillment_status** for physical items only; service items are excluded from shipping queue.
 - Fulfillment tasks remain open until all seller shippable items in the order are no longer pending.
 - Seller net units sold is computed as **paid qty − refunded qty** (refunds are full-line-item for physical items in v1).
 
-## 2026-02-10 — SiteConfig management parity
+## 2026-02-10 - SiteConfig management parity
 - All `SiteConfig` fields that are editable via the custom **Dashboard Admin Settings** page must also be editable via the Django admin `core.SiteConfig` singleton admin, and vice versa.
 - The dashboard settings UI is treated as a first-class admin surface; it must not lag behind Django admin field availability.
 
@@ -560,7 +560,7 @@ Guardrails:
 ## Affiliate links storage (2026-02-11)
 - SiteConfig.affiliate_links remains a JSONField for flexibility, but the dashboard UI edits it via simple repeated inputs (no raw JSON entry).
 
-## 2026-02-13 — Store sidebar category navigation
+## 2026-02-13 - Store sidebar category navigation
 - For Walmart-style category trees, the store sidebar uses a progressive disclosure UX:
   - Root category lists show the first 8 items by default, with a **More** expander for additional roots.
   - Subcategories are hidden by default and expanded per root category using collapse toggles.
@@ -573,7 +573,7 @@ Guardrails:
   - `lmne.goodsCats.more`, `lmne.serviceCats.more`
 - Category filter UI is hidden by default and shown via a Filter toggle; filtering is client‑side.
 
-## 2026-02-13 — Service cancellation window enforcement
+## 2026-02-13 - Service cancellation window enforcement
 - Services may define a cancellation cutoff window in hours (`service_cancellation_window_hours`).
 - If set (>0), buyers cannot cancel within that window before the appointment start time.
 - Enforcement is server-side; UI may still show Cancel but will reject within window.
@@ -585,18 +585,18 @@ Guardrails:
 - Off-platform payments: buyer can mark 'sent'; seller confirms payment received via dedicated Payments queue.
 - Service deposits are always collected via Stripe when required.
 
-### 2026-02-13 — Shipping tracking fields (Pack P re-apply)
+### 2026-02-13 - Shipping tracking fields (Pack P re-apply)
 - Canonical per-line tracking fields are `OrderItem.tracking_carrier` and `OrderItem.tracking_number`.
 - Legacy `OrderItem.carrier` is removed (migration 0005) and should not be used in new code/templates.
 
-## 2026-02-13 — Inventory reservation + made-to-order lead times (Pack Q)
+## 2026-02-13 - Inventory reservation + made-to-order lead times (Pack Q)
 - **Non-made-to-order goods** reserve inventory at order creation (PENDING) by decrementing `Product.stock_qty` under row locks.
 - Reserved inventory is released back to stock on order cancellation or Stripe session expiration (`Order.inventory_reserved`/`inventory_released` make this idempotent).
 - **Made-to-order goods** are allowed to be purchased even when `stock_qty=0`, but must specify `lead_time_days`.
 - Each `OrderItem` snapshots the product’s lead time into `lead_time_days_snapshot` for buyer/seller visibility and historical accuracy.
 
 
-## 2026-02-13 — Pack S re-apply (Appointments)
+## 2026-02-13 - Pack S re-apply (Appointments)
 - Appointment lifecycle is stateful and explicit:
   - `REQUESTED → DEPOSIT_PENDING → DEPOSIT_PAID → SCHEDULED → COMPLETED`
   - `DECLINED` and `CANCELED` are terminal states.
@@ -605,7 +605,7 @@ Guardrails:
   - On `checkout.session.completed`, any `AppointmentRequest` linked to that Order transitions from `DEPOSIT_PENDING` to `DEPOSIT_PAID` and is auto-scheduled (v1 default).
 - Scheduling is snapshotted on the appointment record (`scheduled_start/end`) and is not derived from live service listing after the request is created.
 
-## Appointments — Buyer confirmation, calendar exports, and reminders
+## Appointments - Buyer confirmation, calendar exports, and reminders
 
 - Seller reschedules require explicit buyer confirmation before the appointment is considered final:
   - `AWAITING_BUYER_CONFIRMATION` → buyer confirms → `SCHEDULED`.
@@ -628,12 +628,12 @@ Guardrails:
 - All sensitive override capabilities remain restricted to Ops routes (and remain audited).
 
 
-## 2026-02-14 — Email sending helpers live in orders/emails.py
+## 2026-02-14 - Email sending helpers live in orders/emails.py
 - Email side-effects are implemented in explicit service modules (orders/emails.py) rather than inside models.
 - Orders events may include STRIPE_SESSION_CREATED for observability; it is treated as informational and does not change accounting.
 
 
-## 2026-02-14 — Admin Console Moderation Model Naming
+## 2026-02-14 - Admin Console Moderation Model Naming
 - Canonical Q&A report model is `ProductQuestionReport` (do not introduce aliases like `QAReport` in code; import the canonical model or alias locally only).
 - Resolution updates must write `resolved_at` + `resolved_by` and never depend on an `updated_at` field.
 
@@ -676,13 +676,13 @@ Guardrails:
   - Authenticated users bypass this cache.
 
 
-## Maintenance mode + Announcement controls — 2026-02-15
+## Maintenance mode + Announcement controls - 2026-02-15
 - Maintenance Mode is a **SiteConfig toggle** (DB-backed, editable via admin).
 - Maintenance Mode returns HTTP **503** for public visitors to discourage indexing and communicate downtime.
 - OPS and Staff Admin bypass maintenance gating so they can verify the site during incidents.
 - Site Announcement is a separate toggle + text (also SiteConfig) and renders below the promo banner.
 
-## Pack AF — Financial reconciliation is snapshot-based (non-mutating)
+## Pack AF - Financial reconciliation is snapshot-based (non-mutating)
 - Ops reconciliation compares **Order.subtotal_cents** against **sum(OrderItem.quantity * unit_price_cents_snapshot)** and compares item-ledger fee/net sums against **expected fee/net computed from marketplace_sales_percent_snapshot**.
 - Reconciliation pages are **read-only** in v1: they surface mismatches and missing Stripe markers but do not auto-rewrite financial fields.
 - Transfer presence is inferred via OrderEvent.Type.TRANSFER_CREATED; if payouts were skipped for unready sellers, we do not flag as missing transfer.
@@ -699,13 +699,13 @@ Guardrails:
 - SiteConfigAdmin fieldsets must not repeat fields across sections to satisfy Django admin checks.
 
 
-## Pack AH — Orders invariants & Stripe consistency (2026-02-15)
+## Pack AH - Orders invariants & Stripe consistency (2026-02-15)
 - Once an order leaves `DRAFT`, its key financial fields are **immutable** (subtotal, tax, shipping, total, currency, fee snapshots).
 - Order status changes must follow explicit **transition guardrails** to prevent accidental jumps.
 - Stripe-paid orders must have **both** `stripe_session_id` and `stripe_payment_intent_id` recorded before becoming `PAID`.
 - Tips are stored as separate `OrderItem` rows (`is_tip=True`) and bypass marketplace fees.
 
-## 2026-02-15 — Launch Readiness Checks
+## 2026-02-15 - Launch Readiness Checks
 
 - We treat “launch readiness” as a **conservative checklist** (failures = do not go live).
 - The same checks are available in two forms:
@@ -713,19 +713,19 @@ Guardrails:
   - CLI command (`python manage.py launch_check`) for CI/deploy automation.
 - Checks validate configuration and core invariants; they do not mutate data.
 
-### Pack BY — Money loop is a release blocker
+### Pack BY - Money loop is a release blocker
 - `launch_check` includes a **money_loop** invariant check over a bounded sample of recent PAID orders.
 - A dedicated CLI exists for deeper verification: `python manage.py money_loop_check`.
 - If money-loop invariants fail, treat it as a **release blocker** until reconciled/fixed.
 
-### Pack BZ — RC gate command
+### Pack BZ - RC gate command
 - We provide a single pre-deploy gate command: `python manage.py rc_check`.
 - `rc_check` bundles:
   - `smoke_check` (optionally `--checks` and `--db`)
   - `launch_check`
 - CI/deploy pipelines should prefer `rc_check` over running multiple commands manually.
 
-## 2026-02-16 — Pack AK — Funnel Metrics are first-party + server-side
+## 2026-02-16 - Pack AK - Funnel Metrics are first-party + server-side
 
 - Conversion funnel metrics are tracked via our own `analytics.AnalyticsEvent` table (not client JS), so they still work under ad blockers.
 - Funnel event types (v1):
@@ -735,7 +735,7 @@ Guardrails:
 - Ops Console is the source of truth for quick visibility: `/ops/funnel/?days=7`.
 
 
-## 2026-02-16 — Pack AL — Ops Reprocessing & Transfer Retry (Decisions)
+## 2026-02-16 - Pack AL - Ops Reprocessing & Transfer Retry (Decisions)
 
 - Webhook processing logic is centralized in `orders.webhooks.process_stripe_event_dict()` and used by both:
   - the inbound Stripe webhook endpoint, and
@@ -747,7 +747,7 @@ Guardrails:
 - Every reprocess attempt creates a new `StripeWebhookDelivery` row for auditability.
 
 
-## 2026-02-16 — Pack BB — Admin Ops webhook drill-down + reprocess
+## 2026-02-16 - Pack BB - Admin Ops webhook drill-down + reprocess
 
 - Admin Ops surfaces *errors* but does not re-implement webhook debugging.
 - The canonical investigation surface is **Ops → Webhooks**:
@@ -755,70 +755,70 @@ Guardrails:
   - Reprocessing is executed by calling the **Ops reprocess action** (same idempotent processor), not by duplicating webhook logic inside dashboards.
 
 
-## 2026-02-16 — Reference pages navigation
+## 2026-02-16 - Reference pages navigation
 - Reference pages are first-class v1 routes under canonical short paths (`/about/`, `/help/`, `/faqs/`, `/tips/`) and must be linked consistently in both top-nav and footer.
 - Legacy `/references/*` routes remain as permanent redirects for backwards compatibility.
 - Reference content remains static v1 (templates), but the URL structure is stable for future CMS/blog upgrades.
 
-## 2026-02-16 — SEO canonical + defaults
+## 2026-02-16 - SEO canonical + defaults
 - Canonical and share URLs must be stable and exclude querystrings (`request.build_absolute_uri(request.path)`).
 - Sitewide default meta description / share image / twitter handle are DB-backed in `SiteConfig` so Ops can tune without deploys.
 
 
 
-## 2026-02-16 — Pack AT — Browse filters UX
+## 2026-02-16 - Pack AT - Browse filters UX
 - **Never** use `request.GET.<key>` in templates; it raises `VariableDoesNotExist` when missing. Views must pass `q`/`category` explicitly and templates must rely on those.
 - Category browsing UX standard: sidebar accordion (desktop) + offcanvas drawer (mobile), with a “More” collapse after 8 top-level categories.
 
-## 2026-02-16 — Canonical URLs in templates
+## 2026-02-16 - Canonical URLs in templates
 - We do **not** call request methods with arguments inside Django templates.
 - Canonical + `og:url` are rendered as: `{{ request.scheme }}://{{ request.get_host }}{{ request.path }}`.
 
-## 2026-02-16 — Service browse filters: state + radius semantics
+## 2026-02-16 - Service browse filters: state + radius semantics
 - `state` filter matches seller `Profile.public_state` (approximate location, not an address).
 - `radius` filter means: **seller will travel at least X miles** (`service_radius_miles >= X`).
 - True buyer-zip distance filtering is deferred until we introduce geo lookup (ZIP→lat/lon) and compute distances.
 
 
-## 2026-02-16 — Pack BC — Dead-end guardrails for launch
+## 2026-02-16 - Pack BC - Dead-end guardrails for launch
 - Launch posture should catch broken operator routes *before* deploy.
 - `launch_check` includes a conservative URL wiring check that verifies core named routes resolve (dashboards, ops surfaces, and storefront entry points).
 - If `url_wiring` fails, treat it as a release-blocker until the route mismatch is corrected.
 
-## 2026-02-16 — Pack BJ — Ops Health UX
+## 2026-02-16 - Pack BJ - Ops Health UX
 - Ops Health (`/ops/health/`) is an **ops-only** surface.
 - Default response is **HTML** for humans; `?format=json` is supported for automation.
 - Public uptime/host checks must use the separate lightweight `/healthz/` endpoint.
 
-## 2026-02-16 — Seller age policy (v1)
+## 2026-02-16 - Seller age policy (v1)
 - **18+ enforcement applies to sellers only**.
 - Buyers are not globally gated by age; sellers may mark listings as “18+” at their discretion.
 - Seller must confirm **18+** and acknowledge **prohibited items (no tobacco, alcohol, firearms)** before initiating Stripe Connect onboarding.
 - Enforcement point: `POST payments:connect_start` (cannot proceed without both attestations).
 
-## 2026-02-16 — Managed tracking scripts
+## 2026-02-16 - Managed tracking scripts
 - GA4 and AdSense scripts must be **SiteConfig-managed**, not hardcoded in templates.
 - `SiteConfig.ga_measurement_id` controls GA injection.
 - `SiteConfig.adsense_enabled` + `SiteConfig.adsense_client_id` control AdSense injection.
 
-## 2026-02-16 — Template styling standards (tables/cards)
+## 2026-02-16 - Template styling standards (tables/cards)
 - All Bootstrap tables used for lists/queues in ops/staff consoles should be wrapped in `<div class="lm-table">` for consistent rounding, header treatment, and overflow behavior.
 - All Bootstrap cards used for KPI tiles/modules should include `.lm-card` to enforce consistent border/shadow style.
 
 ---
 
-## 2026-02-16 — Dead-end audit standards
+## 2026-02-16 - Dead-end audit standards
 - Any “Coming Soon” or placeholder feature must route users to a **real next step** (e.g., Help/FAQs or Waitlist), not `href="#"`.
 - Empty states should provide a clear CTA using the shared partial: `templates/partials/empty_state.html`.
 - Health endpoints must remain stable and **must not be accidentally overridden** by duplicate view definitions.
 
-## 2026-02-16 — Waitlist is SiteConfig-managed + throttled
+## 2026-02-16 - Waitlist is SiteConfig-managed + throttled
 - Waitlist availability and messaging are treated as **ops/marketing controls** and must be editable via **SiteConfig** (no settings.py constants).
 - Waitlist POST is throttled with the central throttle system to prevent spam and reduce email abuse.
 - Email sends (confirmation/admin notify) are best-effort and must never block signup UX.
 
 
-## 2026-02-16 — Support pathway consistency (Contact + empty-state component)
+## 2026-02-16 - Support pathway consistency (Contact + empty-state component)
 
 - Added canonical `core:contact` (`/contact/`) so users always have a “Support” exit path.
 - Support email is DB-managed (`SiteConfig.support_email`) so it can be changed without deploys.
@@ -830,22 +830,22 @@ Guardrails:
 - All primary list/detail pages should use `templates/partials/empty_state.html` for “no data” states.
 - Every empty state must provide at least one clear CTA (Browse / Create / Back) and optionally show Help/FAQs/Contact links on pages where users commonly get stuck.
 
-## 2026-02-16 — Contact messages are stored + configurable
+## 2026-02-16 - Contact messages are stored + configurable
 - Contact form submissions are stored in DB (ContactMessage) by default for staff review.
 - Email delivery is best-effort and can be toggled via SiteConfig.
 - Contact submission endpoints are throttled (CONTACT_SUBMIT) to reduce abuse.
 
-## 2026-02-16 — Support Inbox lives in Staff Console (audited)
+## 2026-02-16 - Support Inbox lives in Staff Console (audited)
 - Support triage for ContactMessage is handled in the **Staff Console** (`/staff/support/`) for fast ops access.
 - Resolve/reopen actions are written to the **Audit log** (verbs: `contact_message_resolved`, `contact_message_reopened`).
 - Staff may reply either via their email client (mailto shortcut) or directly from Staff Console.
 
-## 2026-02-16 — Support Inbox triage fields + canned responses (Pack BW)
+## 2026-02-16 - Support Inbox triage fields + canned responses (Pack BW)
 - ContactMessage includes internal triage fields: SLA tag + internal notes + last reply metadata (count + last replied by/at).
 - Staff Console can send replies using admin-managed `SupportResponseTemplate` canned responses.
 - Replies are best-effort sends and must not crash staff operations; reply sends + triage edits are audited (verbs: `contact_message_reply_sent`, `contact_message_triage_updated`).
 
-## 2026-02-17 — Outbound support email logging (Pack BX)
+## 2026-02-17 - Outbound support email logging (Pack BX)
 - Every Staff Console “Reply from console” must write an immutable outbound log row (`SupportOutboundEmailLog`) with:
   - to/from/subject/body, status (sent/failed), and error text when failed.
 - This provides reconciliation without relying on external email provider logs.
@@ -853,7 +853,7 @@ Guardrails:
 
 ---
 
-## 2026-02-17 — Dependent category dropdowns (seller listing form)
+## 2026-02-17 - Dependent category dropdowns (seller listing form)
 
 - Catalog category APIs use `kind=GOOD|SERVICE` to match listing kinds (Product vs Service).
 - API payload shape is standardized for dropdowns:
@@ -868,45 +868,45 @@ Guardrails:
 
 ---
 
-## 2026-02-17 — Seller onboarding checklist (Pack CB)
+## 2026-02-17 - Seller onboarding checklist (Pack CB)
 - The seller dashboard and seller listings page must show an onboarding checklist until complete.
 - Checklist steps are derived from persisted profile + Stripe readiness (no new DB tables required).
 - Each incomplete step must include a direct link to the correct page to complete it (no dead-end CTAs).
 
 ---
 
-## 2026-02-17 — Seller listing mini‑wizard + draft-save (Pack CF)
+## 2026-02-17 - Seller listing mini‑wizard + draft-save (Pack CF)
 - The mini‑wizard is a **front-end only** stepper that hides/shows sections; it must not change the data model.
 - Draft-save is implemented by sending `save_mode=draft` and forcing `is_active=False` server-side to prevent accidental publish.
 - On create, draft-save redirects to Edit (so the seller can add images after the first save).
 
 ---
 
-## 2026-02-17 — RC dead-end audit (Pack CG)
+## 2026-02-17 - RC dead-end audit (Pack CG)
 - We treat obvious dead-end patterns in templates (`href='#'`, `action='#'`, `javascript:void(0)`) as release risks.
 - `template_deadend_audit` is included in `rc_check` output.
 - Default behavior is **warn-only** to avoid blocking day-to-day dev; production gating can enforce strictness via:
   - `python manage.py rc_check --deadends-strict` or `python manage.py template_deadend_audit --strict`.
 
-## 2026-02-18 — Template route-name drift prevention
+## 2026-02-18 - Template route-name drift prevention
 - Decision: include a template URL reverse audit (`url_reverse_audit`) in RC checks to catch stale `{% url 'name' %}` references before runtime.
 - Scope: audits only *literal/quoted* route names; variable-based url tags are not audited.
 
 
-## Pack CK — Tooltips initialization
+## Pack CK - Tooltips initialization
 - We initialize Bootstrap tooltips opportunistically in `static/js/ui.js` for any element with `data-bs-toggle="tooltip"`.
 - If Bootstrap tooltip JS is not present, initialization is a no-op (no hard dependency).
 
 ---
 
-## 2026-02-18 — Minimal flow smoke check for RC
+## 2026-02-18 - Minimal flow smoke check for RC
 - Add `python manage.py flow_check` to create a tiny fixture set and request key seller/consumer pages plus a cart add.
 - Include `flow_check` in `python manage.py rc_report` so RC results show both static audits and a lightweight runtime flow.
 - This does **not** replace the manual `docs/RC_CHECKLIST.md` run; it exists to catch obvious 500s early.
 
 ---
 
-## 2026-02-18 — RC tooling contract (JSON/quiet support)
+## 2026-02-18 - RC tooling contract (JSON/quiet support)
 - Any management command intended to be aggregated by `rc_report` must support `--json` output.
 - Audits must support `--limit` and `--quiet` to keep RC output bounded and usable.
 - `stripe_config_check` exists as a dedicated Stripe posture check (keys + webhook route reversal) so Stripe surprises are caught before manual testing.

@@ -1,4 +1,4 @@
-# Local Market NE — Render Deployment Plan (Render-safe)
+# Local Market NE - Render Deployment Plan (Render-safe)
 
 Last updated: 2026-02-10 (America/New_York)
 
@@ -138,12 +138,12 @@ This plan prioritizes:
 3) Verify.
 4) Optionally set `RUN_MIGRATIONS_ON_START=1` after the first successful deploy.
 
-#### Step A — First deploy without migrations
+#### Step A - First deploy without migrations
 
 - Ensure `RUN_MIGRATIONS_ON_START=0` in Render env.
 - Deploy the web service.
 
-#### Step B — Manual migrate
+#### Step B - Manual migrate
 
 Open Render Shell → run:
 
@@ -163,7 +163,7 @@ If migrations fail:
 - Do **not** retry blindly.
 - Read the migration error, fix in a new commit, redeploy, then re-run migrate.
 
-#### Step C — Collect static (already in build)
+#### Step C - Collect static (already in build)
 
 Confirm `collectstatic` succeeded in build logs.
 

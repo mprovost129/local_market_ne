@@ -7,13 +7,111 @@ from django.db.models import Sum
 
 from core.admin_filters import UserCompanyFilter
 
-from .models import SellerBalanceEntry, SellerStripeAccount
+from .models import SellerBalanceEntry, SellerFeePlan, SellerFeeWaiver, SellerStripeAccount
 
 
 class SellerCompanyFilter(UserCompanyFilter):
     user_field_name = "seller"
     title = "seller company"
     parameter_name = "seller_company"
+
+
+@admin.register(SellerFeeWaiver)
+class SellerFeeWaiverAdmin(admin.ModelAdmin):
+    list_display = (
+        "user",
+        "user_company",
+        "starts_at",
+        "ends_at",
+        "is_active_now",
+        "updated_at",
+    )
+    search_fields = ("user__username", "user__email", "user__profile__shop_name")
+    list_filter = (UserCompanyFilter,)
+    actions = ("extend_7_days", "extend_30_days", "extend_90_days")
+
+    def user_company(self, obj: SellerFeeWaiver) -> str:
+        profile = getattr(obj.user, "profile", None)
+        shop_name = (getattr(profile, "shop_name", "") or "").strip() if profile else ""
+        return shop_name or getattr(obj.user, "username", str(obj.user_id))
+
+    user_company.short_description = "Company"
+
+    def is_active_now(self, obj: SellerFeeWaiver) -> bool:
+        return bool(obj.is_active)
+
+    is_active_now.boolean = True
+    is_active_now.short_description = "Active"
+
+    @admin.action(description="Extend waiver by 7 days")
+    def extend_7_days(self, request, queryset):
+        for obj in queryset:
+            obj.extend_by_days(days=7)
+
+    @admin.action(description="Extend waiver by 30 days")
+    def extend_30_days(self, request, queryset):
+        for obj in queryset:
+            obj.extend_by_days(days=30)
+
+    @admin.action(description="Extend waiver by 90 days")
+    def extend_90_days(self, request, queryset):
+        for obj in queryset:
+            obj.extend_by_days(days=90)
+
+
+@admin.register(SellerFeePlan)
+class SellerFeePlanAdmin(admin.ModelAdmin):
+    list_display = (
+        "user",
+        "user_company",
+        "is_active",
+        "custom_sales_percent",
+        "discount_percent",
+        "starts_at",
+        "ends_at",
+        "is_currently_active",
+        "updated_at",
+    )
+    search_fields = ("user__username", "user__email", "user__profile__shop_name")
+    list_filter = ("is_active", UserCompanyFilter)
+    readonly_fields = ("created_at", "updated_at", "is_currently_active")
+    fieldsets = (
+        (
+            "Seller",
+            {
+                "fields": ("user",),
+            },
+        ),
+        (
+            "Fee Plan",
+            {
+                "fields": ("is_active", "custom_sales_percent", "discount_percent", "starts_at", "ends_at", "is_currently_active"),
+                "description": (
+                    "Use custom_sales_percent for a fixed seller fee (0 = fully comped). "
+                    "If custom_sales_percent is blank, discount_percent applies against global fee (100 = fully comped)."
+                ),
+            },
+        ),
+        (
+            "Notes",
+            {
+                "fields": ("notes",),
+            },
+        ),
+        (
+            "Audit",
+            {
+                "fields": ("created_at", "updated_at"),
+            },
+        ),
+    )
+
+    def user_company(self, obj: SellerFeePlan) -> str:
+        profile = getattr(obj.user, "profile", None)
+        shop_name = (getattr(profile, "shop_name", "") or "").strip() if profile else ""
+        return shop_name or getattr(obj.user, "username", str(obj.user_id))
+
+    user_company.short_description = "Company"
 
 
 @admin.register(SellerStripeAccount)

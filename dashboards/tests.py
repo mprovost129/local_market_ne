@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+from django import forms
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
 from catalog.models import Category
+from core.models import SiteConfig
+from dashboards.forms import SiteConfigForm
 from payments.models import SellerFeeWaiver
 from products.models import Product
 
@@ -107,3 +110,80 @@ class AdminOpsPanelTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Automations Health")
         self.assertContains(resp, "Saved search scheduler")
+
+
+class AdminSettingsSaveTests(TestCase):
+    def setUp(self):
+        self.owner = User.objects.create_user(
+            username="owner_settings_test",
+            email="owner_settings_test@example.com",
+            password="pw123456",
+        )
+        prof = self.owner.profile
+        prof.is_owner = True
+        prof.email_verified = True
+        prof.save(update_fields=["is_owner", "email_verified", "updated_at"])
+        self.client.force_login(self.owner)
+        SiteConfig.objects.get_or_create(pk=1)
+
+    def test_admin_settings_post_persists_core_fields(self):
+        cfg = SiteConfig.objects.get(pk=1)
+        form = SiteConfigForm(instance=cfg)
+        data = {}
+        for name, field in form.fields.items():
+            val = form.initial.get(name, getattr(cfg, name, field.initial))
+            if isinstance(field, forms.BooleanField):
+                if bool(val):
+                    data[name] = "on"
+                continue
+            if val is None:
+                data[name] = ""
+            elif isinstance(val, (list, tuple)):
+                data[name] = ",".join([str(x) for x in val])
+            else:
+                data[name] = str(val)
+
+        data.update(
+            {
+                "marketplace_sales_percent": "10.00",
+                "platform_fee_cents": "15",
+                "allowed_shipping_countries_csv": "US,CA",
+                "free_digital_listing_cap": "3",
+                "checkout_enabled": "on",
+                "checkout_disabled_message": "Temporarily paused",
+                "analytics_retention_days": "90",
+                "google_analytics_dashboard_url": "analytics.google.com/reporting",
+                "ga_measurement_id": "G-TEST1234",
+                "seller_prohibited_items_notice": "No drugs, alcohol, or weapons.",
+                "seller_requires_age_18": "on",
+                "support_email": "support@example.com",
+                "home_hero_title": "Shop local first",
+                "home_hero_subtitle": "Support people in your community",
+                "facebook_url": "facebook.com/localmarketne",
+                "instagram_url": "",
+                "tiktok_url": "",
+                "youtube_url": "",
+                "x_url": "",
+                "linkedin_url": "",
+            }
+        )
+
+        resp = self.client.post(
+            reverse("dashboards:admin_settings"),
+            data=data,
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["Location"], reverse("dashboards:admin_settings"))
+
+        cfg = SiteConfig.objects.get(pk=1)
+        self.assertEqual(str(cfg.marketplace_sales_percent), "10.00")
+        self.assertEqual(cfg.platform_fee_cents, 15)
+        self.assertEqual(cfg.allowed_shipping_countries, ["US", "CA"])
+        self.assertEqual(cfg.support_email, "support@example.com")
+        self.assertEqual(cfg.home_hero_title, "Shop local first")
+        # URL auto-normalization should prepend https:// when missing.
+        self.assertEqual(cfg.facebook_url, "https://facebook.com/localmarketne")
+        self.assertEqual(
+            cfg.google_analytics_dashboard_url,
+            "https://analytics.google.com/reporting",
+        )

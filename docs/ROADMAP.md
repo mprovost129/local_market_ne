@@ -19,7 +19,7 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - `docs/STATUS.md` is the single source of truth for “now.”
 - Entries below are historical pack updates and longer-horizon roadmap items.
 
-## 2026-02-20 — Pack CZ — Prod host/origin env config ✅
+## 2026-02-20 - Pack CZ - Prod host/origin env config ✅
 
 **Completed**
 - Made production host/origin configuration environment-driven via `PRIMARY_DOMAIN` (+ optional `RENDER_EXTERNAL_HOSTNAME`).
@@ -30,7 +30,7 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - Production deploy on Render + first-live validation (docs/GO_LIVE_KIT.md).
 
 
-## 2026-02-20 — Pack CY — Env var audit + docs alignment ✅
+## 2026-02-20 - Pack CY - Env var audit + docs alignment ✅
 
 **Completed**
 - Added `python manage.py env_audit` to print required/recommended environment variables (with `--strict` mode).
@@ -42,17 +42,17 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - Production deploy on Render + first-live validation (docs/GO_LIVE_KIT.md).
 
 
-## 2026-02-18 — Pack CL — RC checklist runner (rc_report) ✅
+## 2026-02-18 - Pack CL - RC checklist runner (rc_report) ✅
 
 **Completed**
 - Added `python manage.py rc_report` to run RC-oriented checks and emit a consolidated report (human + JSON).
 - Wrapper executes: `rc_check`, `url_reverse_audit`, `template_deadend_audit`, and `money_loop_check`.
 
 **Next**
-- Pack CN — Run `docs/RC_CHECKLIST.md` manually end-to-end (Stripe test mode) and fix any remaining flow blockers found.
+- Pack CN - Run `docs/RC_CHECKLIST.md` manually end-to-end (Stripe test mode) and fix any remaining flow blockers found.
 
 
-## 2026-02-18 — Pack CM — Consumer browse card enhancements ✅
+## 2026-02-18 - Pack CM - Consumer browse card enhancements ✅
 
 **Completed**
 - Improved listing cards to include seller public location (city/state) when available.
@@ -60,20 +60,20 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - Added service-radius badge for services when the seller has a radius set.
 
 **Next**
-- Pack CN — Manual run of `docs/RC_CHECKLIST.md` end-to-end (Stripe test mode) + fix blockers.
+- Pack CN - Manual run of `docs/RC_CHECKLIST.md` end-to-end (Stripe test mode) + fix blockers.
 
 
-## 2026-02-18 — Pack CN — RC checklist support tooling ✅
+## 2026-02-18 - Pack CN - RC checklist support tooling ✅
 
 **Completed**
 - Added `python manage.py flow_check` to create a tiny fixture set and request key pages (seller + consumer) plus a cart add.
 - Updated `python manage.py rc_report` to include `flow_check` in the consolidated RC report.
 
 **Next**
-- Pack CO — Run `docs/RC_CHECKLIST.md` manually end-to-end (Stripe test mode) and fix any remaining blockers discovered.
+- Pack CO - Run `docs/RC_CHECKLIST.md` manually end-to-end (Stripe test mode) and fix any remaining blockers discovered.
 
 
-## 2026-02-18 — Pack CO — RC Stripe config check + tooling fixups ✅
+## 2026-02-18 - Pack CO - RC Stripe config check + tooling fixups ✅
 
 **Completed**
 - Added `python manage.py stripe_config_check` (keys + webhook route reversal) to reduce Stripe go-live surprises.
@@ -83,10 +83,10 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - Added a manual RC results template for recording end-to-end checklist outcomes.
 
 **Next**
-- Pack CP — Manual run of `docs/RC_CHECKLIST.md` end-to-end (Stripe test mode) + fix any remaining flow blockers found.
+- Pack CP - Manual run of `docs/RC_CHECKLIST.md` end-to-end (Stripe test mode) + fix any remaining flow blockers found.
 
 
-## 2026-02-19 — Pack CP — RC checklist manual run support ✅
+## 2026-02-19 - Pack CP - RC checklist manual run support ✅
 
 **Completed**
 - Added `python manage.py rc_results_init` to generate a timestamped manual RC run log under `docs/rc_runs/` from `docs/RC_RESULTS_TEMPLATE.md`.
@@ -96,7 +96,7 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - Production deploy on Render + first-live validation (docs/GO_LIVE_KIT.md).
 
 
-## 2026-02-19 — Pack CQ — Render Blueprint + deploy doc alignment ✅
+## 2026-02-19 - Pack CQ - Render Blueprint + deploy doc alignment ✅
 
 **Completed**
 - Added `render.yaml` (Render Blueprint) to create the web service + database with sensible defaults.
@@ -106,7 +106,7 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - Production deploy on Render + first-live validation (docs/GO_LIVE_KIT.md).
 
 
-## 2026-02-19 — Pack CR — Post-deploy validation command ✅
+## 2026-02-19 - Pack CR - Post-deploy validation command ✅
 
 **Completed**
 - Added `python manage.py post_deploy_check` (settings/env sanity, DB ping, staticfiles signal, optional public `/healthz/` HTTP check).
@@ -116,7 +116,7 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - Production deploy on Render + first-live validation (docs/GO_LIVE_KIT.md).
 
 
-## 2026-02-19 — Pack CS — Config key alignment (S3 + reCAPTCHA) ✅
+## 2026-02-19 - Pack CS - Config key alignment (S3 + reCAPTCHA) ✅
 
 **Completed**
 - Standardized S3 config across code/docs to use `AWS_S3_MEDIA_BUCKET` (kept `AWS_STORAGE_BUCKET_NAME` as legacy env alias).
@@ -125,7 +125,7 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 **Next**
 - Production deploy on Render + first-live validation (docs/GO_LIVE_KIT.md).
 
-## 2026-02-19 — Pack CT — First-live validation helper ✅
+## 2026-02-19 - Pack CT - First-live validation helper ✅
 
 **Completed**
 - Added `python manage.py first_live_validate` to run `post_deploy_check` and (optionally) perform public HTTP checks against `/healthz/`, `/catalog/`, and `/accounts/login/`.
@@ -135,7 +135,7 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - Production deploy on Render + first-live validation (docs/GO_LIVE_KIT.md).
 
 
-## 2026-02-19 — Pack CU — Render start script + runtime pin ✅
+## 2026-02-19 - Pack CU - Render start script + runtime pin ✅
 
 **Completed**
 - Added `scripts/render_start.sh` used by Render to start Gunicorn and optionally run migrations.
@@ -147,7 +147,7 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - Production deploy on Render + first-live validation (docs/GO_LIVE_KIT.md).
 
 
-## 2026-02-19 — Pack CV — Checkout kill switch (SiteConfig) ✅
+## 2026-02-19 - Pack CV - Checkout kill switch (SiteConfig) ✅
 
 **Completed**
 - Added `SiteConfig.checkout_enabled` + `SiteConfig.checkout_disabled_message` for an emergency “checkout off” switch.
@@ -160,7 +160,7 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - Production deploy on Render + first-live validation (docs/GO_LIVE_KIT.md).
 
 
-## 2026-02-19 — Pack CW — First-live check fixes + version endpoint checks ✅
+## 2026-02-19 - Pack CW - First-live check fixes + version endpoint checks ✅
 
 **Completed**
 - Fixed `first_live_validate` and `post_deploy_check` to accept the actual `/healthz/` payload shape (`status:"ok"`), avoiding false failures.
@@ -174,7 +174,7 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 
 
 
-## 2026-02-18 — Pack CK — RC UI pass (tooltips + mobile navbar spacing) ✅
+## 2026-02-18 - Pack CK - RC UI pass (tooltips + mobile navbar spacing) ✅
 
 **Completed**
 - Added optional Bootstrap tooltip initialization (`static/js/ui.js`).
@@ -182,9 +182,9 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - Improved mobile navbar spacing and logo scaling with `.lm-navbar` and `.lm-logo`.
 
 **Next**
-- Pack CL — Run `docs/RC_CHECKLIST.md` end-to-end (Test Mode) and fix any RC blockers found.
+- Pack CL - Run `docs/RC_CHECKLIST.md` end-to-end (Test Mode) and fix any RC blockers found.
 
-## 2026-02-18 — Pack CI — RC Hardening (Dead-end audit resilience) ✅
+## 2026-02-18 - Pack CI - RC Hardening (Dead-end audit resilience) ✅
 
 **Completed**
 - `empty_state` partial now uses safe `{% url ... as var %}` resolving to prevent template `NoReverseMatch` crashes.
@@ -192,9 +192,9 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - Added `data-lm-ignore-deadend` markers on navbar dropdown toggles for strict audit compatibility.
 
 **Next**
-- Pack CJ — RC UI pass: seller/consumer “first run” guidance (tooltips + empty-state CTAs) + finalize mobile nav spacing.
+- Pack CJ - RC UI pass: seller/consumer “first run” guidance (tooltips + empty-state CTAs) + finalize mobile nav spacing.
 
-## 2026-02-17 — Pack CC — Seller Listing Form Kind Sections + Error Summary ✅
+## 2026-02-17 - Pack CC - Seller Listing Form Kind Sections + Error Summary ✅
 
 **Completed**
 - Seller listing create/edit now hides irrelevant sections based on kind (Product vs Service) and disables hidden inputs.
@@ -202,19 +202,19 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - Added error summary with auto-scroll for faster correction.
 
 **Completed**
-- Pack CD — Category sidebar filter/search (desktop sidebar + mobile offcanvas).
-- Pack CE — Release Runbook + Go-Live Kit (Render deploy checklist, first-live validation, rollback steps) + `rc_check` usage docs.
+- Pack CD - Category sidebar filter/search (desktop sidebar + mobile offcanvas).
+- Pack CE - Release Runbook + Go-Live Kit (Render deploy checklist, first-live validation, rollback steps) + `rc_check` usage docs.
 
 **Completed**
-- Pack CG — RC sweep: seller + buyer end-to-end QA checklist, dead-end link audit, and polish pass.
-- Pack CH — Visual polish sweep (forms, steppers, surfaces) + sticky action row on seller listing form.
+- Pack CG - RC sweep: seller + buyer end-to-end QA checklist, dead-end link audit, and polish pass.
+- Pack CH - Visual polish sweep (forms, steppers, surfaces) + sticky action row on seller listing form.
 
 **Next**
-- Pack CI — Run `docs/RC_CHECKLIST.md` end-to-end (Test Mode) and fix any RC blockers (routes, permissions, webhooks, refunds).
+- Pack CI - Run `docs/RC_CHECKLIST.md` end-to-end (Test Mode) and fix any RC blockers (routes, permissions, webhooks, refunds).
 
 ---
 
-## 2026-02-17 — Pack CF — Seller listing mini-wizard + draft-save ✅
+## 2026-02-17 - Pack CF - Seller listing mini-wizard + draft-save ✅
 
 **Completed**
 - Seller listing form now uses a lightweight stepper UX:
@@ -224,11 +224,11 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 
 ---
 
-## Pack CA — Dashboard Settings Reliability Sweep ✅
+## Pack CA - Dashboard Settings Reliability Sweep ✅
 - Rebuilt SiteConfigForm to correctly save all settings from dashboard.
 - Added SiteConfig post_save cache invalidation.
 
-## 2026-02-17 — Pack BZ — RC gate command (rc_check) ✅
+## 2026-02-17 - Pack BZ - RC gate command (rc_check) ✅
 
 **Completed**
 - Added `python manage.py rc_check` to bundle:
@@ -237,11 +237,11 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - Intended as the single pre-deploy gate for local/dev/CI.
 
 **Next**
-- Pack CA — Release runbook + RC checklist (deploy, smoke, launch checks, rollback).
+- Pack CA - Release runbook + RC checklist (deploy, smoke, launch checks, rollback).
 
 ---
 
-## 2026-02-17 — Pack CA (hotfix) — Listing upload category filtering ✅
+## 2026-02-17 - Pack CA (hotfix) - Listing upload category filtering ✅
 
 **Completed**
 - Fixed catalog category APIs to support `GOOD|SERVICE` and return `results` for seller form dropdowns.
@@ -251,7 +251,7 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - Release runbook + RC checklist (deploy, smoke, launch checks, rollback).
 - “Go-live kit” docs polish: Render env var checklist + first-live validation steps.
 
-## 2026-02-16 — Pack BT — Empty-state standardization sweep ✅
+## 2026-02-16 - Pack BT - Empty-state standardization sweep ✅
 
 **Completed**
 - Standardized empty states to use `templates/partials/empty_state.html` across:
@@ -266,30 +266,30 @@ Use this section as the active shortlist. Historical pack logs below remain unch
   - Category list
 
 **Next**
-- Pack BU — RC end-to-end Money Loop verification (checkout → webhook → ledger → payouts) + fixes.
+- Pack BU - RC end-to-end Money Loop verification (checkout → webhook → ledger → payouts) + fixes.
 
 
-## 2026-02-16 — Pack BF — Crawl protection (robots + noindex middleware) ✅
+## 2026-02-16 - Pack BF - Crawl protection (robots + noindex middleware) ✅
 
 **Completed**
 - `robots.txt` now disallows `/admin/`, `/ops/`, `/staff/`, `/dashboard/`, and `/accounts/`.
 - Added `RobotsNoIndexMiddleware` to emit `X-Robots-Tag: noindex, nofollow` on HTML responses under those private paths.
 
 **Next**
-- Pack BG — End-to-end smoke test command (URLs + templates) + final RC bugfixes.
+- Pack BG - End-to-end smoke test command (URLs + templates) + final RC bugfixes.
 
 
-## 2026-02-16 — Pack BG — End-to-end smoke test command (URLs + templates) ✅
+## 2026-02-16 - Pack BG - End-to-end smoke test command (URLs + templates) ✅
 
 **Completed**
 - Added `python manage.py smoke_check` to validate critical named routes reverse correctly and key templates compile.
 - Command is lightweight and intended to catch dead-end regressions quickly during RC hardening.
 
 **Next**
-- Pack BH — RC smoke check improvements (system checks + DB ping).
+- Pack BH - RC smoke check improvements (system checks + DB ping).
 
 
-## 2026-02-16 — Pack BH — RC smoke check improvements (system checks + DB ping) ✅
+## 2026-02-16 - Pack BH - RC smoke check improvements (system checks + DB ping) ✅
 
 **Completed**
 - Enhanced `python manage.py smoke_check` with optional flags:
@@ -298,10 +298,10 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - Output now reports enabled extras when not in `--quiet` mode.
 
 **Next**
-- Pack BI — Public health endpoint + smoke check wiring.
+- Pack BI - Public health endpoint + smoke check wiring.
 
 
-## 2026-02-16 — Pack BI — Public health endpoint + smoke check wiring ✅
+## 2026-02-16 - Pack BI - Public health endpoint + smoke check wiring ✅
 
 **Completed**
 - Added `GET /healthz/` public endpoint returning lightweight JSON for hosting providers/uplink checks.
@@ -309,10 +309,10 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 
 **Next**
 
-- Pack BJ — Ops Health page (HTML + JSON) ✅
+- Pack BJ - Ops Health page (HTML + JSON) ✅
 
 
-## 2026-02-16 — Pack BJ — Ops Health page (HTML + JSON) ✅
+## 2026-02-16 - Pack BJ - Ops Health page (HTML + JSON) ✅
 
 **Completed**
 - Ops Health (`/ops/health/`) now renders a human-friendly Ops Console page by default.
@@ -320,12 +320,12 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - Ops Health links to the public `/healthz/` endpoint and Launch Check.
 
 **Next**
-- Pack BK — Seller onboarding policy + managed GA/AdSense + remove buyer age gate.
+- Pack BK - Seller onboarding policy + managed GA/AdSense + remove buyer age gate.
 
 
 
 
-## 2026-02-16 — Pack BK — Seller onboarding policy + managed GA/AdSense + remove buyer age gate ✅
+## 2026-02-16 - Pack BK - Seller onboarding policy + managed GA/AdSense + remove buyer age gate ✅
 
 **Completed**
 - Enforced seller-only 18+ confirmation at Stripe onboarding start (buyers are not gated).
@@ -334,18 +334,18 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - Exposed GA/AdSense + seller onboarding policy fields in the Admin Settings dashboard form.
 
 **Next**
-- Pack BL — V1 UX/CSS polish sweep + final seller onboarding copy + dead-end audit (TBD).
-## 2026-02-16 — Pack BE — Final pre-deploy sweep: settings sanity + small UI copy fixes ✅
+- Pack BL - V1 UX/CSS polish sweep + final seller onboarding copy + dead-end audit (TBD).
+## 2026-02-16 - Pack BE - Final pre-deploy sweep: settings sanity + small UI copy fixes ✅
 
 **Completed**
 - Launch Check now validates production security posture (SSL redirect, secure cookies, proxy SSL header) and warns on dev cookie-domain misconfigurations.
 - Ops Launch Check copy updated to clarify dev vs prod expectations.
 
 **Next**
-- Pack BF — TBD (final UX polish + any remaining bugfixes).
+- Pack BF - TBD (final UX polish + any remaining bugfixes).
 
 
-## 2026-02-16 — Pack BD — Reconciliation export polish + final ops wording pass ✅
+## 2026-02-16 - Pack BD - Reconciliation export polish + final ops wording pass ✅
 
 **Completed**
 - Added CSV export support for Ops Reconciliation:
@@ -354,7 +354,7 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - Added **Export CSV** buttons to both reconciliation pages.
 - Export is capped to 5,000 rows defensively to avoid pathological downloads.
 
-# 2026-02-16 — Pack AZ — Order detail cleanup + template integrity pass ✅
+# 2026-02-16 - Pack AZ - Order detail cleanup + template integrity pass ✅
 
 **Completed**
 - Added a **template compilation test** (`core/tests.py`) that compiles key templates to catch `TemplateSyntaxError` early.
@@ -362,10 +362,10 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - Hotfix: fixed seller dashboard crash caused by annotating `line_total_cents` (annotation name conflicted with model field). Seller dashboard now uses the stored `OrderItem.line_total_cents` field directly.
 
 **Next**
-- Pack BA — Release candidate stabilization: smoke test checklist + runbook tighten-up + fix any remaining template/view dead-ends.
+- Pack BA - Release candidate stabilization: smoke test checklist + runbook tighten-up + fix any remaining template/view dead-ends.
 
 
-## 2026-02-16 — Pack AY — Buyer delivery confirmation + timeline polish ✅
+## 2026-02-16 - Pack AY - Buyer delivery confirmation + timeline polish ✅
 
 **Completed**
 - Buyer can confirm **pickup/delivery** items after seller marks them **READY**.
@@ -375,10 +375,10 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - Added safe throttling for buyer confirmation + off-platform “sent” marking.
 
 **Next**
-- Pack AZ — Order detail cleanup + template integrity pass (remove stray tags, tighten sections, add tests).
+- Pack AZ - Order detail cleanup + template integrity pass (remove stray tags, tighten sections, add tests).
 
 
-## 2026-02-16 — Pack AX — Seller fulfillment queue polish (open tasks panel + quick actions + consistency audit) ✅
+## 2026-02-16 - Pack AX - Seller fulfillment queue polish (open tasks panel + quick actions + consistency audit) ✅
 
 **Completed**
 - Fulfillment queue supports quick-action state transitions (pickup/delivery/shipping).
@@ -386,10 +386,10 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - Seller dashboard “open tasks” preview fixed to follow task-per-order-item model.
 
 **Next**
-- Pack AY — Buyer delivery confirmation + timeline polish (shipping/delivery UX consistency).
+- Pack AY - Buyer delivery confirmation + timeline polish (shipping/delivery UX consistency).
 
 
-## 2026-02-16 — Pack AW — Ops dashboards: quick “Money Loop” KPI tiles (paid orders, fees, net, refunds) ✅
+## 2026-02-16 - Pack AW - Ops dashboards: quick “Money Loop” KPI tiles (paid orders, fees, net, refunds) ✅
 
 **Completed**
 - Ops Dashboard now includes Money Loop KPI tiles for the last 7 days:
@@ -400,11 +400,11 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - Added a small explanation note in the UI to clarify data sources.
 
 **Next**
-- Pack AX — Seller fulfillment queue polish (open tasks panel + quick actions + consistency audit).
+- Pack AX - Seller fulfillment queue polish (open tasks panel + quick actions + consistency audit).
 
 
 
-## 2026-02-16 — Pack AV — Service search improvements (state/radius filters + query persistence) ✅
+## 2026-02-16 - Pack AV - Service search improvements (state/radius filters + query persistence) ✅
 
 **Completed**
 - Added State + Radius filters to Services browse (`/products/services/`).
@@ -414,11 +414,11 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - Fixed canonical/og:url template crash by avoiding arg method calls in templates.
 
 **Next**
-- Pack AX — Seller fulfillment queue polish (open tasks panel + quick actions + consistency audit).
+- Pack AX - Seller fulfillment queue polish (open tasks panel + quick actions + consistency audit).
 
 
 
-## 2026-02-16 — Pack AU — Seller storefront profile + public location ✅
+## 2026-02-16 - Pack AU - Seller storefront profile + public location ✅
 
 **Completed**
 - Added approximate public seller location fields on Profile: `public_city`, `public_state`.
@@ -427,11 +427,11 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - Seller storefront and Top Sellers now display shop name (fallback username) and public location/radius when set.
 
 **Next**
-- Pack AW — Ops dashboards: quick “Money Loop” KPI tiles (paid orders, fees, net, refunds).
+- Pack AW - Ops dashboards: quick “Money Loop” KPI tiles (paid orders, fees, net, refunds).
 
 
 
-## 2026-02-16 — Pack AS — SEO polish (meta/OG/canonical) + footer copy ✅
+## 2026-02-16 - Pack AS - SEO polish (meta/OG/canonical) + footer copy ✅
 
 **Completed**
 - Canonical URLs now exclude querystrings (uses `request.path`).
@@ -441,10 +441,10 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - Tightened footer marketing copy and removed duplicate policy links from Support column.
 
 **Next**
-- Pack AT — Browse filters UX (collapsible subcategories + More + mobile filter drawer).
+- Pack AT - Browse filters UX (collapsible subcategories + More + mobile filter drawer).
 
 
-## 2026-02-16 — Pack AR — References pages polish + sitemap/nav consistency ✅
+## 2026-02-16 - Pack AR - References pages polish + sitemap/nav consistency ✅
 
 **Completed**
 - Polished reference pages (About / Help / FAQs / Tips) with consistent headers, CTAs, and cross-links.
@@ -455,8 +455,8 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - Confirmed sitemap already includes all reference page URLs.
 
 **Next**
-- Pack AS — SEO polish (meta descriptions/OG tags + canonical URLs) and tighten footer copy.
-# Local Market NE — ROADMAP
+- Pack AS - SEO polish (meta descriptions/OG tags + canonical URLs) and tighten footer copy.
+# Local Market NE - ROADMAP
 
 Last updated: 2026-02-16 (America/New_York)
 
@@ -470,7 +470,7 @@ phase is always explicit.
 
 ---
 
-## 2026-02-16 — Pack BL — V1 UX/CSS polish sweep + seller onboarding copy + sidebar JS cleanup ✅
+## 2026-02-16 - Pack BL - V1 UX/CSS polish sweep + seller onboarding copy + sidebar JS cleanup ✅
 
 **Completed**
 - Browse pages: added sticky search/filter bar with a one-click **Clear** action (Products + Services).
@@ -478,10 +478,10 @@ phase is always explicit.
 - Sidebar scripts: removed legacy HC3 sidebar JS includes and de-duplicated category filtering + “More/Less” persistence (now handled in `partials/sidebar_store.html`).
 
 **Next**
-- Pack BM — V1 visual polish pass (dashboards + tables) + micro-interactions (loading states / toasts).
+- Pack BM - V1 visual polish pass (dashboards + tables) + micro-interactions (loading states / toasts).
 
 
-## 2026-02-16 — Pack BM — V1 micro-interactions + table/dash polish baseline ✅
+## 2026-02-16 - Pack BM - V1 micro-interactions + table/dash polish baseline ✅
 
 **Completed**
 - Added global UI helper JS (`static/js/ui.js`):
@@ -493,7 +493,7 @@ phase is always explicit.
   - `.lm-card` helper for consistent card borders/shadows.
 
 **Next**
-- Pack BN — Apply `.lm-table`/`.lm-card` consistently across dashboards + ops tables (template sweep), plus any remaining dead-end audit fixes.
+- Pack BN - Apply `.lm-table`/`.lm-card` consistently across dashboards + ops tables (template sweep), plus any remaining dead-end audit fixes.
 
 
 
@@ -502,12 +502,12 @@ phase is always explicit.
 
 ## Recently completed (2026-02-14)
 
-### Pack X — Launch hardening: reCAPTCHA v3 on public write actions
+### Pack X - Launch hardening: reCAPTCHA v3 on public write actions
 ✅ Added global reCAPTCHA v3 helper (`static/js/recaptcha_v3.js`) wired from `templates/base.html`.
 ✅ Enforced server-side reCAPTCHA on POST for: register, reviews (create/seller/reply), product Q&A (thread/reply/report).
 ✅ Updated templates to include token fields and `data-recaptcha-action` attributes.
 
-### Pack V — Legal acceptance wiring
+### Pack V - Legal acceptance wiring
 ✅ Seller onboarding now requires explicit **Seller Agreement** acceptance before starting Stripe Connect.
 ✅ Checkout now records acceptance of base legal docs (Terms/Privacy/Refund/Content) at purchase time.
 ✅ Service checkouts additionally record acceptance of the **Services & Appointments Policy** when a cart contains services.
@@ -520,7 +520,7 @@ phase is always explicit.
 
 ## Recently completed (2026-02-15)
 
-### Pack AJ — Observability: error event capture + ops triage
+### Pack AJ - Observability: error event capture + ops triage
 ✅ Added DB-backed `ops.ErrorEvent` model to capture unhandled server exceptions (no external service required).
 ✅ Added `core.middleware.ExceptionCaptureMiddleware` to store request id, path, user, message, and compact traceback.
 ✅ Ops Console: **Error Events** list + detail + resolve with required notes and audit log entry.
@@ -572,7 +572,7 @@ phase is always explicit.
 
 ---
 
-## Phase 1 — Storefront credibility (DONE)
+## Phase 1 - Storefront credibility (DONE)
 ✅ Add-to-cart buttons on home cards with Stripe readiness gating (`p.can_buy`)
 ✅ Trending computation on home (manual override + computed fill)
 ✅ Trending score includes purchases + reviews + engagement events
@@ -580,24 +580,24 @@ phase is always explicit.
 ✅ Browse sort controls (New / Trending / Top Rated)
 ✅ Top Rated threshold with fallback + warning banner
 
-## Phase 2 — Engagement signals v1 (DONE)
+## Phase 2 - Engagement signals v1 (DONE)
 ✅ `ProductEngagementEvent` (VIEW, ADD_TO_CART, CLICK)
 ✅ Throttled VIEW logging on product detail
 ✅ Best-effort ADD_TO_CART logging on cart add
 
-## Phase 3 — Badge membership rules (DONE)
+## Phase 3 - Badge membership rules (DONE)
 - [x] Ensure browse “🔥 Trending” badge applies only to a meaningful subset:
   - badge if in computed Top N AND `trending_score > 0` (with manual override)
 - [x] Keep badge rule consistent between home + browse
 
-## Phase 4 — Seller analytics (DONE)
+## Phase 4 - Seller analytics (DONE)
 - [x] Seller analytics summary page:
   - views / clicks / add-to-cart
   - net units sold
   - orders (unique / total)
 - [x] Time-window filters (7/30/90 days)
 
-## Phase 5 — Messaging & moderation polish (DONE)
+## Phase 5 - Messaging & moderation polish (DONE)
 - [x] Staff moderation queue for reported Q&A messages
   - reports filter (open/resolved/all)
   - actions: resolve / remove message / suspend user
@@ -607,7 +607,7 @@ phase is always explicit.
   - per-message open-report count badges
 - [x] Suspensions review + unsuspend action
 
-## Phase 6 — Launch hardening
+## Phase 6 - Launch hardening
 - [ ] Rate limiting / abuse controls review
 - [ ] Observability and error reporting
 - [ ] Backups and performance tuning
@@ -626,7 +626,7 @@ phase is always explicit.
 - Expand Admin Ops with: failed emails panel, payout/backlog summary, webhook latency histogram.
 - Add staff tooling for manual reprocessing of a Stripe event **only** via a guarded, audited workflow (v2).
 
-## 2026-02-10 — Launch hardening: analytics migration
+## 2026-02-10 - Launch hardening: analytics migration
 - Confirm Render environment variables: `GOOGLE_MEASUREMENT_ID` (required) and optional GA4 Data API vars (`GOOGLE_ANALYTICS_PROPERTY_ID`, `GOOGLE_ANALYTICS_CREDENTIALS_JSON` or `GOOGLE_ANALYTICS_CREDENTIALS_FILE`).
 - Verify GA events are firing on production and real-time reports populate.
 - Remove Plausible-specific UI remnants once GA is confirmed stable (optional cleanup).
@@ -668,7 +668,7 @@ phase is always explicit.
 - [ ] Add admin UI shortcut to publish/clone legal docs and preview rendering
 
 
-## 2026-02-10 — Next steps
+## 2026-02-10 - Next steps
 - Add seller fulfillment queue filters (Pending only toggle, search by order/product).
 - Add notifications UI badge counts for open fulfillment tasks (optional).
 - Add order fulfillment SLA reminders (optional scheduled email) and export packing slips (PDF).
@@ -676,7 +676,7 @@ phase is always explicit.
 - [x] Free service listings cap enforcement (email verification + Stripe onboarding beyond cap) (2026-02-10)
 - [x] SiteConfig admin settings parity (Dashboard Admin Settings ↔ Django admin) (2026-02-10)
 
-## Next — Seller Fulfillment UX polish
+## Next - Seller Fulfillment UX polish
 - Add bulk actions (mark all shipped / exported packing slip).
 - Add buyer messaging from order detail.
 - Add optional carrier presets and printable label links.
@@ -714,14 +714,14 @@ phase is always explicit.
 - Completed: Deposit UX polish and cleanup sweep of download remnants.
 - Next: Buyer notifications for off-platform status changes; service completion lifecycle polish; delivery radius (ZIP-only) edge cases.
 
-## Pack P (re-applied) — Fulfillment tasks + tracking cleanup (2026-02-13)
+## Pack P (re-applied) - Fulfillment tasks + tracking cleanup (2026-02-13)
 - ✅ Fulfillment tasks (`SellerFulfillmentTask`) created on PAID orders with goods.
 - ✅ Seller dashboard surfaces open tasks + links to fulfillment queue.
 - ✅ Shipping tracking uses `tracking_carrier` + `tracking_number`; legacy `carrier` removed via migration.
-- Next: Pack Q — inventory/lead-time enforcement and improved delivery radius validation.
+- Next: Pack Q - inventory/lead-time enforcement and improved delivery radius validation.
 
 
-### Pack S (Re-applied 2026-02-13) — Service Appointments: lifecycle + deposit webhook hookup
+### Pack S (Re-applied 2026-02-13) - Service Appointments: lifecycle + deposit webhook hookup
 **Completed**
 - Fixed broken AppointmentRequest model property/indentation issues.
 - Implemented appointment status lifecycle and timestamps.
@@ -734,13 +734,13 @@ phase is always explicit.
 **Next**
 - Pack U: Service booking buyer confirmation + calendar export (ICS) + reminder notifications.
 
-### Pack T (2026-02-13) — Rescheduling UI + appointment lifecycle notifications
+### Pack T (2026-02-13) - Rescheduling UI + appointment lifecycle notifications
 **Completed**
 - Added seller rescheduling UI for appointments.
 - Added email + in-app notifications for appointment lifecycle events.
 - Wired deposit-paid webhook to notify buyer and seller and confirm auto-scheduling.
 
-## Pack W — Ops Console (Completed)
+## Pack W - Ops Console (Completed)
 - [x] Add `ops` app + `/ops/` routes and ops_required gate
 - [x] Ops dashboard KPI tiles + operational queues
 - [x] Orders console (list/detail) and sellers console (list/detail)
@@ -748,13 +748,13 @@ phase is always explicit.
 - [x] Refund requests queue
 - [x] AuditLog model + Admin + viewer
 
-## Next: Pack X — Financial Reconciliation + Overrides
+## Next: Pack X - Financial Reconciliation + Overrides
 - [ ] Stripe reconciliation drill-down per order (charge/session/transfer IDs)
 - [ ] Ops override actions (force state transitions) with strict invariants + audit
 - [ ] Seller risk controls (freeze seller, freeze payouts, internal notes)
 
 
-### Pack W.1 — Real-store ops accounts (Admin + Ops)
+### Pack W.1 - Real-store ops accounts (Admin + Ops)
 ✅ Added `/staff/` Admin Console and `staff_admin` group for day-to-day work.
 ✅ Kept `/ops/` Ops Console for elevated support.
 ✅ Added bootstrap command for creating/updating both accounts via env.
@@ -765,22 +765,22 @@ phase is always explicit.
 - Expand Ops: financial reconciliation view per order (Stripe IDs, transfer states) and seller freeze/payout holds.
 
 
-## 2026-02-14 — Stability Fix: orders imports/event enums
+## 2026-02-14 - Stability Fix: orders imports/event enums
 - Completed: repair missing email helper imports and event enum mismatch to prevent runtime errors.
 - Next: continue roadmap from current pack sequence (Admin/Ops console hardening, moderation queues, analytics).
 
 
-### 2026-02-14 — Hotfix
+### 2026-02-14 - Hotfix
 - Admin Console Q&A Reports queue fixed to reference `ProductQuestionReport` and correct resolve field updates.
 
 
-## Pack Y — Policy & Safety (Complete) (2026-02-14)
+## Pack Y - Policy & Safety (Complete) (2026-02-14)
 - ✅ Category policy flags (prohibited, 18+)
 - ✅ Registration age confirmation
 - ✅ Checkout age enforcement (auth + guest)
 - ✅ Product listing validation blocks prohibited categories
 
-## Pack Z — Prohibited Items Enforcement + Staff Listing Moderation (Complete) (2026-02-14)
+## Pack Z - Prohibited Items Enforcement + Staff Listing Moderation (Complete) (2026-02-14)
 - ✅ Block prohibited categories at cart + order creation + checkout start
 - ✅ Seed prohibited categories (Weapons, Alcohol)
 - ✅ Product detail + listing cards show Prohibited/18+ badges
@@ -788,17 +788,17 @@ phase is always explicit.
 
 ## Launch Readiness Packs (Post-Z)
 
-### Pack AA — Smoke Test Hardening (2026-02-15) ✅
+### Pack AA - Smoke Test Hardening (2026-02-15) ✅
 - Email verification resend alias endpoint
 - Ops health surface
 - Public health/version endpoints
 
-### Pack AB — Monitoring + Audit Completeness (2026-02-15) ✅
+### Pack AB - Monitoring + Audit Completeness (2026-02-15) ✅
 - Fixed Admin Console listing policy audit call + required reason
 - Ops audit log: filtering (q/action/verb/actor/date range) and CSV export
 - Improved audit log UI with filter bar and export link
 
-### Next: Pack AC — Backups + Recovery Runbook ✅
+### Next: Pack AC - Backups + Recovery Runbook ✅
 - Document DB backup/restore steps (Render/managed PG)
 - Document media storage backup strategy (S3 lifecycle/versioning)
 - Add ops runbook page in Ops Console (links + checklists)
@@ -808,26 +808,26 @@ phase is always explicit.
 
 
 ### Next packs (post-AC)
-- Pack AD — Performance + Abuse Controls (rate limits, query optimizations, caching of heavy aggregates).
-- Pack AF — Financial Reconciliation (mismatch detector, stripe IDs visibility, transfer status).
-- Pack AG — Full User Manual PDF + Ops Runbook PDF (end-to-end instructions + role matrix).
+- Pack AD - Performance + Abuse Controls (rate limits, query optimizations, caching of heavy aggregates).
+- Pack AF - Financial Reconciliation (mismatch detector, stripe IDs visibility, transfer status).
+- Pack AG - Full User Manual PDF + Ops Runbook PDF (end-to-end instructions + role matrix).
 
-### Pack AD — Performance + Abuse Controls (2026-02-15) ✅
+### Pack AD - Performance + Abuse Controls (2026-02-15) ✅
 - ✅ Added pagination + input clamping to public browse/storefront pages.
 - ✅ Added short-lived anonymous page caching (60s) for heavy browse surfaces.
 - ✅ Updated templates with pagination UI and storefront filters.
 
-### Next: Pack AE — Search + Discovery Polish
+### Next: Pack AE - Search + Discovery Polish
 - [ ] Add unified search bar behavior across home/products/services/storefront.
 - [ ] Add sort controls (new/top/trending/nearest) with safe allowlist.
 - [ ] Add distance/radius filtering for storefront discovery (zip-based) per LocalMarketNE spec.
 
-### Next: Pack AF — Financial Reconciliation
+### Next: Pack AF - Financial Reconciliation
 - [ ] Ops reconciliation per order: charge/session/transfer IDs + mismatch detector.
 - [ ] Ops risk controls: freeze seller / freeze payouts with audit.
 
 
-## Pack AE — Store Ops Controls — 2026-02-15
+## Pack AE - Store Ops Controls - 2026-02-15
 **Completed**
 - Ops-grade maintenance mode + announcement controls via SiteConfig.
 - Public maintenance page + middleware gating.
@@ -850,20 +850,20 @@ phase is always explicit.
 
 ## Next packs after AH
 
-### Pack AI — End-to-end checkout + payout verification
+### Pack AI - End-to-end checkout + payout verification
 - Add a documented smoke-test runbook (dev + prod): cart → checkout → webhook → transfers → seller fulfillment.
 - Add a minimal management command to reconcile: order totals vs Stripe session vs transfers.
 - Add admin links: Order admin → StripeWebhookEvent list filtered by `stripe_session_id`.
 
-### Pack AJ — Seller storefront polish & discovery
+### Pack AJ - Seller storefront polish & discovery
 - Storefront filtering refinements (in-store category filters, seller distance display, service radius UX).
 - Public storefront about/info blocks + location display (non-exact).
 
-### Pack AK — Ops console hardening
+### Pack AK - Ops console hardening
 - Operational dashboards: failed webhooks, unpaid awaiting-payment orders, payout exceptions.
 - Staff-only tools to reprocess webhook events and re-attempt transfers (idempotent).
 
-## 2026-02-15 — Pack AI — Launch Check (Ops + CLI)
+## 2026-02-15 - Pack AI - Launch Check (Ops + CLI)
 
 **Completed**
 - Added `/ops/launch-check/` with a conservative “go-live” checklist.
@@ -874,7 +874,7 @@ phase is always explicit.
 - Pack AJ: Seller storefront polish & discovery improvements (store about/location blocks, in-store filters, better seller cards).
 
 
-## 2026-02-16 — Pack AK — Funnel Metrics (Native Analytics) ✅
+## 2026-02-16 - Pack AK - Funnel Metrics (Native Analytics) ✅
 
 **Completed**
 - Native funnel event types added to `AnalyticsEvent`: `ADD_TO_CART`, `CHECKOUT_STARTED`, `ORDER_PAID`.
@@ -883,11 +883,11 @@ phase is always explicit.
 - Ops nav updated with **Funnel** link.
 
 **Next**
-- Pack AL — Ops Console hardening (webhook reprocess tools, transfer retry tooling) + investigation aids.
-- Pack AM — Funnel enhancements: unique-session funnel, % formatting, environment/host breakouts.
+- Pack AL - Ops Console hardening (webhook reprocess tools, transfer retry tooling) + investigation aids.
+- Pack AM - Funnel enhancements: unique-session funnel, % formatting, environment/host breakouts.
 
 
-## 2026-02-16 — Pack AL — Ops Console hardening (Webhooks + Transfer Retry) ✅
+## 2026-02-16 - Pack AL - Ops Console hardening (Webhooks + Transfer Retry) ✅
 
 **Completed**
 - Ops Console Webhooks page: `/ops/webhooks/` with investigation filters (status, type, session_id, order_id, days).
@@ -897,10 +897,10 @@ phase is always explicit.
 - Ops nav updated with **Webhooks** link; Order detail shows quick link to filtered webhooks by Stripe session id.
 
 **Next**
-- Pack AN — Seller payout reconciliation UI (per seller: pending payouts, transfer history, mismatch flags).
+- Pack AN - Seller payout reconciliation UI (per seller: pending payouts, transfer history, mismatch flags).
 
 
-## 2026-02-16 — Pack AM — Funnel enhancements (Unique sessions + % formatting + Host/Env breakouts) ✅
+## 2026-02-16 - Pack AM - Funnel enhancements (Unique sessions + % formatting + Host/Env breakouts) ✅
 
 **Completed**
 - Enhanced `/ops/funnel/` to include a **unique-session** funnel based on `AnalyticsEvent.session_id` (first-party session cookie).
@@ -908,10 +908,10 @@ phase is always explicit.
 - Added **host + environment breakouts** (unique sessions) to debug environment drift and gaps quickly.
 
 **Next**
-- Pack AN — Seller payout reconciliation UI (per seller: pending payouts, transfer history, mismatch flags).
+- Pack AN - Seller payout reconciliation UI (per seller: pending payouts, transfer history, mismatch flags).
 
 
-## 2026-02-16 — Pack AN — Seller payout reconciliation UI ✅
+## 2026-02-16 - Pack AN - Seller payout reconciliation UI ✅
 
 **Completed**
 - Added structured metadata to `orders.OrderEvent` (`meta` JSONField) to enable seller-scoped payout reconciliation.
@@ -926,10 +926,10 @@ phase is always explicit.
   - Mismatch flags + recent ledger entries
 
 **Next**
-- Pack AO — Ops “Failed Emails” panel + resend tooling (visibility into email delivery problems).
+- Pack AO - Ops “Failed Emails” panel + resend tooling (visibility into email delivery problems).
 
 
-## 2026-02-16 — Pack AO — Ops “Failed Emails” panel + resend tooling ✅
+## 2026-02-16 - Pack AO - Ops “Failed Emails” panel + resend tooling ✅
 
 **Completed**
 - Added `notifications.EmailDeliveryAttempt` to track outbound email send attempts linked to `Notification`.
@@ -939,10 +939,10 @@ phase is always explicit.
 - Added Ops action: **Resend email** (POST) which uses stored rendered email bodies and records a new attempt.
 
 **Next**
-- Pack AP — Refund accounting hardening + transfer reversal controls (fees are non-refundable; seller-triggered refunds).
+- Pack AP - Refund accounting hardening + transfer reversal controls (fees are non-refundable; seller-triggered refunds).
 
 
-## 2026-02-16 — Pack AP — Refund accounting hardening + transfer reversal controls ✅
+## 2026-02-16 - Pack AP - Refund accounting hardening + transfer reversal controls ✅
 
 **Completed**
 - Fixed refunds service/view contract mismatches to prevent runtime errors:
@@ -958,20 +958,20 @@ phase is always explicit.
 - Added migration `refunds.0002_refundrequest_transfer_reversal`.
 
 **Next**
-- Pack AQ — Throttle/rate-limit tuning for cart/checkout/refunds after observing real traffic.
+- Pack AQ - Throttle/rate-limit tuning for cart/checkout/refunds after observing real traffic.
 
 
-## 2026-02-16 — Hotfix — Services browse template crash ✅
+## 2026-02-16 - Hotfix - Services browse template crash ✅
 
 **Completed**
 - Fixed `/products/services/` crashing when `q`/`category` are absent by removing `request.GET.<key>` template lookups.
 - Standardized the services browse template to rely on view-provided context vars (`q`, `category`) for form values and pagination URLs.
 
 **Next**
-- Pack AQ — Throttle/rate-limit tuning for cart/checkout/refunds after observing real traffic.
+- Pack AQ - Throttle/rate-limit tuning for cart/checkout/refunds after observing real traffic.
 
 
-## 2026-02-16 — Pack AQ — Throttle/rate-limit tuning for cart/checkout/refunds ✅
+## 2026-02-16 - Pack AQ - Throttle/rate-limit tuning for cart/checkout/refunds ✅
 
 **Completed**
 - Tuned centralized throttle limits (cart/checkout/refunds) to be more conservative at launch.
@@ -980,10 +980,10 @@ phase is always explicit.
   - `order_set_fulfillment` is POST-only and uses its own throttle rule.
 
 **Next**
-- Pack AR — References pages polish (Help / FAQ / Tips) + sitemap/nav consistency.
+- Pack AR - References pages polish (Help / FAQ / Tips) + sitemap/nav consistency.
 
 
-## 2026-02-16 — Pack BA — Admin Ops webhook schema alignment + crash fix ✅
+## 2026-02-16 - Pack BA - Admin Ops webhook schema alignment + crash fix ✅
 
 **Completed**
 - Fixed `/dashboard/admin/ops/` crash caused by stale field names (`received_at` / `event_type` / `request_id`) that no longer exist on `orders.StripeWebhookDelivery`.
@@ -994,10 +994,10 @@ phase is always explicit.
 - Updated supporting docs to reflect the current schema and avoid reintroducing the mismatch.
 
 **Next**
-- Pack BB — Ops: webhook delivery drill-down links + "reprocess" button on admin ops error table.
+- Pack BB - Ops: webhook delivery drill-down links + "reprocess" button on admin ops error table.
 
 
-## 2026-02-16 — Pack BB — Admin Ops: webhook drill-down + reprocess from error table ✅
+## 2026-02-16 - Pack BB - Admin Ops: webhook drill-down + reprocess from error table ✅
 
 **Completed**
 - Admin Ops webhook error rows now link directly to the Ops Webhook Event detail page.
@@ -1005,28 +1005,28 @@ phase is always explicit.
 - Admin Ops webhook queryset now uses `select_related("webhook_event", "order")` to keep rendering efficient.
 
 **Next**
-- Pack BC — Release candidate sweep: dead-end audit on dashboards/ops links + tighten launch-check copy.
+- Pack BC - Release candidate sweep: dead-end audit on dashboards/ops links + tighten launch-check copy.
 
 
-## 2026-02-16 — Pack BC — Release candidate sweep: dead-end audit + launch-check copy tighten-up ✅
+## 2026-02-16 - Pack BC - Release candidate sweep: dead-end audit + launch-check copy tighten-up ✅
 
 **Completed**
 - Added a conservative "dead-end" guardrail to Launch Check: a URL wiring check that verifies core named routes resolve (dashboards + ops + storefront entry points).
 - Tightened Ops Launch Check copy and added prominent links to Ops Health + Ops Runbook.
 
 **Next**
-- Pack BD — Release candidate sweep: reconciliation/export polish + final wording pass (TBD).
+- Pack BD - Release candidate sweep: reconciliation/export polish + final wording pass (TBD).
 
-## 2026-02-16 — Pack BN — Apply `.lm-table`/`.lm-card` across ops + dashboards ✅
+## 2026-02-16 - Pack BN - Apply `.lm-table`/`.lm-card` across ops + dashboards ✅
 
 **Completed**
 - Wrapped Bootstrap tables (`class="table"`) in Ops, Staff Console, and Appointments templates with `<div class="lm-table">`.
 - Added `lm-card` helper class to Bootstrap cards for consistent borders/shadows.
 
 **Next**
-- Pack BO — Dead-end audit sweep (empty-states, missing links, permission/404 guardrails) + remaining UX paper-cuts.
+- Pack BO - Dead-end audit sweep (empty-states, missing links, permission/404 guardrails) + remaining UX paper-cuts.
 
-## 2026-02-16 — Pack BO — Dead-end audit sweep ✅
+## 2026-02-16 - Pack BO - Dead-end audit sweep ✅
 
 ### Done
 - Removed the last obvious “dead end” link in `coming_soon.html` by adding a real waitlist flow.
@@ -1034,26 +1034,26 @@ phase is always explicit.
 - Introduced a reusable empty-state partial and upgraded key user-facing empty states with CTAs.
 - Fixed `core/views.py` duplicate `healthz()` override.
 
-## 2026-02-16 — Pack BP — Waitlist hardening (throttle + email settings) ✅
+## 2026-02-16 - Pack BP - Waitlist hardening (throttle + email settings) ✅
 
 ### Done
 - Added SiteConfig-managed waitlist toggles and email templates (confirmation + admin notify).
 - Added `WAITLIST_SIGNUP` throttle rule and applied it to `/waitlist/`.
 - Waitlist page now renders a disabled state cleanly when turned off.
 
-## 2026-02-16 — Pack BQ — Smoke check fixes (legal namespace) ✅
+## 2026-02-16 - Pack BQ - Smoke check fixes (legal namespace) ✅
 
 ### Done
 - Updated the smoke-check critical routes to use the dedicated `legal:` namespace (`legal:privacy`, `legal:terms`) and added `legal:index`.
 
-## 2026-02-16 — Pack BR — Canonical reference routes ✅
+## 2026-02-16 - Pack BR - Canonical reference routes ✅
 
 ### Done
 - Promoted reference pages to canonical short routes: `/about/`, `/help/`, `/faqs/`, `/tips/`.
 - Kept legacy `/references/*` routes as permanent redirects (301) for backwards compatibility.
 - Updated sitemap to list the canonical routes.
 
-## 2026-02-16 — Pack BS — Empty states + Support pathway consistency ✅
+## 2026-02-16 - Pack BS - Empty states + Support pathway consistency ✅
 
 ### Done
 - Updated `templates/partials/empty_state.html` to support primary/secondary CTAs and optional Support links.
@@ -1075,11 +1075,11 @@ phase is always explicit.
 
 
 ### Hotfixes
-- 2026-02-17: Admin dashboard crash fix — `ProductEngagementEvent.Kind` + `kind` field.
+- 2026-02-17: Admin dashboard crash fix - `ProductEngagementEvent.Kind` + `kind` field.
 
 - Pack CA (Sweep): Fixed Orders admin aggregation + appointment deposit order legacy field usage (snapshot-safe).
 
-## 2026-02-17 — Pack CB — Seller onboarding checklist ✅
+## 2026-02-17 - Pack CB - Seller onboarding checklist ✅
 
 ### Done
 - Added seller onboarding checklist (until complete) to Seller Dashboard and Seller Listings.
@@ -1089,11 +1089,11 @@ phase is always explicit.
 - Pack CA (Release): Finish release runbook + RC checklist (deploy, rc_check, rollback).
 - Pack CC: Listing creation UX (3-step wizard) + consumer browse polish (sticky filters, fulfillment badges).
 
-### ✅ Pack CJ — RC URL reverse audit
+### ✅ Pack CJ - RC URL reverse audit
 - Add `url_reverse_audit` command and include it in `rc_check`.
 - Goal: prevent runtime NoReverseMatch due to stale template route names.
 
-## 2026-02-20 — Pack CX — Environment banner + Stripe test-mode safety ✅
+## 2026-02-20 - Pack CX - Environment banner + Stripe test-mode safety ✅
 
 **Completed**
 - Added SiteConfig environment banner controls (enable + text) managed via Dashboard → Admin Settings.

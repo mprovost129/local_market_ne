@@ -184,29 +184,35 @@ header.bg-body {
   --bs-btn-bg: var(--lm-secondary);
   --bs-btn-border-color: var(--lm-secondary);
   --bs-btn-hover-color: #fff;
-  --bs-btn-hover-bg: var(--lm-secondary-700);
+  --bs-btn-hover-bg: var(--lm-secondary-500);
   --bs-btn-hover-border-color: var(--lm-secondary-700);
   --bs-btn-active-bg: #b94807;
-  --bs-btn-active-border-color: #b94807;
-  background-image: linear-gradient(135deg, var(--lm-secondary-300) 0%, var(--lm-secondary) 58%, var(--lm-secondary-700) 100%);
-  border-color: color-mix(in srgb, var(--lm-secondary-700) 70%, var(--lm-secondary));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 2px 8px rgba(243, 111, 33, 0.24);
+  --bs-btn-active-border-color: #9f4006;
+  background-image: linear-gradient(180deg, var(--lm-secondary) 0%, var(--lm-secondary-500) 100%);
+  border-color: color-mix(in srgb, var(--lm-secondary-700) 64%, var(--lm-secondary));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 2px 8px rgba(243, 111, 33, 0.2);
+  transition: background-image 180ms ease, box-shadow 180ms ease, border-color 180ms ease, filter 180ms ease;
 }
 
 .btn-secondary:hover,
 .btn-secondary:focus {
-  background-image: linear-gradient(135deg, #f8b181 0%, var(--lm-secondary-500) 52%, var(--lm-secondary-700) 100%);
+  background-image: linear-gradient(180deg, #ff8b45 0%, var(--lm-secondary) 100%);
+  border-color: var(--lm-secondary-700);
+  box-shadow: 0 0 0 0.14rem rgba(243, 111, 33, 0.2), 0 8px 18px rgba(243, 111, 33, 0.26);
+  filter: saturate(1.06);
 }
 
 .btn-secondary:active,
 .btn-secondary.active {
-  background-image: linear-gradient(135deg, var(--lm-secondary-500) 0%, #b94807 100%);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.24);
+  background-image: linear-gradient(180deg, #cd5a12 0%, #a74308 100%);
+  border-color: #9f4006;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.28);
+  filter: none;
 }
 
 .btn-secondary:disabled,
 .btn-secondary.disabled {
-  background-image: linear-gradient(135deg, #f3bf9a 0%, #d68b57 100%);
+  background-image: linear-gradient(180deg, #f3bf9a 0%, #d68b57 100%);
   box-shadow: none;
 }
 
@@ -233,25 +239,35 @@ header.bg-body {
 }
 
 .btn-outline-secondary {
-  --bs-btn-color: var(--lm-secondary);
+  --bs-btn-color: #fff;
   --bs-btn-border-color: var(--lm-secondary);
-  --bs-btn-hover-bg: var(--lm-secondary);
-  --bs-btn-hover-border-color: var(--lm-secondary);
+  --bs-btn-bg: var(--lm-secondary);
+  --bs-btn-hover-bg: var(--lm-secondary-500);
+  --bs-btn-hover-border-color: var(--lm-secondary-700);
   --bs-btn-hover-color: #fff;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #b94807;
+  --bs-btn-active-border-color: #9f4006;
+  background-image: linear-gradient(180deg, var(--lm-secondary) 0%, var(--lm-secondary-500) 100%);
+  border-color: color-mix(in srgb, var(--lm-secondary-700) 64%, var(--lm-secondary));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 2px 8px rgba(243, 111, 33, 0.2);
+  transition: background-image 180ms ease, box-shadow 180ms ease, border-color 180ms ease, filter 180ms ease;
 }
 
 .btn-outline-secondary:hover,
 .btn-outline-secondary:focus {
-  background-image: linear-gradient(135deg, var(--lm-secondary-300) 0%, var(--lm-secondary) 58%, var(--lm-secondary-700) 100%);
-  border-color: color-mix(in srgb, var(--lm-secondary-700) 70%, var(--lm-secondary));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 2px 8px rgba(243, 111, 33, 0.22);
+  background-image: linear-gradient(180deg, #ff8b45 0%, var(--lm-secondary) 100%);
+  border-color: var(--lm-secondary-700);
+  box-shadow: 0 0 0 0.14rem rgba(243, 111, 33, 0.2), 0 8px 18px rgba(243, 111, 33, 0.26);
+  filter: saturate(1.06);
 }
 
 .btn-outline-secondary:active,
 .btn-outline-secondary.active {
-  background-image: linear-gradient(135deg, var(--lm-secondary-500) 0%, #b94807 100%);
-  border-color: #b94807;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.24);
+  background-image: linear-gradient(180deg, #cd5a12 0%, #a74308 100%);
+  border-color: #9f4006;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.28);
+  filter: none;
 }
 
 .btn-dark {

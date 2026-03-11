@@ -75,7 +75,7 @@ def review_create_for_order_item(request, order_item_id: int):
             review.order_item = item
             review.buyer = request.user
             review.save()
-            messages.success(request, "Thanks — your review was posted.")
+            messages.success(request, "Thanks - your review was posted.")
             return redirect(item.product.get_absolute_url())
     else:
         form = ReviewForm()
@@ -112,7 +112,7 @@ def seller_review_create(request, order_id: int, seller_id: int):
             sr.seller_id = seller_id
             sr.buyer = request.user
             sr.save()
-            messages.success(request, "Thanks — your seller rating was posted.")
+            messages.success(request, "Thanks - your seller rating was posted.")
             return redirect("orders:detail", order_id=order.id)
     else:
         form = SellerReviewForm()

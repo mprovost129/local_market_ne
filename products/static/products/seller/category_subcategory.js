@@ -61,7 +61,7 @@
     const current = preserveCategoryId != null ? String(preserveCategoryId || "") : String(categoryEl.value || "");
 
     clearOptions(categoryEl, "Loading…");
-    clearOptions(subcategoryEl, "— Select a category first —");
+    clearOptions(subcategoryEl, "- Select a category first -");
 
     const rows = await fetchCategories(endpoint, kind);
     clearOptions(categoryEl, "---------");
@@ -90,7 +90,7 @@
     const current = subcategoryEl.value;
 
     if (!categoryId) {
-      clearOptions(subcategoryEl, "— Select a category first —");
+      clearOptions(subcategoryEl, "- Select a category first -");
       return;
     }
 

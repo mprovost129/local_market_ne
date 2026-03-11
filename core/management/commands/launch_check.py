@@ -25,7 +25,7 @@ class Command(BaseCommand):
         ok = payload["ok"]
         self.stdout.write(self.style.SUCCESS("Launch checks: OK") if ok else self.style.ERROR("Launch checks: FAIL"))
         for r in payload["results"]:
-            line = f"- {r['key']}: {'OK' if r['ok'] else 'FAIL'} — {r['message']}"
+            line = f"- {r['key']}: {'OK' if r['ok'] else 'FAIL'} - {r['message']}"
             self.stdout.write(self.style.SUCCESS(line) if r["ok"] else self.style.ERROR(line))
 
         if not ok:

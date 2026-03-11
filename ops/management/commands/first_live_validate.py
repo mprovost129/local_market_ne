@@ -116,7 +116,7 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.SUCCESS(f"OK   {r.name}: {r.status} {r.url}"))
             else:
                 failed += 1
-                detail = f" — {r.detail}" if r.detail else ""
+                detail = f" - {r.detail}" if r.detail else ""
                 status = r.status if r.status is not None else "ERR"
                 self.stderr.write(self.style.ERROR(f"FAIL {r.name}: {status} {r.url}{detail}"))
 

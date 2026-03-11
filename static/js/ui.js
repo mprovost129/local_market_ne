@@ -1,6 +1,6 @@
 /* static/js/ui.js
 
-LocalMarketNE — Pack BM
+LocalMarketNE - Pack BM
 
 Small, global UI helpers:
 - Prevent accidental double submits (disable submit buttons on form submit)

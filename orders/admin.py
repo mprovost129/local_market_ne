@@ -471,7 +471,7 @@ class OrderAdmin(admin.ModelAdmin):
     def buyer_display(self, obj: Order) -> str:
         if obj.buyer_id:
             return getattr(obj.buyer, "username", None) or getattr(obj.buyer, "email", "") or f"User<{obj.buyer_id}>"
-        return obj.guest_email or "—"
+        return obj.guest_email or "-"
 
     @admin.display(description="subtotal")
     def subtotal_money(self, obj: Order) -> str:
@@ -553,7 +553,7 @@ class OrderAdmin(admin.ModelAdmin):
             obj.items.select_related("seller").all()
         )
         if not items:
-            return "—"
+            return "-"
 
         # group by seller
         by_seller: dict[str, dict[str, Any]] = {}
@@ -831,7 +831,7 @@ class OrderItemAdmin(admin.ModelAdmin):
 
     @admin.display(description="paid at", ordering="order__paid_at")
     def order_paid_at(self, obj: OrderItem):
-        return obj.order.paid_at or "—"
+        return obj.order.paid_at or "-"
 
     @admin.display(description="unit price")
     def unit_price_money(self, obj: OrderItem) -> str:

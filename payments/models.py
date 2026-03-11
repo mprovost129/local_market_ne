@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import timedelta
+from decimal import Decimal
 
 from django.apps import apps
 from django.conf import settings
@@ -151,6 +152,113 @@ class SellerFeeWaiver(models.Model):
         starts = timezone.now()
         ends = starts + timedelta(days=waiver_days)
         return cls.objects.create(user=user, starts_at=starts, ends_at=ends)
+
+    def extend_by_days(self, *, days: int) -> None:
+        """
+        Extend waiver window by N days from current `ends_at`.
+        Never shortens the window.
+        """
+        d = max(0, int(days or 0))
+        if d <= 0:
+            return
+        self.ends_at = self.ends_at + timedelta(days=d)
+        self.save(update_fields=["ends_at", "updated_at"])
+
+
+class SellerFeePlan(models.Model):
+    """
+    Per-seller marketplace fee customization.
+
+    Precedence in fee calculation:
+      1) Active SellerFeePlan (this model)
+      2) Active SellerFeeWaiver (0%)
+      3) SiteConfig marketplace_sales_percent
+    """
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="fee_plan",
+    )
+
+    is_active = models.BooleanField(
+        default=True,
+        help_text="If disabled, this fee plan is ignored and default/waiver logic applies.",
+    )
+    starts_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Optional plan start. Leave blank for immediate effect.",
+    )
+    ends_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Optional plan end. Leave blank for no expiration.",
+    )
+
+    # If set, this exact percent is used (0 = fully comped, 10 = 10% platform fee)
+    custom_sales_percent = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="Optional fixed platform fee percent for this seller. Overrides discount when set.",
+    )
+
+    # Applied only when custom_sales_percent is empty.
+    discount_percent = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        default=0,
+        help_text="Percent discount off global platform fee (0-100). 100 = fully comped.",
+    )
+
+    notes = models.TextField(blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["is_active", "starts_at", "ends_at"]),
+        ]
+
+    def __str__(self) -> str:
+        return f"SellerFeePlan<{self.user_id}> active={self.is_active}"
+
+    @property
+    def is_currently_active(self) -> bool:
+        if not self.is_active:
+            return False
+        now = timezone.now()
+        if self.starts_at and now < self.starts_at:
+            return False
+        if self.ends_at and now >= self.ends_at:
+            return False
+        return True
+
+    def clean(self) -> None:
+        try:
+            if self.custom_sales_percent is not None:
+                pct = Decimal(self.custom_sales_percent)
+                if pct < 0:
+                    self.custom_sales_percent = Decimal("0.00")
+                elif pct > 100:
+                    self.custom_sales_percent = Decimal("100.00")
+        except Exception:
+            self.custom_sales_percent = Decimal("0.00")
+
+        try:
+            d = Decimal(self.discount_percent or Decimal("0.00"))
+            if d < 0:
+                self.discount_percent = Decimal("0.00")
+            elif d > 100:
+                self.discount_percent = Decimal("100.00")
+        except Exception:
+            self.discount_percent = Decimal("0.00")
+
+    def save(self, *args, **kwargs) -> None:
+        self.clean()
+        super().save(*args, **kwargs)
 
 
 class SellerBalanceEntry(models.Model):

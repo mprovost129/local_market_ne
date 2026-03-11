@@ -471,7 +471,7 @@ def waitlist_signup(request):
                     except Exception:
                         pass
         else:
-            messages.info(request, "You're already on the list — thanks!")
+            messages.info(request, "You're already on the list - thanks!")
 
         return redirect("core:waitlist")
 
@@ -590,9 +590,9 @@ def contact_page(request):
 
             # Best-effort email send to support
             if support_send_email and support_email:
-                subj = "Local Market NE — Contact form submission"
+                subj = "Local Market NE - Contact form submission"
                 if subject_line:
-                    subj = f"{subj} — {subject_line}"
+                    subj = f"{subj} - {subject_line}"
 
                 body = (
                     f"Name: {name or '(not provided)'}\n"
@@ -616,7 +616,7 @@ def contact_page(request):
             if support_admin_notify_enabled and admin_target:
                 try:
                     send_mail(
-                        "Local Market NE — New contact message",
+                        "Local Market NE - New contact message",
                         f"From: {email}\nSubject: {subject_line or '(not provided)'}\n\n{message_text}",
                         settings.DEFAULT_FROM_EMAIL,
                         [admin_target],

@@ -770,6 +770,7 @@ def admin_settings(request):
     if request.method == "POST":
         form = SiteConfigForm(request.POST, instance=cfg)
         if form.is_valid():
+            changed_field_names = list(form.changed_data or [])
             form.save()
 
             # Bust SiteConfig cache AND anonymous home HTML cache (banner/theme changes)
@@ -779,7 +780,20 @@ def admin_settings(request):
             with suppress(Exception):
                 cache.delete(HOME_ANON_CACHE_KEY)
 
-            messages.success(request, "Settings updated.")
+            if changed_field_names:
+                # Keep feedback concise for operators while confirming persistence.
+                labels: list[str] = []
+                for name in changed_field_names:
+                    field = form.fields.get(name)
+                    label = (getattr(field, "label", "") or name).strip()
+                    labels.append(label)
+                labels = [x for x in labels if x]
+                preview = ", ".join(labels[:8])
+                if len(labels) > 8:
+                    preview += f", +{len(labels) - 8} more"
+                messages.success(request, f"Settings updated. Saved fields: {preview}")
+            else:
+                messages.success(request, "No changes detected. Settings were already up to date.")
             return redirect("dashboards:admin_settings")
         else:
             messages.error(request, "Please fix the errors below and try again.")

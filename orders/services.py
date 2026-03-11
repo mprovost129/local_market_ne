@@ -128,7 +128,7 @@ def create_order_from_cart(
         if hasattr(seller, "is_active") and not seller.is_active:
             raise ValidationError("A seller in your cart is currently unavailable.")
 
-        # Policy enforcement (Pack Z) — block prohibited items
+        # Policy enforcement (Pack Z) - block prohibited items
         cat = getattr(product, "category", None)
         sub = getattr(product, "subcategory", None)
         if cat and getattr(cat, "is_prohibited", False):

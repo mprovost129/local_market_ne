@@ -49,7 +49,7 @@ class Command(BaseCommand):
             "components": {},
         }
 
-        # Core gate checks (settings + routes + db reachability) — already includes audits,
+        # Core gate checks (settings + routes + db reachability) - already includes audits,
         # but we keep explicit audits here to produce counts even when non-strict.
         report["components"]["stripe_config_check"] = self._run_json("stripe_config_check", quiet=True)
         report["components"]["rc_check"] = self._run_json("rc_check", json=True, checks=True, db=True, quiet=True)

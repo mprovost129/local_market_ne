@@ -1,4 +1,4 @@
-## 2026-02-18 — Pack CM — Consumer browse card enhancements ✅
+## 2026-02-18 - Pack CM - Consumer browse card enhancements ✅
 
 **Why**
 - Improve buyer decision-making at browse-time with clearer location and fulfillment signals.
@@ -15,7 +15,7 @@
 - Cards show seller city/state when provided in seller profile.
 
 
-## 2026-02-18 — Pack CL — RC checklist runner (rc_report)
+## 2026-02-18 - Pack CL - RC checklist runner (rc_report)
 
 **Why**
 - Provide a single command to summarize RC readiness and prevent last-minute surprises.
@@ -34,9 +34,9 @@
 - `python manage.py rc_report --strict` exits non-zero if any component fails.
 
 
-## 2026-02-18 — Pack CI: RC Hardening (Dead-end audit resilience)
+## 2026-02-18 - Pack CI: RC Hardening (Dead-end audit resilience)
 
-## 2026-02-18 — Pack CK — RC UI pass (tooltips + mobile navbar spacing) ✅
+## 2026-02-18 - Pack CK - RC UI pass (tooltips + mobile navbar spacing) ✅
 
 - Initialized Bootstrap tooltips globally (safe, optional) via `static/js/ui.js`.
 - Added lightweight first-run tip tooltips on Consumer Dashboard and Seller Dashboard headers.
@@ -55,12 +55,12 @@
 - Added `data-lm-ignore-deadend` to navbar dropdown toggles for strict dead-end audit compatibility.
 
 ### Acceptance checks
-- Visit `/products/seller/` with listings disabled — page renders, no dead-end audit noise.
+- Visit `/products/seller/` with listings disabled - page renders, no dead-end audit noise.
 - Any empty state using `action_route` or `secondary_route` will not raise `NoReverseMatch` if the route is missing.
 
 ---
 
-## 2026-02-17 — Pack CC: Seller Listing Form Kind Sections + Error Summary
+## 2026-02-17 - Pack CC: Seller Listing Form Kind Sections + Error Summary
 
 **Fix/Upgrade:** Seller listing create/edit form is now *kind-aware* (Product vs Service) and no longer shows irrelevant sections.
 
@@ -82,7 +82,7 @@
 - If validation fails, user is scrolled to error summary and field errors are listed.
 
 
-## 2026-02-17 — Pack CD: Category Sidebar Filter/Search
+## 2026-02-17 - Pack CD: Category Sidebar Filter/Search
 
 **Fix/Upgrade:** Added a quick category filter/search UI on browse pages (desktop sidebar + mobile offcanvas).
 
@@ -100,7 +100,7 @@
 - Category/subcategory links filter in-place while typing; clearing restores all.
 
 
-## 2026-02-17 — Pack CA Hotfix: Dashboard Settings Reliability Sweep
+## 2026-02-17 - Pack CA Hotfix: Dashboard Settings Reliability Sweep
 
 **Problem:** Dashboard Admin Settings changes (marketplace fee, promo/home banners, etc.) were not reliably persisting/reflecting, forcing edits in Django admin.
 
@@ -121,9 +121,9 @@
 
 ---
 
-# Local Market NE — MEMORY
+# Local Market NE - MEMORY
 
-## 2026-02-17 — Hotfix — Seller/Orders admin queue crashes (reverse + requires_shipping filters) ✅
+## 2026-02-17 - Hotfix - Seller/Orders admin queue crashes (reverse + requires_shipping filters) ✅
 
 - Fixed seller listings empty-state CTA:
   - Corrected route from `products:seller_product_create` → `products:seller_create`.
@@ -139,7 +139,7 @@ Acceptance checks:
 - Seller orders page loads at `/orders/seller/orders/` and shows physical items (pickup/delivery/shipping) excluding services/tips.
 - Admin orders list filter “Has shippable items” works without FieldError.
 
-## 2026-02-16 — Pack BL — V1 UX/CSS polish sweep + sidebar cleanup ✅
+## 2026-02-16 - Pack BL - V1 UX/CSS polish sweep + sidebar cleanup ✅
 
 - Browse UX polish:
   - Added sticky search/filter bar on Products + Services browse pages.
@@ -157,7 +157,7 @@ Acceptance checks:
 - Sidebar: category filter inputs still work; “More” toggles show correct label and persist open/closed across reloads.
 
 
-## 2026-02-16 — Pack BM — V1 micro-interactions + table/dash polish baseline ✅
+## 2026-02-16 - Pack BM - V1 micro-interactions + table/dash polish baseline ✅
 
 - Added global UI helper JS:
   - Prevents accidental double-submits (disables submit buttons on form submit).
@@ -172,7 +172,7 @@ Acceptance checks:
 - Tables wrapped in `.lm-table` have sticky headers and rounded container.
 
 
-## 2026-02-16 — Pack BF — Crawl protection (robots + noindex middleware) ✅
+## 2026-02-16 - Pack BF - Crawl protection (robots + noindex middleware) ✅
 
 - Hardened crawl/index protections for private areas:
   - `robots.txt` now disallows `/admin/`, `/ops/`, `/staff/`, `/dashboard/`, and `/accounts/`.
@@ -183,7 +183,7 @@ Acceptance checks:
 - Any HTML page under `/dashboard/` or `/ops/` includes response header `X-Robots-Tag: noindex, nofollow`.
 
 
-## 2026-02-16 — Pack BG — End-to-end smoke test command ✅
+## 2026-02-16 - Pack BG - End-to-end smoke test command ✅
 
 - Added management command: `python manage.py smoke_check`
 - Validates:
@@ -195,7 +195,7 @@ Acceptance checks:
 - Introduce a deliberate broken named route or template syntax error → prints failures and exits 2.
 
 
-## 2026-02-16 — Pack BH — RC smoke check improvements (system checks + DB ping) ✅
+## 2026-02-16 - Pack BH - RC smoke check improvements (system checks + DB ping) ✅
 
 - Enhanced `python manage.py smoke_check` with optional flags:
   - `--checks` runs Django system checks.
@@ -206,7 +206,7 @@ Acceptance checks:
 - `python manage.py smoke_check --db` → exits 0 after migrations; fails with a clear message if tables/migrations are missing.
 
 
-## 2026-02-16 — Pack BI — Public health endpoint + smoke check wiring ✅
+## 2026-02-16 - Pack BI - Public health endpoint + smoke check wiring ✅
 
 - Added a **public** health endpoint for hosting providers and uptime checks:
   - `GET /healthz/` returns JSON `{status: "ok", ...}` and is intentionally lightweight.
@@ -216,7 +216,7 @@ Acceptance checks:
 - Visiting `/healthz/` returns HTTP 200 JSON with `status=ok`.
 - `python manage.py smoke_check` still passes (and would fail if `/healthz/` wiring is removed).
 
-## 2026-02-16 — Pack BE — Settings sanity checks + launch check copy polish ✅
+## 2026-02-16 - Pack BE - Settings sanity checks + launch check copy polish ✅
 
 - Launch Check now includes production-grade **security posture** checks:
   - `SECURE_SSL_REDIRECT`, secure cookies, proxy SSL header, and a prod email-backend sanity check.
@@ -227,13 +227,13 @@ Acceptance checks:
 - `/ops/launch-check/` renders and includes the new security/cookie-domain checks.
 - In production settings (DEBUG=False) Launch Check fails if SSL redirect / secure cookies are not enabled.
 
-## 2026-02-16 — Pack BD — Reconciliation CSV export polish ✅
+## 2026-02-16 - Pack BD - Reconciliation CSV export polish ✅
 
 - Ops Reconciliation pages now support CSV export via `?format=csv` (capped).
 - Added Export CSV buttons to reconciliation list + mismatches pages.
 
 
-## 2026-02-16 — Pack BB — Admin Ops: webhook drill-down + reprocess from error table ✅
+## 2026-02-16 - Pack BB - Admin Ops: webhook drill-down + reprocess from error table ✅
 
 - Admin Ops (`/dashboard/admin/ops/`) Stripe webhook error table now includes:
   - **Drill-down links** to the Ops Webhook Event detail page.
@@ -245,7 +245,7 @@ Acceptance checks:
 - Clicking **Reprocess** shows a success/error toast and returns to the webhook detail page.
 
 
-## 2026-02-16 — Pack AZ — Order detail cleanup + template integrity pass ✅
+## 2026-02-16 - Pack AZ - Order detail cleanup + template integrity pass ✅
 
 - Added a template compilation test (`core/tests.py`) that compiles key templates to catch `TemplateSyntaxError` regressions quickly.
 - Included core flows in the compilation list (base, dashboards, products, orders, ops).
@@ -256,7 +256,7 @@ Acceptance checks:
 - `/dashboard/seller/` loads without a `ValueError` (annotation conflict).
 
 
-## 2026-02-16 — Pack AY — Buyer delivery confirmation + timeline polish ✅
+## 2026-02-16 - Pack AY - Buyer delivery confirmation + timeline polish ✅
 
 - Added buyer confirmation endpoint for physical items:
   - Shipping: buyer can confirm after seller marks **SHIPPED**.
@@ -274,7 +274,7 @@ Acceptance checks:
 - Guest order confirm works using the same order link token.
 
 
-## 2026-02-16 — Pack AX — Seller fulfillment queue polish + task lifecycle sync ✅
+## 2026-02-16 - Pack AX - Seller fulfillment queue polish + task lifecycle sync ✅
 
 - Fulfillment queue (`/orders/seller/orders/`) now supports inline **quick actions** by fulfillment method:
   - Pickup: Pending → Ready → Picked up
@@ -294,7 +294,7 @@ Acceptance checks:
 - After an item is delivered, the corresponding fulfillment task disappears from open tasks.
 
 
-## 2026-02-16 — Pack AW — Ops Dashboard “Money Loop” KPI tiles ✅
+## 2026-02-16 - Pack AW - Ops Dashboard “Money Loop” KPI tiles ✅
 
 - Ops Dashboard now includes a dedicated **Money Loop** KPI card (last 7 days):
   - GMV (7d)
@@ -309,13 +309,13 @@ Acceptance checks:
 - Refund totals increment after a successful refund.
 
 
-## 2026-02-16 — Hotfix: Seller dashboard fulfillment task field mismatch ✅
+## 2026-02-16 - Hotfix: Seller dashboard fulfillment task field mismatch ✅
 
 - Fixed `dashboards.views.seller_dashboard` crash caused by filtering `SellerFulfillmentTask` using a non-existent field `is_completed`.
 - Correct field is `is_done`; seller dashboard now filters open tasks using `is_done=False`.
 
 
-## 2026-02-16 — Pack AU — Seller storefront profile + public location ✅
+## 2026-02-16 - Pack AU - Seller storefront profile + public location ✅
 
 - Added Profile fields for approximate public location: `public_city`, `public_state`.
 - Added optional `service_radius_miles` for service providers (informational in v1).
@@ -329,7 +329,7 @@ Acceptance checks:
 
 
 
-## 2026-02-16 — Pack AT — Browse filters UX (collapsible subcategories + More + mobile filter drawer) ✅
+## 2026-02-16 - Pack AT - Browse filters UX (collapsible subcategories + More + mobile filter drawer) ✅
 
 - Replaced category dropdowns on Products and Services browse pages with a sidebar filter UX.
 - Categories now render as an accordion: parent categories with expandable subcategories.
@@ -344,20 +344,20 @@ Acceptance checks:
 - Pagination preserves `q` and `category`.
 
 
-## 2026-02-16 — Pack AS (SEO polish)
+## 2026-02-16 - Pack AS (SEO polish)
 - Added SiteConfig SEO defaults: meta description, default OG image URL, twitter handle.
 - base.html: canonical URLs exclude querystrings; description/OG/Twitter tags use SiteConfig defaults with safe fallbacks.
 - Footer copy tightened and de-duplicated policy links.
 
 Last updated: 2026-02-16 (America/New_York)
 
-## 2026-02-16 — Hotfix: ops ErrorEvent model/migration mismatch
+## 2026-02-16 - Hotfix: ops ErrorEvent model/migration mismatch
 What changed:
 - Fixed startup and `makemigrations` crash caused by `ops/admin.py` importing `ErrorEvent` while `ops.models` did not define it.
 - Added `ops.ErrorEvent` model and additive migration `ops.0002_errorevent`.
 
 
-## 2026-02-16 — Pack AK (Funnel Metrics: Native Analytics)
+## 2026-02-16 - Pack AK (Funnel Metrics: Native Analytics)
 What changed:
 - Added native funnel event types to `analytics.AnalyticsEvent`: `ADD_TO_CART`, `CHECKOUT_STARTED`, `ORDER_PAID`.
 - Funnel events are logged at real conversion points:
@@ -366,20 +366,20 @@ What changed:
   - order paid transition (Stripe webhook + off-platform flows) → `ORDER_PAID`
 - Ops Console: added `/ops/funnel/` dashboard showing counts and conversion rates over last N days (`?days=30`).
 
-## 2026-02-16 — Pack AL (Ops Console hardening: Webhooks + Transfer Retry)
+## 2026-02-16 - Pack AL (Ops Console hardening: Webhooks + Transfer Retry)
 What changed:
 - Ops Console: Webhooks list `/ops/webhooks/` with investigation filters (status/type/session_id/order_id/days).
 - Webhook detail page includes deliveries and raw event JSON (`/ops/webhooks/<id>/`).
 - Staff-only “Reprocess webhook” action (idempotent) using shared processing function.
 - Ops Order detail: staff-only “Retry transfers” action (idempotent via Stripe Transfer idempotency keys).
 
-## 2026-02-16 — Pack AM (Funnel enhancements: Unique sessions + % formatting + Host/Env breakouts)
+## 2026-02-16 - Pack AM (Funnel enhancements: Unique sessions + % formatting + Host/Env breakouts)
 What changed:
 - Enhanced `/ops/funnel/` to include a **unique-session funnel** based on first-party `hc_sid` (AnalyticsEvent.session_id).
 - Added human-friendly **percent formatting** for event-based and session-based funnel conversion rates.
 - Added a **host + environment breakout** table (unique sessions) to quickly spot environment drift and data gaps.
 
-## 2026-02-16 — Pack AN (Seller payout reconciliation UI)
+## 2026-02-16 - Pack AN (Seller payout reconciliation UI)
 What changed:
 - Added structured metadata to `orders.OrderEvent` (`meta` JSON) to support seller-scoped payout reconciliation.
 - Stripe Connect transfers now record `TRANSFER_CREATED` events with `meta` including: `seller_id`, `transfer_id`, `amount_cents`, `stripe_account_id`.
@@ -392,7 +392,7 @@ What changed:
   - Recent transfer events
   - Mismatch flags + recent seller ledger entries
 
-## 2026-02-16 — Pack AO (Ops “Failed Emails” panel + resend tooling)
+## 2026-02-16 - Pack AO (Ops “Failed Emails” panel + resend tooling)
 What changed:
 - Added `notifications.EmailDeliveryAttempt` to track outbound email send attempts linked to `Notification`.
 - Notifications send path now records an attempt for every email send (sent/failed) and captures failure errors.
@@ -400,7 +400,7 @@ What changed:
 - Ops Console: Failed Email detail `/ops/emails/failed/<id>/` showing notification context, error, and recent attempts.
 - Ops action: **Resend email** (POST) which uses stored rendered email bodies and records a new attempt.
 
-## 2026-02-16 — Pack AP (Refund accounting hardening + transfer reversal controls)
+## 2026-02-16 - Pack AP (Refund accounting hardening + transfer reversal controls)
 What changed:
 - Fixed refunds service/view contract mismatches to prevent runtime errors:
   - `create_refund_request()` now accepts optional `token`.
@@ -414,7 +414,7 @@ What changed:
   - If no transfer is found or reversal fails, refund still completes and an ops-visible WARNING / RefundAttempt error is recorded.
 - Added migration `refunds.0002_refundrequest_transfer_reversal`.
 
-## 2026-02-16 — Pack AQ (Throttle/rate-limit tuning for cart/checkout/refunds)
+## 2026-02-16 - Pack AQ (Throttle/rate-limit tuning for cart/checkout/refunds)
 What changed:
 - Tightened throttle limits for high-abuse surfaces:
   - Cart mutations: 20/min per fingerprint.
@@ -425,14 +425,14 @@ What changed:
   - `checkout_start` is now POST-only and is the endpoint protected by throttle + reCAPTCHA.
   - `order_set_fulfillment` is POST-only and uses its own throttle bucket (`orders:set_fulfillment`).
 
-## 2026-02-15 — Pack AJ (Observability: error event capture + ops triage)
+## 2026-02-15 - Pack AJ (Observability: error event capture + ops triage)
 What changed:
 - Added `ops.ErrorEvent` model to persist unhandled exceptions with request metadata and compact traceback.
 - Added `core.middleware.ExceptionCaptureMiddleware` to record server exceptions without external services.
 - Ops Console: new Error Events queue (list + detail) with “mark resolved” action requiring notes.
 - Resolution actions are recorded in Ops Audit Log for traceability.
 
-## 2026-02-14 — Pack X (Launch hardening: reCAPTCHA v3 on public write actions)
+## 2026-02-14 - Pack X (Launch hardening: reCAPTCHA v3 on public write actions)
 What changed:
 - Added global reCAPTCHA v3 form helper (base template + `static/js/recaptcha_v3.js`).
 - Wired server-side reCAPTCHA enforcement to:
@@ -441,7 +441,7 @@ What changed:
   - Product Q&A thread create / reply / report
 - Updated templates to include `recaptcha_token` hidden inputs and `data-recaptcha-action` attributes.
 
-## 2026-02-13 — Pack V (Legal acceptance wiring)
+## 2026-02-13 - Pack V (Legal acceptance wiring)
 What changed:
 - Added explicit **Seller Agreement acceptance** requirement before starting Stripe Connect onboarding.
 - Checkout now records acceptance of base legal documents (Terms, Privacy, Refund, Content) for both users and guests.
@@ -452,25 +452,25 @@ Notes:
 - If legal docs are unpublished, checkout/onboarding blocks with a user-facing error.
 
 
-## 2026-02-13 — Pack T: Appointment rescheduling + lifecycle notifications
+## 2026-02-13 - Pack T: Appointment rescheduling + lifecycle notifications
 - Added seller **Reschedule** UI for service appointments (reschedules set/adjust `scheduled_start`/`scheduled_end`, preserve notes history).
 - Added appointment lifecycle **email + in-app notifications** (requested, accepted, declined, deposit pending/paid, scheduled/rescheduled, canceled, completed).
 - Wired deposit-paid webhook hook to notify both buyer and seller when deposit is confirmed and auto-scheduling occurs.
 
 
-## 2026-02-13 — Pack L: Delivery/shipping UX hardening + tracking + off-platform signals
+## 2026-02-13 - Pack L: Delivery/shipping UX hardening + tracking + off-platform signals
 - Order fulfillment validation now enforces **ZIP presence** for delivery/shipping, with a **ZIP-prefix radius approximation** for local delivery.
 - Buyers can mark off-platform payments as **“sent”** with an optional note (`offplatform_sent_at`, `offplatform_note`).
 - Sellers can store a private **internal note** on an order (`seller_internal_note`) from the seller order detail page.
 - Shipping tracking is supported per goods line item: seller can enter **carrier + tracking #** when marking an item shipped; buyer sees tracking on the order page.
 
 
-## 2026-02-10 — Native analytics dashboard filters
+## 2026-02-10 - Native analytics dashboard filters
 - Admin Dashboard native analytics panel now supports range filters: **Today**, **Last 7 days**, **Last 30 days**, and **Custom date range**.
 - Server-side aggregation functions accept explicit start/end datetimes (end is exclusive) for consistent reporting.
 
 
-## 2026-02-10 — Local DB + migration recovery (launch hardening)
+## 2026-02-10 - Local DB + migration recovery (launch hardening)
 - Fixed schema drift for `orders.StripeWebhookDelivery` by aligning ops views/templates to the current model/table shape:
   - BigAuto primary key
   - `delivered_at` timestamp for delivery ordering and filtering
@@ -492,7 +492,7 @@ References / support content:
 Logged-out users can browse. Users have public usernames.
 
 
-## 2026-02-16 — Pack BA — Admin Ops webhook schema alignment ✅
+## 2026-02-16 - Pack BA - Admin Ops webhook schema alignment ✅
 - Fixed admin ops view/template crash by aligning to current `orders.StripeWebhookDelivery` fields:
   - use `delivered_at` (not `received_at`)
   - use `webhook_event.event_type` (not `event_type` on delivery)
@@ -625,13 +625,13 @@ Seller Listings metrics:
 - service products show **unique_orderers / total_orders**.
 
 
-## 2026-02-09 — Change Pack: Email Verification Gating
+## 2026-02-09 - Change Pack: Email Verification Gating
 - Added Profile email verification fields (email_verified, email_verification_token, email_verification_sent_at).
 - Added /accounts/verify/ status page + resend flow; verification link sets email_verified true.
 - Gated actions behind verified email: Stripe Connect onboarding, Q&A posting/report/delete, and review creation.
 
 
-## 2026-02-09 — Change Pack: Free service Cap + orders + Seller Listings
+## 2026-02-09 - Change Pack: Free service Cap + orders + Seller Listings
 - Added **SiteConfig.free_digital_listing_cap** (default 5) and wired it into the dashboard settings form.
 - Enforced **free service activation cap** for non-Stripe-ready sellers (cap blocks activation beyond limit; redirects to Stripe status).
 - Added **Product.order_count** for bundle-level orders tracking; Seller Listings uses this as `total_orders`.
@@ -821,7 +821,7 @@ Refunds is implemented and wired as a full feature.
 
 # Local Market NE – Project Memory
 
-## Snapshot (2026-02-03) — Orders + Payments + Refunds
+## Snapshot (2026-02-03) - Orders + Payments + Refunds
 
 ### Orders (source of truth: snapshots + ledger fields)
 - Orders are production-grade and designed for historical correctness.
@@ -941,20 +941,20 @@ Refunds is implemented and wired as a full feature.
 
 - 2026-02-09: Moderation UX polish: added staff unsuspend action (with StaffActionLog), and staff-only per-message open-report badges in product Q&A threads.
 
-## 2026-02-09 — Launch hardening
+## 2026-02-09 - Launch hardening
 - Added RequestIDMiddleware with X-Request-ID response header and request-context logging filter.
 - Enhanced dev/prod LOGGING to include request_id/user_id/path and configurable LOG_LEVEL.
 - Extended core throttle decorator to support GET endpoints (methods=...).
 - Added throttles to orders endpoints (paid + free) to prevent abuse/inflated counts.
 
-## 2026-02-09 — Ops observability hardening
+## 2026-02-09 - Ops observability hardening
 - Reintroduced operational models:
   - `orders.StripeWebhookDelivery` to log webhook receipt/processing/duplicates/errors (request_id, timestamps).
   - `refunds.RefundAttempt` to log each attempt to trigger a Stripe refund (success/failure, request_id).
 - Stripe webhook now returns **HTTP 500 on internal processing errors** (after signature verification) so Stripe retries; status is tracked in `StripeWebhookDelivery`.
 - Added **Admin Ops** dashboard (`/dashboard/admin/ops/`) showing recent webhook errors, refund failures, and order warnings.
 
-## 2026-02-10 — Seller Listings stabilization + deploy docs
+## 2026-02-10 - Seller Listings stabilization + deploy docs
 - Fixed Seller Listings rendering:
   - Template now iterates `products` as Product instances (no `row.obj` wrapper).
   - Removed non-existent template attributes (`is_digital`, `order_total`).
@@ -964,7 +964,7 @@ Refunds is implemented and wired as a full feature.
   - `docs/DEPLOY_RENDER.md` (Render-safe deployment plan)
   - `docs/POST_DEPLOY_CHECKLIST.md` (verification checklist)
 
-## 2026-02-10 — Analytics: migrate Plausible → Google Analytics 4
+## 2026-02-10 - Analytics: migrate Plausible → Google Analytics 4
 - Replaced Plausible client script with GA4 `gtag.js` snippet (uses `GA_MEASUREMENT_ID` from settings/env via context processor).
 - Added GA4 Data API reporting module (`dashboards/analytics_google.py`) and wrapper (`dashboards/analytics.py`) for Admin Dashboard summaries/top pages.
 - Admin dashboard analytics panel updated to 'Google Analytics' (30-day summary + top pages) and optional outbound link via `SiteConfig.google_analytics_dashboard_url`.
@@ -983,20 +983,20 @@ Refunds is implemented and wired as a full feature.
 - (2026-02-10) Added seller payouts reconciliation page (available vs pending) + review throttling + sidebar link.
 
 
-## 2026-02-10 — Admin dashboard polish + References/About
+## 2026-02-10 - Admin dashboard polish + References/About
 
 - Admin dashboard: fixed Analytics card layout and ensured the **Open Google Analytics** button appears when `SiteConfig.google_analytics_dashboard_url` is set.
 - Added **About** page under References and included References pages in the sitemap.
 
 
-## 2026-02-10 — Launch hardening: throttling policy + abuse signals
+## 2026-02-10 - Launch hardening: throttling policy + abuse signals
 
 - Centralized throttle policy in `core/throttle_rules.py` and updated all endpoint throttles to use it.
 - Throttle rejections are now logged into native analytics as `AnalyticsEvent(event_type=THROTTLE)` with `meta.rule`.
 - Admin dashboard now shows "Abuse signals" (24h/7d throttled counts + top throttled rules) alongside native analytics.
 
 
-## 2026-02-10 — Legal / Licensing documents (versioned, DB-backed)
+## 2026-02-10 - Legal / Licensing documents (versioned, DB-backed)
 
 - Extended `legal.LegalDocument` doc types to include:
   - `seller_agreement` (Seller Agreement)
@@ -1006,23 +1006,23 @@ Refunds is implemented and wired as a full feature.
 
 
 
-## 2026-02-10 — Licensing nav + seller fulfillment tasks
+## 2026-02-10 - Licensing nav + seller fulfillment tasks
 - Added 'Licenses & Policies' landing page under legal app and linked it from Navbar → References and Footer (Support + Legal columns).
 - Extended seller new order notifications to cover both physical and service sales (email + in-app) via Order.mark_paid hook.
 - Implemented persistent SellerFulfillmentTask records for paid orders with physical items; tasks remain open until seller marks items shipped/delivered.
 - Seller dashboard now shows Fulfillment tasks count + preview and links to fulfillment queue.
 
 
-## 2026-02-10 — Change Pack: Free service cap verification gate
+## 2026-02-10 - Change Pack: Free service cap verification gate
 - Enforced locked policy: when a seller exceeds `SiteConfig.free_digital_listing_cap` for active FREE FILE listings, they must **verify email first** (redirect to email verification), then complete **Stripe Connect onboarding** to publish more.
 - Applied to both activation toggle and listing duplication guard.
 
-## 2026-02-10 — Fulfillment UX Pack
+## 2026-02-10 - Fulfillment UX Pack
 - Fixed seller fulfillment queue: `/orders/seller/orders/` now lists *physical* PAID line items and supports status tabs (pending/shipped/delivered/all).
 - Seller dashboard now surfaces open `SellerFulfillmentTask` count + preview with per-order pending counts and links into the order detail.
 - Seller dashboard net-units-sold aggregates now compute **paid qty − refunded qty** (refunds are full-line for physical items).
 
-## 2026-02-10 — Admin Settings parity (Dashboard UI ↔ Django Admin)
+## 2026-02-10 - Admin Settings parity (Dashboard UI ↔ Django Admin)
 - Synced `SiteConfig` fields so the **Dashboard Admin Settings** page and **Django admin SiteConfig** expose the same configuration surface.
 - Added missing Django admin fieldsets for: free service listing cap, GA dashboard URL, native analytics toggles, and legacy Plausible URL.
 - Ensured affiliate links are editable consistently from the Dashboard Admin Settings page.
@@ -1043,13 +1043,13 @@ Refunds is implemented and wired as a full feature.
 
 ---
 
-## 2026-02-13 — LocalMarketNE: Store sidebar category UX
+## 2026-02-13 - LocalMarketNE: Store sidebar category UX
 - Updated `templates/partials/sidebar_store.html` to better handle large category trees:
   - Subcategories are hidden by default and shown via per-category expand/collapse.
   - Root category lists are truncated to the first 8 items with a **More** expander.
   - Added a collapsed **Filter** control above each list to search categories client-side.
 
-## Pack K — Fulfillment Status + Off‑Platform Payment Confirm + Sidebar UX Polish (2026-02-13)
+## Pack K - Fulfillment Status + Off‑Platform Payment Confirm + Sidebar UX Polish (2026-02-13)
 **Done**
 - Orders: removed remaining HC3 `is_digital` checks in seller/buyer fulfillment views (LMNE uses goods vs services).
 - Orders: added seller action to **Confirm payment received** for Venmo/PayPal/Zelle orders (marks paid + logs event).
@@ -1063,7 +1063,7 @@ Refunds is implemented and wired as a full feature.
 - Fulfillment: add tracking fields entry UI for shipped items (carrier + tracking).
 - Off‑platform: add optional buyer “I sent payment” marker and seller notes.
 
-## 2026-02-13 — Pack M (Shipping notifications + service cancellation window)
+## 2026-02-13 - Pack M (Shipping notifications + service cancellation window)
 - Added service cancellation window hours (optional) and enforced it on buyer appointment cancellations.
 - Added buyer cancel action for appointment requests (requested/accepted) with server-side enforcement.
 - Added buyer shipped email + in-app notification when seller marks a shipping item as SHIPPED (tracking included if provided).
@@ -1078,7 +1078,7 @@ Refunds is implemented and wired as a full feature.
 - Polished deposit UX on buyer appointment requests (shows deposit amount and deposit order status).
 - Removed remaining HC3 download/free-unlock artifacts (templates/command).
 
-## 2026-02-13 — Pack P re-apply: fulfillment tasks + shipping tracking cleanup
+## 2026-02-13 - Pack P re-apply: fulfillment tasks + shipping tracking cleanup
 - Fixed a broken `OrderItem` model section (shipping tracking fields were accidentally unindented), causing import/runtime issues.
 - Removed legacy `OrderItem.carrier` field usage in code/templates (LMNE now uses `tracking_carrier` + `tracking_number`).
 - Seller fulfillment “mark shipped” view now accepts both `tracking_carrier` and legacy template `carrier`/`carrier_other` inputs.
@@ -1087,7 +1087,7 @@ Refunds is implemented and wired as a full feature.
   - Remove legacy `OrderItem.carrier`
   - Add DB index on `OrderItem.tracking_number`
 
-## 2026-02-13 — Pack Q: Inventory reservation + made-to-order lead times + delivery radius validation
+## 2026-02-13 - Pack Q: Inventory reservation + made-to-order lead times + delivery radius validation
 **Done**
 - Inventory enforcement end-to-end:
   - Cart add/update now clamps quantity to available stock for **non-made-to-order goods** and blocks out-of-stock adds.
@@ -1102,7 +1102,7 @@ Refunds is implemented and wired as a full feature.
 - Fulfillment delivery validation hardened (ZIP normalization + stricter checks when local delivery is selected).
 
 
-## 2026-02-13 — Pack S re-apply: Service appointment workflow completion (rule-compliant)
+## 2026-02-13 - Pack S re-apply: Service appointment workflow completion (rule-compliant)
 **What we did (code first)**
 - Fixed `appointments.models.AppointmentRequest` (was broken: `requires_deposit`/decorator indentation).
 - Implemented appointment lifecycle statuses: `REQUESTED → DEPOSIT_PENDING → DEPOSIT_PAID → SCHEDULED → COMPLETED` (+ `CANCELED/DECLINED`).
@@ -1122,7 +1122,7 @@ Refunds is implemented and wired as a full feature.
 - Add email notifications for: accepted, deposit paid, scheduled, canceled, completed.
 - Admin views/filters for appointment moderation/reconciliation.
 
-## Pack U (2026-02-13) — Buyer confirmation + Calendar export (ICS) + Reminder notifications
+## Pack U (2026-02-13) - Buyer confirmation + Calendar export (ICS) + Reminder notifications
 
 **Code changes**
 - Added appointment buyer-confirmation flow for seller reschedules (AWAITING_BUYER_CONFIRMATION → SCHEDULED).
@@ -1130,7 +1130,7 @@ Refunds is implemented and wired as a full feature.
 - Added reminder system via management command `send_appointment_reminders` (cron-friendly).
 - Added SiteConfig settings for appointment reminders (enabled flag + hours-before).
 
-## Pack W (Ops Console) — 2026-02-13
+## Pack W (Ops Console) - 2026-02-13
 - Added a dedicated `ops` app providing an owner-grade Ops Console at `/ops/`.
 - Ops access model: superusers are treated as OPS; an `ops` Group is auto-created on migrate for future ops staff.
 - Ops Dashboard includes KPI tiles (GMV, queues) plus recent orders + recent ops activity.
@@ -1138,7 +1138,7 @@ Refunds is implemented and wired as a full feature.
 - Added `ops.AuditLog` (GenericFK target) and wrote audit entries for moderation actions.
 
 
-## Pack W.1 — Store roles: Admin Console + Ops Console
+## Pack W.1 - Store roles: Admin Console + Ops Console
 - Added **Admin Console** at `/staff/` for day-to-day site work (orders, refund requests, Q&A reports).
 - Kept **Ops Console** at `/ops/` for high-privilege operational support (reconciliation, audit log, deeper tools).
 - Added `staff_admin` group with default permissions and access gate.
@@ -1146,20 +1146,20 @@ Refunds is implemented and wired as a full feature.
 - Added management command `python manage.py bootstrap_admin_ops` (env-driven) to create/update the two accounts.
 
 
-## 2026-02-14 — Orders email helpers + event enum fix
+## 2026-02-14 - Orders email helpers + event enum fix
 - Replaced missing orders model helpers (_send_payout_email, _send_order_failed_email) with orders/emails.py (send_payout_email, send_order_failed_email).
 - Updated orders/stripe_service.py and orders/webhooks.py to import the new email helpers.
 - Added OrderEvent.Type.STRIPE_SESSION_CREATED to align with existing usage.
 - Added orders.models _site_base_url / _absolute_static_url so other apps (e.g., refunds) can safely import them.
 
 
-## 2026-02-14 — Pack Fix: Staff Console Q&A Reports Model Alignment
+## 2026-02-14 - Pack Fix: Staff Console Q&A Reports Model Alignment
 - Fixed Admin Console (`/staff/`) Q&A reports queue to use `qa.ProductQuestionReport` (actual model) instead of non-existent `QAReport`.
 - Fixed resolve flow to set `resolved_at` and save correct fields (removed invalid `updated_at`).
 - Fixed staff console Q&A reports template to post to `staff_console:resolve_qa_report`.
 
 
-## Pack Y — Policy & Safety (Age 18+ + Prohibited Categories) (2026-02-14)
+## Pack Y - Policy & Safety (Age 18+ + Prohibited Categories) (2026-02-14)
 - Added Category policy flags: `is_prohibited`, `requires_age_18` (admin-manageable).
 - Added Profile age confirmation: `is_age_18_confirmed`, `age_18_confirmed_at`.
 - Registration now requires a 18+ confirmation checkbox.
@@ -1167,14 +1167,14 @@ Refunds is implemented and wired as a full feature.
 - Product listing validation blocks prohibited categories.
 
 
-## Pack Z (2026-02-14) — Prohibited items enforcement + staff listing moderation
+## Pack Z (2026-02-14) - Prohibited items enforcement + staff listing moderation
 - Implemented purchase-time enforcement for category policy flags (is_prohibited / requires_age_18).
 - Cart pruning and checkout/order creation now block prohibited categories.
 - Added catalog migration seeding prohibited categories: Weapons and Alcohol.
 - Added Prohibited / 18+ badges to product detail and product cards.
 - Added Staff Console Listings tool for re-categorization/deactivation with audited reason.
 
-## Pack AA — Smoke Test Hardening (2026-02-15)
+## Pack AA - Smoke Test Hardening (2026-02-15)
 **Goal:** eliminate dead ends and add lightweight health surfaces for deploy validation.
 
 ### Code changes
@@ -1188,13 +1188,13 @@ Refunds is implemented and wired as a full feature.
 Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes should be recorded here before launch.
 
 
-## Pack AB — Monitoring + Audit Completeness (2026-02-15)
+## Pack AB - Monitoring + Audit Completeness (2026-02-15)
 
-- 2026-02-15 — Pack AC (Backups & Recovery): added ops runbook at /ops/runbook/ and management command `python manage.py ops_backup_report` for config/status snapshot and checklist. Ops nav includes Runbook + Ops Health.
+- 2026-02-15 - Pack AC (Backups & Recovery): added ops runbook at /ops/runbook/ and management command `python manage.py ops_backup_report` for config/status snapshot and checklist. Ops nav includes Runbook + Ops Health.
 - Fixed Admin Console listing edit audit call (was passing `actor=` instead of `request=`) and now requires a reason.
 - Ops Audit Log now supports filters and CSV export for reconciliation and incident response.
 
-## Pack AD (redo) — Browse Performance Hardening (2026-02-15)
+## Pack AD (redo) - Browse Performance Hardening (2026-02-15)
 **Goal:** reduce browse/storefront load, clamp untrusted inputs, and avoid runaway queries.
 
 ### Code changes
@@ -1215,7 +1215,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 - Anonymous caching should not affect authenticated sessions.
 
 
-## Pack AE (Store Operations controls) — 2026-02-15
+## Pack AE (Store Operations controls) - 2026-02-15
 **Done**
 - Added SiteConfig store-ops controls:
   - Site Announcement bar (enabled + text)
@@ -1229,7 +1229,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 **Notes**
 - Maintenance mode allowlists /admin/, /ops/, /staff/, /accounts/, /healthz/, /health/, /version/, /static/, /media/.
 
-## 2026-02-15 — Pack AF (Financial Reconciliation Console)
+## 2026-02-15 - Pack AF (Financial Reconciliation Console)
 - Added snapshot-based reconciliation annotations for Orders (items gross, expected fee/net, ledger sums, mismatch flags).
 - Ops Console: added /ops/reconciliation/ list and /ops/reconciliation/mismatches/ detector.
 - Ops Order Detail now displays reconciliation breakdown + mismatch badges.
@@ -1276,14 +1276,14 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 - Tighten Stripe Connect transfer linking (`source_transaction`) after confirming whether we’re using charges vs payment intents in the Stripe account.
 - Add a simple admin/ops reconciliation UI entry point linking orders ↔ webhook events ↔ transfers.
 
-## 2026-02-15 — Pack AI — Launch Check
+## 2026-02-15 - Pack AI - Launch Check
 
 - Added launch readiness checks surfaced in Ops Console:
   - New Ops page: `/ops/launch-check/`
   - New management command: `python manage.py launch_check` (supports `--json`)
 - Checks cover: DEBUG/PRIMARY_DOMAIN, DB, cache, email, Stripe keys, reCAPTCHA config, storage posture, SiteConfig presence, HSTS posture.
 
-## 2026-02-16 — Pack AJ (Error Events Hotfix Baseline)
+## 2026-02-16 - Pack AJ (Error Events Hotfix Baseline)
 
 **What’s been done**
 - Baseline ZIP for this pack: `localmarketne_packAJ_error_events_hotfix.zip`.
@@ -1295,7 +1295,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 **What’s left**
 - Add conversion funnel metrics to measure browse → cart → checkout → paid.
 
-## 2026-02-16 — Pack AK (Funnel Metrics — Native Analytics)
+## 2026-02-16 - Pack AK (Funnel Metrics - Native Analytics)
 
 **What’s been done**
 - Added native analytics funnel event types: `ADD_TO_CART`, `CHECKOUT_STARTED`, `ORDER_PAID`.
@@ -1314,7 +1314,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 - Break out funnel by host/environment once we’re running multiple domains.
 
 
-## 2026-02-16 — Pack AL — Ops Console hardening (Webhooks + Transfer Retry)
+## 2026-02-16 - Pack AL - Ops Console hardening (Webhooks + Transfer Retry)
 
 **What changed**
 - Added staff Ops tooling to investigate Stripe webhook events and safely reprocess them.
@@ -1330,7 +1330,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 - ORDER_PAID analytics event is only emitted on an actual order state transition to avoid double-counting during reprocess.
 
 
-## 2026-02-16 — Pack AO — Ops “Failed Emails” panel + resend tooling
+## 2026-02-16 - Pack AO - Ops “Failed Emails” panel + resend tooling
 
 **What’s been done**
 - Implemented `notifications.EmailDeliveryAttempt` to record every outbound email send attempt (sent/failed) tied to a `Notification`.
@@ -1347,7 +1347,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 - Add refund accounting hardening (physical-only refunds) and ensure transfer reversal safety controls.
 
 
-## 2026-02-16 — Hotfix — Services browse template crash
+## 2026-02-16 - Hotfix - Services browse template crash
 
 **What was fixed**
 - Fixed `VariableDoesNotExist` on `/products/services/` caused by template lookups like `request.GET.q` and `request.GET.category` when query params are missing.
@@ -1359,10 +1359,10 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 - Django template attribute-style lookups on `QueryDict` raise `VariableDoesNotExist` when the key is missing; using context variables avoids that failure mode.
 
 
-### Pack AR — References pages polish ✅
+### Pack AR - References pages polish ✅
 - Updated About/Help/FAQs/Tips templates for a more professional, consistent layout.
 - Added Tips to navbar References dropdown and added reference links in footer for consistency.
-## 2026-02-16 — Hotfix — base.html canonical TemplateSyntaxError
+## 2026-02-16 - Hotfix - base.html canonical TemplateSyntaxError
 
 **What was fixed**
 - Fixed `TemplateSyntaxError` from using `request.build_absolute_uri(request.path)` in templates (Django templates cannot call methods with args).
@@ -1371,7 +1371,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 - Canonical + `og:url` now use: `{{ request.scheme }}://{{ request.get_host }}{{ request.path }}` (no arg method calls).
 
 
-## 2026-02-16 — Pack AV — Service search improvements (state/radius filters + query persistence)
+## 2026-02-16 - Pack AV - Service search improvements (state/radius filters + query persistence)
 
 **What’s been done**
 - Services browse (`/products/services/`) now supports additional filters:
@@ -1389,7 +1389,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 - Next pack: Pack AW (as defined in ROADMAP).
 
 
-## 2026-02-16 — Pack BC — Release candidate sweep: dead-end audit + launch-check copy tighten-up ✅
+## 2026-02-16 - Pack BC - Release candidate sweep: dead-end audit + launch-check copy tighten-up ✅
 
 **What’s been done**
 - Added a Launch Check guardrail to catch "dead-end" risks: a URL wiring check that verifies key named routes resolve (dashboards + ops + storefront entry points).
@@ -1402,7 +1402,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 - Next pack: Pack BD (as defined in ROADMAP).
 
 
-## 2026-02-16 — Pack BJ — Ops Health page (HTML + JSON) ✅
+## 2026-02-16 - Pack BJ - Ops Health page (HTML + JSON) ✅
 
 **What’s been done**
 - Converted Ops Health (`/ops/health/`) from JSON-only to a human-friendly Ops Console page.
@@ -1416,7 +1416,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 - Next pack: Pack BK (as defined in ROADMAP).
 
 
-## 2026-02-16 — Pack BK — Seller onboarding policy + managed GA/AdSense + remove buyer age gate ✅
+## 2026-02-16 - Pack BK - Seller onboarding policy + managed GA/AdSense + remove buyer age gate ✅
 
 **What’s been done**
 - **Seller 18+ confirmation** is now enforced at the correct point: **Stripe Connect onboarding start**.
@@ -1437,7 +1437,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 **What’s left**
 - Next pack: Pack BL (as defined in ROADMAP).
 
-## 2026-02-16 — Pack BN — Table/Card template sweep
+## 2026-02-16 - Pack BN - Table/Card template sweep
 
 **What changed**
 - Standardized table rendering across Ops/Staff Console/Appointments by wrapping Bootstrap tables in `.lm-table` containers.
@@ -1449,7 +1449,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 
 ---
 
-## 2026-02-16 — Pack BO — Dead-end audit sweep ✅
+## 2026-02-16 - Pack BO - Dead-end audit sweep ✅
 
 ### What changed
 - **Coming Soon** page now links to a real **Waitlist** flow (no `href="#"` dead-end).
@@ -1471,7 +1471,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 
 ---
 
-## 2026-02-16 — Pack BP — Waitlist hardening (throttle + email settings) ✅
+## 2026-02-16 - Pack BP - Waitlist hardening (throttle + email settings) ✅
 
 ### What changed
 - Added **SiteConfig-managed waitlist controls** (so marketing/ops can toggle without code):
@@ -1495,7 +1495,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 
 ---
 
-## 2026-02-16 — Pack BQ — Smoke check fixes (legal namespace) ✅
+## 2026-02-16 - Pack BQ - Smoke check fixes (legal namespace) ✅
 
 ### What changed
 - Updated `core/management/commands/smoke_check.py` so the critical route list matches the current URL structure.
@@ -1511,7 +1511,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 
 ---
 
-## 2026-02-16 — Pack BR — Canonical reference routes ✅
+## 2026-02-16 - Pack BR - Canonical reference routes ✅
 
 ### What changed
 - Promoted the static reference pages to **canonical short paths**:
@@ -1532,7 +1532,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 - `GET /sitemap.xml` includes `/help/`, `/faqs/`, `/tips/`, `/about/`.
 
 
-## 2026-02-16 — Pack BS — Empty states + Support pathway consistency ✅
+## 2026-02-16 - Pack BS - Empty states + Support pathway consistency ✅
 
 ### Done
 - Enhanced `templates/partials/empty_state.html`:
@@ -1554,7 +1554,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 
 ---
 
-## 2026-02-16 — Pack BT — Empty-state standardization sweep ✅
+## 2026-02-16 - Pack BT - Empty-state standardization sweep ✅
 
 ### What changed
 - Replaced remaining “plain text” empty states with the shared component: `templates/partials/empty_state.html`.
@@ -1576,7 +1576,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 - Visit each page with no data and confirm the UI shows a consistent empty-state card with a CTA and (where applicable) Help/FAQs/Contact links.
 - Template compilation remains clean: `python manage.py smoke_check` exits 0.
 
-## 2026-02-16 — Pack BU: Contact form inbox + SiteConfig controls
+## 2026-02-16 - Pack BU: Contact form inbox + SiteConfig controls
 
 **Done**
 - Added ContactMessage inbox model stored in DB (optional toggle).
@@ -1588,7 +1588,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 - Submitting contact form stores ContactMessage (when enabled) and shows success message.
 - Admin can view ContactMessage list and mark resolved.
 
-## 2026-02-16 — Pack BV: Staff Console Support Inbox
+## 2026-02-16 - Pack BV: Staff Console Support Inbox
 
 **Done**
 - Added Staff Console Support Inbox list + detail pages for `core.ContactMessage`.
@@ -1602,7 +1602,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 
 ---
 
-## 2026-02-16 — Pack BW: Support ops hardening (templates + internal notes + SLA tags)
+## 2026-02-16 - Pack BW: Support ops hardening (templates + internal notes + SLA tags)
 
 **Done**
 - Added triage fields to `core.ContactMessage`: `sla_tag`, `internal_notes`, `last_responded_at/by`, `response_count`.
@@ -1627,7 +1627,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 
 ---
 
-## 2026-02-17 — Pack BX: Outbound support email logging
+## 2026-02-17 - Pack BX: Outbound support email logging
 
 **Done**
 - Added `core.SupportOutboundEmailLog` to record outbound emails sent from the Staff Console Support Inbox.
@@ -1641,7 +1641,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 - Detail page shows Sent/Failed badge and error text when failed.
 
 
-## Pack BX Hotfix — Admin dashboard analytics enum mismatch (2026-02-17)
+## Pack BX Hotfix - Admin dashboard analytics enum mismatch (2026-02-17)
 - Fixed ProductEngagementEvent enum references in `core/admin.py` and `dashboards/views.py` (use `Kind` + `kind` field; removed stale `EventType`/`event_type`).
 - Symptom fixed: `/admin/` AttributeError: `ProductEngagementEvent` has no attribute `EventType`.
 
@@ -1650,7 +1650,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 - Seller analytics page loads and engagement counts render.
 
 
-## Pack BX Hotfix — Admin dashboard top-products revenue query (2026-02-17)
+## Pack BX Hotfix - Admin dashboard top-products revenue query (2026-02-17)
 - Fixed stale OrderItem field reference in `core/admin.py` top-products aggregation:
   - replaced `unit_price_cents` with snapshot-safe totals (`line_total_cents`) and quantity sum.
 - Symptom fixed: `/admin/` FieldError: Cannot resolve keyword `unit_price_cents`.
@@ -1660,7 +1660,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 - Admin dashboard “Top products by revenue” renders values.
 
 
-## Pack BX Hotfix — Restore SiteConfig.free_digital_listing_cap (2026-02-17)
+## Pack BX Hotfix - Restore SiteConfig.free_digital_listing_cap (2026-02-17)
 - Restored missing `SiteConfig.free_digital_listing_cap` field (was referenced by admin/dashboard/docs but missing from the model), causing the SiteConfig admin page to crash.
 - Added model field + migration `core/migrations/0032_siteconfig_free_digital_listing_cap.py`.
 - Ensured `core/admin.py` SiteConfig fieldsets include `free_digital_listing_cap` under **Commerce**.
@@ -1672,7 +1672,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 
 ---
 
-## 2026-02-17 — Pack BY: RC Money Loop verification (launch check + command)
+## 2026-02-17 - Pack BY: RC Money Loop verification (launch check + command)
 
 ### Done
 - Added a **money-loop invariant check** to `core.launch_checks.run_launch_checks()`.
@@ -1688,7 +1688,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 
 ---
 
-## 2026-02-17 — Pack BZ: RC gate command (rc_check)
+## 2026-02-17 - Pack BZ: RC gate command (rc_check)
 
 ### Done
 - Added a single RC gate management command: `python manage.py rc_check`.
@@ -1705,7 +1705,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 
 ---
 
-## 2026-02-17 — Pack CA (hotfix): Listing upload category filtering + subcategory AJAX
+## 2026-02-17 - Pack CA (hotfix): Listing upload category filtering + subcategory AJAX
 
 ### Done
 - Updated **Category type labels** for seller UX: `GOOD` now displays as **Products**.
@@ -1729,7 +1729,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 
 ---
 
-## 2026-02-17 — Pack CA Sweep Fixes — Admin money totals + appointment deposit order ✅
+## 2026-02-17 - Pack CA Sweep Fixes - Admin money totals + appointment deposit order ✅
 
 ### What was fixed
 - **Orders admin aggregation**: replaced invalid DB annotation using `items__unit_price_cents` (property) with snapshot-safe `Sum(items__line_total_cents)`.
@@ -1744,7 +1744,7 @@ Pack AA is a continuous “smoke test + patch” layer; future dead-end fixes sh
 
 ---
 
-## 2026-02-17 — Pack CB: Seller Onboarding Checklist ✅
+## 2026-02-17 - Pack CB: Seller Onboarding Checklist ✅
 
 ### Goal
 Reduce seller drop-off by making the next steps explicit and persistent.
@@ -1764,7 +1764,7 @@ Reduce seller drop-off by making the next steps explicit and persistent.
 
 ---
 
-## 2026-02-17 — Pack CE: Release Runbook + Go-Live Kit ✅
+## 2026-02-17 - Pack CE: Release Runbook + Go-Live Kit ✅
 
 ### What changed
 - Added an ops snapshot command: `python manage.py ops_backup_report` (JSON or `--text`).
@@ -1778,7 +1778,7 @@ Reduce seller drop-off by making the next steps explicit and persistent.
 
 ---
 
-## 2026-02-17 — Pack CF: Seller Listing Mini‑Wizard + Draft Save ✅
+## 2026-02-17 - Pack CF: Seller Listing Mini‑Wizard + Draft Save ✅
 
 ### Goal
 Reduce friction on the seller listing create/edit flow by breaking the form into steps and supporting drafts.
@@ -1796,7 +1796,7 @@ Reduce friction on the seller listing create/edit flow by breaking the form into
 
 ---
 
-## 2026-02-17 — Pack CG: RC Sweep Toolkit (Checklist + Dead-End Audit) ✅
+## 2026-02-17 - Pack CG: RC Sweep Toolkit (Checklist + Dead-End Audit) ✅
 
 ### Goal
 Make release-candidate validation repeatable and catch dead ends/broken links before users do.
@@ -1815,7 +1815,7 @@ Make release-candidate validation repeatable and catch dead ends/broken links be
 - `python manage.py rc_check --checks --db` runs and includes the dead-end audit in its output.
 - `docs/RC_CHECKLIST.md` is usable as the operational QA script for RC validation.
 
-## Pack CH — Visual polish sweep (forms, steppers, surfaces)
+## Pack CH - Visual polish sweep (forms, steppers, surfaces)
 - Improved global form control look (rounded corners, consistent focus ring) for `.form-control`, `.form-select`, `.form-check-input`.
 - Added subtle button hover elevation and unified button radius.
 - Polished cards/tables/empty states and seller listing stepper styling.
@@ -1825,7 +1825,7 @@ Make release-candidate validation repeatable and catch dead ends/broken links be
 - Seller listing create/edit: stepper buttons show an obvious active state and the publish/save row stays accessible while scrolling.
 - Form inputs (text/select/checkbox) share the same visual language and focus behavior across seller and consumer pages.
 
-## Hotfix — Empty state template var naming
+## Hotfix - Empty state template var naming
 - Fixed `TemplateSyntaxError` caused by using underscore-prefixed template variables in `templates/partials/empty_state.html`.
 - Replaced `{% url ... as _action_url %}` / `_secondary_url` with `action_url_resolved` / `secondary_url_resolved`.
 
@@ -1833,12 +1833,12 @@ Make release-candidate validation repeatable and catch dead ends/broken links be
 - `/dashboard/consumer/` renders without `TemplateSyntaxError`.
 - Any empty state using `action_route` / `secondary_route` renders safely.
 
-## 2026-02-18 — Pack CJ (RC URL reverse audit)
+## 2026-02-18 - Pack CJ (RC URL reverse audit)
 - Added management command `url_reverse_audit` to scan templates for literal `{% url 'route_name' %}` usage and detect stale route names early.
 - Wired `url_reverse_audit` into `rc_check` after `template_deadend_audit`.
 - Acceptance: `python manage.py url_reverse_audit` returns OK; `python manage.py rc_check --checks --db` includes reverse audit output.
 
-## 2026-02-18 — Pack CN (RC checklist support tooling)
+## 2026-02-18 - Pack CN (RC checklist support tooling)
 
 ### Goal
 Reduce “click → 500” regressions during RC by adding a minimal, automated flow smoke check.
@@ -1854,7 +1854,7 @@ Reduce “click → 500” regressions during RC by adding a minimal, automated 
 - `python manage.py flow_check` runs locally and reports OK/FAIL without crashing.
 - `python manage.py rc_report` includes a `flow_check` component.
 
-## 2026-02-18 — Pack CO (RC Stripe config check + tooling fixups)
+## 2026-02-18 - Pack CO (RC Stripe config check + tooling fixups)
 
 ### Goal
 Make RC checks trustworthy and reduce Stripe go-live surprises.
@@ -1873,7 +1873,7 @@ Make RC checks trustworthy and reduce Stripe go-live surprises.
 - `python manage.py rc_check --checks --db` runs cleanly and outputs a summary.
 - `python manage.py rc_report --json` produces valid JSON (no missing command arguments).
 
-## 2026-02-19 — Pack CP (RC checklist manual run support)
+## 2026-02-19 - Pack CP (RC checklist manual run support)
 
 - Pack CS: Standardized S3 bucket key to `AWS_S3_MEDIA_BUCKET` across checks/docs (kept `AWS_STORAGE_BUCKET_NAME` as legacy alias). Fixed reCAPTCHA launch checks to use v3 key names.
 - Pack CT: Added `first_live_validate` management command to combine server-side `post_deploy_check` with optional public HTTP checks, and updated go-live/post-deploy docs.
@@ -1896,7 +1896,7 @@ Make it easy to record each manual RC run in a consistent, timestamped log.
 - Refuses to overwrite an existing file.
 
 
-## 2026-02-19 — Pack CQ (Render Blueprint + deploy doc alignment)
+## 2026-02-19 - Pack CQ (Render Blueprint + deploy doc alignment)
 
 ### Goal
 Make the Render production deploy path less error-prone by providing a blueprint and ensuring docs match the real settings module.
@@ -1910,7 +1910,7 @@ Make the Render production deploy path less error-prone by providing a blueprint
 - `docs/DEPLOY_RENDER.md` references `DJANGO_SETTINGS_MODULE=config.settings.prod`.
 
 
-## 2026-02-19 — Pack CR (Post-deploy validation command)
+## 2026-02-19 - Pack CR (Post-deploy validation command)
 
 ### Goal
 Add a lightweight, repeatable post-deploy verification command to reduce “first-live” surprises.
@@ -1923,20 +1923,20 @@ Add a lightweight, repeatable post-deploy verification command to reduce “firs
 - `python manage.py post_deploy_check` runs locally without crashing.
 - With `--base-url https://example.com`, it attempts `/healthz/` and fails clearly if unreachable.
 
-## 2026-02-20 — Pack CX — Environment banner + Stripe test-mode safety
+## 2026-02-20 - Pack CX - Environment banner + Stripe test-mode safety
 
 - Added SiteConfig environment banner fields: `environment_banner_enabled`, `environment_banner_text`.
 - Added `core.context_processors.env_banner` and included banner partial sitewide.
 - Added auto-warning banner when `DEBUG=False` and Stripe secret key starts with `sk_test_` to prevent accidental live launch misconfigurations.
 
-## 2026-02-20 — Pack CY — Env var audit + docs alignment
+## 2026-02-20 - Pack CY - Env var audit + docs alignment
 
 - Added `python manage.py env_audit` (with optional `--strict`) to report missing required/recommended environment variables.
 - Updated `.env.example` to include email + S3 keys and to align naming with settings/checks.
 - Added `docs/ENV_VARS.md` as the canonical env variable reference.
 - Fixed deploy/go-live docs to use correct variable names (e.g., `DJANGO_SECRET_KEY`, `STRIPE_PUBLIC_KEY`).
 
-## 2026-02-20 — Pack CZ — Prod host/origin env config
+## 2026-02-20 - Pack CZ - Prod host/origin env config
 
 - Updated `config/settings/prod.py` to derive `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, and cookie domain from `PRIMARY_DOMAIN` (plus optional `RENDER_EXTERNAL_HOSTNAME`).
 - Updated Render blueprint + `.env.example` + docs to match (removed direct `ALLOWED_HOSTS`/`CSRF_TRUSTED_ORIGINS` env requirements).

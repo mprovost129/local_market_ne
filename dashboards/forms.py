@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from typing import Any
+from urllib.parse import urlparse
 
 from django import forms
 
@@ -26,6 +27,17 @@ class SiteConfigForm(forms.ModelForm):
 
     # Affiliate links (friendly UI) -> stored as JSON list in SiteConfig.affiliate_links
     AFFILIATE_LINK_ROWS = 10
+    OPTIONAL_URL_FIELDS = (
+        "google_analytics_dashboard_url",
+        "plausible_shared_url",
+        "seo_default_og_image_url",
+        "facebook_url",
+        "instagram_url",
+        "tiktok_url",
+        "youtube_url",
+        "x_url",
+        "linkedin_url",
+    )
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -211,6 +223,29 @@ class SiteConfigForm(forms.ModelForm):
             return ["US"]
         parts = [p.strip().upper() for p in raw.split(",") if p.strip()]
         return parts or ["US"]
+
+    @staticmethod
+    def _normalize_optional_url(value: str) -> str:
+        """
+        Be forgiving in dashboard settings:
+        if admin enters a hostname without scheme, default to https://.
+        """
+        raw = (value or "").strip()
+        if not raw:
+            return ""
+        parsed = urlparse(raw)
+        if parsed.scheme:
+            if parsed.scheme.lower() == "http":
+                return raw.replace("http://", "https://", 1)
+            return raw
+        return f"https://{raw}"
+
+    def clean(self) -> dict[str, Any]:
+        cleaned_data = super().clean()
+        for field_name in self.OPTIONAL_URL_FIELDS:
+            if field_name in cleaned_data:
+                cleaned_data[field_name] = self._normalize_optional_url(str(cleaned_data.get(field_name) or ""))
+        return cleaned_data
 
     def _build_affiliate_links(self) -> list[dict[str, str]]:
         links: list[dict[str, str]] = []

@@ -126,7 +126,7 @@ def accept(request: HttpRequest) -> HttpResponse:
 
     try:
         record_acceptance(request=request, user=request.user, guest_email=guest_email)
-        messages.success(request, "Thanks — your acceptance has been recorded.")
+        messages.success(request, "Thanks - your acceptance has been recorded.")
     except Exception as e:
         messages.error(request, str(e) or "Unable to record acceptance. Please try again.")
         return redirect(reverse("legal:terms") + f"?next={next_url}")

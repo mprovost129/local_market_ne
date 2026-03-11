@@ -168,7 +168,7 @@ def _prune_inactive_items(cart: Cart) -> List[str]:
 def _cart_unready_sellers(request, cart: Cart) -> List[str]:
     """
     Return list of seller usernames that are not ready for payouts.
-    IMPORTANT: Does NOT remove items — just used to block checkout.
+    IMPORTANT: Does NOT remove items - just used to block checkout.
     """
     if _is_owner_request(request):
         return []

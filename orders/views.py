@@ -1052,7 +1052,7 @@ def mark_item_delivered_buyer(request, order_id, item_id):
     except Exception:
         pass
 
-    messages.success(request, "Thanks — confirmed.")
+    messages.success(request, "Thanks - confirmed.")
     return redirect(f"{reverse('orders:detail', kwargs={'order_id': order.id})}" + (f"?t={order.order_token}" if order.is_guest else ""))
 
 
@@ -1218,7 +1218,7 @@ def buyer_mark_offplatform_sent(request, order_id):
     except Exception:
         pass
 
-    messages.success(request, "Thanks — the seller will confirm once payment is received.")
+    messages.success(request, "Thanks - the seller will confirm once payment is received.")
     return _redirect_order_detail(order, request)
 
 

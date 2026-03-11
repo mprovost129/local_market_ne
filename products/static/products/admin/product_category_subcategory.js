@@ -66,7 +66,7 @@
     const currentSubcategory = subcategoryEl.value;
 
     if (!selectedCategory) {
-      clearOptions(subcategoryEl, "— Select a category first —");
+      clearOptions(subcategoryEl, "- Select a category first -");
       return;
     }
 
@@ -93,7 +93,7 @@
 
     // If no category is selected on initial load, keep subcategory empty/placeholder.
     if (!categoryEl.value) {
-      clearOptions(subcategoryEl, "— Select a category first —");
+      clearOptions(subcategoryEl, "- Select a category first -");
     } else {
       // Page load with an existing value (change page) or after validation errors
       refreshSubcategoryOptions();

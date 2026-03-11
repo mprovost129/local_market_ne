@@ -274,7 +274,7 @@ Let me know what you'd like to tackle first!
 
 ---
 
-## 2026-02-17 — Comprehensive Sweep Notes (Pack CA)
+## 2026-02-17 - Comprehensive Sweep Notes (Pack CA)
 
 ### Fixed during sweep
 - Orders admin aggregation: removed invalid DB annotation using `items__unit_price_cents` (property) and switched to snapshot-safe `Sum(items__line_total_cents)`.
