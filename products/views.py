@@ -547,6 +547,16 @@ def seller_shop(request: HttpRequest, seller_id: int) -> HttpResponse:
     trending_badge_ids = sorted(get_trending_badge_ids())
 
     profile = getattr(seller, "profile", None)
+    storefront_theme_enabled = bool(getattr(profile, "storefront_theme_enabled", False)) if profile else False
+    storefront_layout = (getattr(profile, "storefront_layout", "") or "").strip()
+    if storefront_layout not in {"balanced", "catalog", "minimal"}:
+        storefront_layout = "balanced"
+    storefront_primary_color = (getattr(profile, "storefront_primary_color", "") or "").strip() if profile else ""
+    if not re.fullmatch(r"^#[0-9A-Fa-f]{6}$", storefront_primary_color):
+        storefront_primary_color = ""
+    storefront_primary_color = storefront_primary_color or "#2F4F2F"
+    storefront_logo = getattr(profile, "storefront_logo", None) if profile else None
+    storefront_banner = getattr(profile, "storefront_banner", None) if profile else None
 
     venmo = (getattr(profile, "venmo_handle", "") or "").strip() if profile else ""
     paypal = (getattr(profile, "paypal_me_url", "") or "").strip() if profile else ""
@@ -580,6 +590,11 @@ def seller_shop(request: HttpRequest, seller_id: int) -> HttpResponse:
             "paginator": page_obj.paginator,
             "trending_badge_ids": trending_badge_ids,
             "profile": profile,
+            "storefront_theme_enabled": storefront_theme_enabled,
+            "storefront_layout": storefront_layout,
+            "storefront_primary_color": storefront_primary_color,
+            "storefront_logo": storefront_logo,
+            "storefront_banner": storefront_banner,
             "venmo": venmo_display,
             "paypal": paypal_display,
             "zelle": zelle_display,

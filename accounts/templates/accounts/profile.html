@@ -63,6 +63,41 @@
         </div>
 
         <div class="profile-full profile-section">
+          <div class="help"><strong>Storefront branding (optional)</strong></div>
+          <div class="help">Customize your seller storefront header without changing marketplace-wide product page styling.</div>
+        </div>
+
+        <div>
+          <label for="{{ form.storefront_theme_enabled.id_for_label }}">Enable custom storefront color</label>
+          {{ form.storefront_theme_enabled }}
+          {% for e in form.storefront_theme_enabled.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
+        </div>
+
+        <div>
+          <label for="{{ form.storefront_layout.id_for_label }}">Storefront layout</label>
+          {{ form.storefront_layout }}
+          {% for e in form.storefront_layout.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
+        </div>
+
+        <div>
+          <label for="{{ form.storefront_primary_color.id_for_label }}">Storefront accent color</label>
+          {{ form.storefront_primary_color }}
+          {% for e in form.storefront_primary_color.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
+        </div>
+
+        <div>
+          <label for="{{ form.storefront_logo.id_for_label }}">Storefront logo</label>
+          {{ form.storefront_logo }}
+          {% for e in form.storefront_logo.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
+        </div>
+
+        <div>
+          <label for="{{ form.storefront_banner.id_for_label }}">Storefront banner</label>
+          {{ form.storefront_banner }}
+          {% for e in form.storefront_banner.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
+        </div>
+
+        <div class="profile-full profile-section">
           <div class="help" ><strong>Public seller location (approximate)</strong></div>
         </div>
 

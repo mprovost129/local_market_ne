@@ -18,6 +18,9 @@ class ProfileAdmin(admin.ModelAdmin):
         "shop_name",
         "public_city",
         "public_state",
+        "storefront_theme_enabled",
+        "storefront_layout",
+        "storefront_primary_color",
         "service_radius_miles",
         "is_seller",
         "stripe_onboarding_complete",
@@ -28,7 +31,7 @@ class ProfileAdmin(admin.ModelAdmin):
         "admin_hub_links",
         "created_at",
     )
-    list_filter = ("is_seller", "stripe_onboarding_complete", "is_owner", "public_state")
+    list_filter = ("is_seller", "stripe_onboarding_complete", "is_owner", "public_state", "storefront_layout")
     search_fields = ("user__username", "email", "first_name", "last_name", "shop_name", "public_city")
     readonly_fields = ("created_at", "updated_at")
 

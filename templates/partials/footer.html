@@ -4,14 +4,16 @@
   <div class="container py-4 lm-footer-wrap">
     <div class="row g-3">
       <div class="col-md-3">
-        <div class="text-secondary lm-footer-note">Buy and sell locally across New England.</div>
         <a class="text-decoration-none d-inline-flex align-items-center gap-2 mt-2 mb-1 lm-footer-logo-link" href="{% url 'core:home' %}">
-          <img src="{% static 'images/logos/localmarketne_mark_256.png' %}" alt="" aria-hidden="true" class="lm-brand-mark" style="width: 200px; height: auto;">
+          <img src="{% static 'images/logos/local_market_logo.png' %}" alt="" aria-hidden="true" class="lm-logo lm-brand-word" style="width: 200px; height: auto;">
         </a>
+        <br>
+        <br>
+        <div class="text-secondary lm-footer-note">Purchase quality products from your community.</div>
       </div>
 
       <div class="col-md-2">
-        <div class="text-uppercase text-secondary fw-bold mb-1 lm-footer-head">Company</div>
+        <div class="text-uppercase fw-bold mb-1 lm-footer-head">Company</div>
         <div class="d-flex flex-column gap-1 lm-footer-links">
           <a class="text-secondary text-decoration-none" href="{% url 'core:home' %}">Home</a>
           <a class="text-secondary text-decoration-none" href="{% url 'products:list' %}">Shop</a>
@@ -21,7 +23,7 @@
       </div>
 
       <div class="col-md-2">
-        <div class="text-uppercase text-secondary fw-bold mb-1 lm-footer-head">Support</div>
+        <div class="text-uppercase fw-bold mb-1 lm-footer-head">Support</div>
         <div class="d-flex flex-column gap-1 lm-footer-links">
           <a class="text-secondary text-decoration-none" href="{% url 'orders:my_orders' %}">My Orders</a>
           <a class="text-secondary text-decoration-none" href="{% url 'core:help' %}">Help</a>
@@ -31,7 +33,7 @@
       </div>
 
       <div class="col-md-2">
-        <div class="text-uppercase text-secondary fw-bold mb-1 lm-footer-head">Legal</div>
+        <div class="text-uppercase fw-bold mb-1 lm-footer-head">Legal</div>
         <div class="d-flex flex-column gap-1 lm-footer-links">
           <a class="text-secondary text-decoration-none" href="{% url 'legal:index' %}">Policies</a>
           <a class="text-secondary text-decoration-none" href="{% url 'legal:terms' %}">Terms &amp; Conditions</a>

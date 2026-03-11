@@ -22,6 +22,22 @@ def cents_to_dollars(value) -> str:
     dollars = (Decimal(cents) / Decimal("100")).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
     return f"{dollars}"
 
+
+@register.filter(name="money")
+def money(value) -> str:
+    """
+    Formats a dollar amount as currency.
+    Examples:
+      12 -> "$12.00"
+      Decimal("12.5") -> "$12.50"
+      None -> "$0.00"
+    """
+    try:
+        dollars = Decimal(str(value or 0)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    except Exception:
+        dollars = Decimal("0.00")
+    return f"${dollars}"
+
 @register.filter(name="dict_get")
 def dict_get(d, key):
     """Safely get a dict value in templates: {{ mydict|dict_get:somekey }}"""

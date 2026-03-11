@@ -202,6 +202,30 @@ class ListingFlowTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Providence")
 
+    def test_seller_storefront_applies_branding_when_enabled(self):
+        profile = self.seller.profile
+        profile.storefront_theme_enabled = True
+        profile.storefront_layout = "catalog"
+        profile.storefront_primary_color = "#3A6B3A"
+        profile.save(update_fields=["storefront_theme_enabled", "storefront_layout", "storefront_primary_color", "updated_at"])
+
+        Product.objects.create(
+            seller=self.seller,
+            kind=Product.Kind.GOOD,
+            title="Branded Store Product",
+            category=self.goods_category,
+            price=Decimal("11.00"),
+            is_active=True,
+            stock_qty=2,
+            fulfillment_pickup_enabled=True,
+        )
+
+        resp = self.client.get(reverse("products:seller_shop", kwargs={"seller_id": self.seller.id}))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "seller-shop--custom")
+        self.assertContains(resp, "seller-shop--layout-catalog")
+        self.assertContains(resp, "--seller-accent: #3A6B3A")
+
     def test_products_list_filters_by_seller_zip(self):
         other_seller = User.objects.create_user(
             username="seller_zip_other",

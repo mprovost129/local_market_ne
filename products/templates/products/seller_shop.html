@@ -3,7 +3,94 @@
 {% block title %}{% if profile and profile.public_seller_name %}{{ profile.public_seller_name }}{% else %}{{ seller.username }}{% endif %}  - Shop  - Local Market NE{% endblock %}
 
 {% block content %}
-<div class="container-fluid" style="max-width: 1100px;">
+<style>
+  .seller-shop {
+    --seller-accent: {{ storefront_primary_color|default:"#2F4F2F" }};
+  }
+  .seller-shop--custom .seller-shop-card {
+    border-color: var(--seller-accent);
+  }
+  .seller-shop-header {
+    border: 1px solid #d7d7d7;
+    border-radius: .9rem;
+    overflow: hidden;
+    background: #fff;
+  }
+  .seller-shop-header-banner {
+    width: 100%;
+    max-height: 220px;
+    object-fit: cover;
+    display: block;
+  }
+  .seller-shop-header-body {
+    display: flex;
+    gap: .875rem;
+    align-items: center;
+    padding: .875rem 1rem;
+  }
+  .seller-shop--custom .seller-shop-header-body {
+    background: linear-gradient(180deg, #f8fcf8 0%, #ffffff 100%);
+    border-top: 2px solid var(--seller-accent);
+  }
+  .seller-shop-logo {
+    width: 64px;
+    height: 64px;
+    border-radius: .75rem;
+    border: 1px solid #d7d7d7;
+    object-fit: cover;
+    background: #fff;
+    flex: 0 0 auto;
+  }
+  .seller-shop--custom .btn-primary {
+    background: linear-gradient(135deg, #9ad49a, var(--seller-accent));
+    border-color: var(--seller-accent);
+  }
+  .seller-shop--custom .btn-primary:hover,
+  .seller-shop--custom .btn-primary:focus {
+    border-color: var(--seller-accent);
+    filter: brightness(.98);
+  }
+  .seller-shop--custom .page-item.active .page-link {
+    background: var(--seller-accent);
+    border-color: var(--seller-accent);
+  }
+  .seller-shop--layout-catalog .seller-shop-listings-col {
+    order: 1;
+  }
+  .seller-shop--layout-catalog .seller-shop-pay-col {
+    order: 2;
+  }
+  .seller-shop--layout-minimal .seller-shop-header .small {
+    display: none;
+  }
+  .seller-shop--layout-minimal .seller-shop-header-banner {
+    max-height: 170px;
+  }
+  .seller-shop--layout-minimal .seller-shop-pay-col .text-secondary.small.mb-3 {
+    display: none;
+  }
+</style>
+
+<div class="container-fluid seller-shop {% if storefront_theme_enabled %}seller-shop--custom{% endif %} seller-shop--layout-{{ storefront_layout|default:'balanced' }}" style="max-width: 1100px;">
+  {% if storefront_banner or storefront_logo %}
+    <div class="seller-shop-header mb-3 seller-shop-card">
+      {% if storefront_banner %}
+        <img src="{{ storefront_banner.url }}" alt="Storefront banner" class="seller-shop-header-banner">
+      {% endif %}
+      <div class="seller-shop-header-body">
+        {% if storefront_logo %}
+          <img src="{{ storefront_logo.url }}" alt="Storefront logo" class="seller-shop-logo">
+        {% endif %}
+        <div>
+          <div class="fw-semibold mb-0">
+            {% if profile and profile.public_seller_name %}{{ profile.public_seller_name }}{% else %}{{ seller.username }}{% endif %}
+          </div>
+          <div class="small text-secondary">Storefront branding</div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
   <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
     <div>
       <h1 class="h4 mb-1">
@@ -22,8 +109,8 @@
   </div>
 
   <div class="row g-3">
-    <div class="col-12 col-lg-4">
-      <div class="card shadow-sm">
+    <div class="col-12 col-lg-4 seller-shop-pay-col">
+      <div class="card shadow-sm seller-shop-card">
         <div class="card-body">
           <div class="fw-semibold mb-2">Quick pay (optional)</div>
           <div class="text-secondary small mb-3">Some buyers prefer paying via Venmo/PayPal/Zelle/Cash App. Use these only if the seller confirms payment in the app.</div>
@@ -50,6 +137,7 @@
               <div class="text-secondary small">{{ zelle }}</div>
               {% if qr_zelle %}<img src="{{ qr_zelle }}" class="img-fluid mt-2" alt="Zelle QR">{% endif %}
             </div>
+          {% endif %}
 
           {% if cashapp %}
             <div class="mb-0">
@@ -59,8 +147,6 @@
             </div>
           {% endif %}
 
-          {% endif %}
-
           {% if not venmo and not paypal and not zelle and not cashapp %}
             <div class="text-secondary small">No quick-pay methods listed.</div>
           {% endif %}
@@ -68,8 +154,8 @@
       </div>
     </div>
 
-    <div class="col-12 col-lg-8">
-      <div class="card shadow-sm">
+    <div class="col-12 col-lg-8 seller-shop-listings-col">
+      <div class="card shadow-sm seller-shop-card">
         <div class="card-body">
           <div class="fw-semibold mb-2">Listings</div>
           <div class="lm-sticky-bar lm-sticky-bar--inner mb-3">
@@ -157,7 +243,7 @@
                   {% elif n <= 2 or n > paginator.num_pages|add:"-2" or n|add:"-2" <= page_obj.number and n|add:"2" >= page_obj.number %}
                     <li class="page-item"><a class="page-link" href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if kind %}kind={{ kind|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}page={{ n }}">{{ n }}</a></li>
                   {% elif n == 3 or n == paginator.num_pages|add:"-2" %}
-                    <li class="page-item disabled"><span class="page-link">?</span></li>
+                    <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
                   {% endif %}
                 {% endfor %}
 

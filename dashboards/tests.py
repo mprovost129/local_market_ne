@@ -91,6 +91,11 @@ class SellerBulkActivateWaiverTests(TestCase):
         self.assertEqual(resp["Location"], reverse("dashboards:seller"))
         self.assertEqual(SellerFeeWaiver.objects.filter(user=self.seller).count(), 1)
 
+    def test_seller_dashboard_renders_without_legacy_product_relations(self):
+        resp = self.client.get(reverse("dashboards:seller"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Seller dashboard")
+
 
 class AdminOpsPanelTests(TestCase):
     def setUp(self):

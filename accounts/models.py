@@ -23,8 +23,18 @@ US_STATES = [
     ("DC", "District of Columbia"),
 ]
 
+STORE_COLOR_VALIDATOR = RegexValidator(
+    regex=r"^#[0-9A-Fa-f]{6}$",
+    message="Enter a valid hex color like #2F4F2F.",
+)
+
 
 class Profile(models.Model):
+    class StorefrontLayout(models.TextChoices):
+        BALANCED = "balanced", "Balanced"
+        CATALOG = "catalog", "Catalog focus"
+        MINIMAL = "minimal", "Minimal"
+
     # Public profile fields
     bio = models.TextField(blank=True, help_text="Short public bio/about for your shop.")
     website = models.URLField(blank=True, help_text="Personal or shop website.")
@@ -32,6 +42,35 @@ class Profile(models.Model):
     social_twitter = models.URLField(blank=True, help_text="Twitter/X profile URL.")
     social_facebook = models.URLField(blank=True, help_text="Facebook profile URL.")
     social_youtube = models.URLField(blank=True, help_text="YouTube channel URL.")
+    storefront_theme_enabled = models.BooleanField(
+        default=False,
+        help_text="Allow your storefront to use your custom branding color.",
+    )
+    storefront_layout = models.CharField(
+        max_length=16,
+        choices=StorefrontLayout.choices,
+        default=StorefrontLayout.BALANCED,
+        help_text="Choose a storefront layout style.",
+    )
+    storefront_primary_color = models.CharField(
+        max_length=7,
+        blank=True,
+        default="",
+        validators=[STORE_COLOR_VALIDATOR],
+        help_text="Storefront accent color in hex (example: #2F4F2F).",
+    )
+    storefront_logo = models.ImageField(
+        upload_to="storefront/logos/",
+        blank=True,
+        null=True,
+        help_text="Optional storefront logo shown on your shop header.",
+    )
+    storefront_banner = models.ImageField(
+        upload_to="storefront/banners/",
+        blank=True,
+        null=True,
+        help_text="Optional storefront banner image shown on your shop header.",
+    )
 
     # Optional off-platform payment handles (shown on shop page + checkout instructions)
     venmo_handle = models.CharField(max_length=64, blank=True, default="", help_text="Optional Venmo handle (no @).")

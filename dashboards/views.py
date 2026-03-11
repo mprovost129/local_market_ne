@@ -275,13 +275,15 @@ def seller_dashboard(request):
             }
         )
 
-    listings = Product.objects.filter(seller=user).prefetch_related("images", "digital_assets", "service", "physical")
+    listings = Product.objects.filter(seller=user).prefetch_related("images")
 
     def get_listing_checklist(product):
+        has_specs = bool((product.short_description or "").strip() or (product.description or "").strip())
         return {
             "has_image": product.images.exists(),
-            "has_specs": product.has_specs,
-            "has_assets": product.digital_assets.exists() if product.kind == product.Kind.FILE else True,
+            "has_specs": has_specs,
+            # v1 marketplace listings do not have separate digital asset relations.
+            "has_assets": True,
             "is_active": product.is_active,
         }
 
