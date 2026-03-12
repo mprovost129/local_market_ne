@@ -1,6 +1,7 @@
 # products/views_seller.py
 from __future__ import annotations
 
+import uuid
 from typing import List
 
 from django.contrib import messages
@@ -276,6 +277,21 @@ def seller_product_images(request, pk: int):
     product = _get_owned_product_or_404(request, pk)
 
     if request.method == "POST":
+        set_primary_image_id = (request.POST.get("set_primary_image_id") or "").strip()
+        if set_primary_image_id:
+            try:
+                image_uuid = uuid.UUID(set_primary_image_id)
+            except ValueError:
+                messages.error(request, "Invalid image selection.")
+                return redirect("products:seller_images", pk=product.pk)
+
+            img = get_object_or_404(ProductImage, pk=image_uuid, product=product)
+            product.images.update(is_primary=False)
+            img.is_primary = True
+            img.save(update_fields=["is_primary"])
+            messages.success(request, "Primary image updated.")
+            return redirect("products:seller_images", pk=product.pk)
+
         action = (request.POST.get("action") or "").strip().lower()
         if action == "save_draft":
             if product.is_active:

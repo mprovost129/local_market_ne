@@ -21,6 +21,11 @@ urlpatterns = [
     ),
     # Seller payouts / ledger
     path("payouts/", views.payouts_dashboard, name="payouts_dashboard"),
+    # PayPal seller partner onboarding
+    path("paypal/connect/", views.paypal_connect_status, name="paypal_connect_status"),
+    path("paypal/connect/start/", views.paypal_connect_start, name="paypal_connect_start"),
+    path("paypal/connect/refresh/", views.paypal_connect_refresh, name="paypal_connect_refresh"),
+    path("paypal/connect/return/", views.paypal_connect_return, name="paypal_connect_return"),
     path("fees/", views.fees_dashboard, name="fees_dashboard"),
     path("fees/pay/", views.fees_pay_now, name="fees_pay_now"),
     path("fees/success/", views.fees_success, name="fees_success"),

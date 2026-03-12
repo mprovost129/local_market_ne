@@ -16,10 +16,10 @@ from core.config import get_site_config
 from orders.models import Order, OrderEvent, OrderItem, StripeWebhookEvent
 from payments.models import SellerFeeInvoice
 from orders.stripe_service import create_checkout_session_for_order, create_transfers_for_paid_order
-from orders.paypal_service import capture_paypal_order
+from orders.paypal_service import capture_paypal_order, create_paypal_order_for_checkout
 from orders.webhooks import process_stripe_event_dict
 from orders.views import _order_seller_groups
-from payments.models import SellerStripeAccount
+from payments.models import SellerPayPalAccount, SellerStripeAccount
 from products.models import Product
 
 
@@ -274,7 +274,8 @@ class CheckoutFlowTests(TestCase):
 
         resp = self.client.get(reverse("orders:detail", kwargs={"order_id": order.pk}))
         self.assertEqual(resp.status_code, 200)
-        self.assertTrue(resp.context["can_paypal"])
+        self.assertFalse(resp.context["can_paypal"])
+        self.assertTrue(resp.context["any_paypal"])
         self.assertFalse(resp.context["can_zelle"])
 
     def test_awaiting_payment_builds_paypal_me_link_with_amount(self):
@@ -324,6 +325,18 @@ class CheckoutFlowTests(TestCase):
     def test_paypal_native_checkout_redirects_to_paypal_approval(self):
         order = self._create_pending_order()
         self.client.force_login(self.buyer)
+        SellerPayPalAccount.objects.create(
+            user=self.seller1,
+            paypal_merchant_id="M_S1",
+            payments_receivable=True,
+            primary_email_confirmed=True,
+        )
+        SellerPayPalAccount.objects.create(
+            user=self.seller2,
+            paypal_merchant_id="M_S2",
+            payments_receivable=True,
+            primary_email_confirmed=True,
+        )
 
         with patch("orders.views.create_paypal_order_for_checkout", return_value="https://www.paypal.com/checkoutnow?token=abc123"):
             resp = self.client.post(
@@ -332,6 +345,24 @@ class CheckoutFlowTests(TestCase):
             )
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp["Location"], "https://www.paypal.com/checkoutnow?token=abc123")
+
+    @override_settings(RECAPTCHA_ENABLED=False, PAYPAL_CLIENT_ID="test-paypal-id", PAYPAL_CLIENT_SECRET="test-paypal-secret")
+    def test_paypal_checkout_blocks_when_seller_not_paypal_connected(self):
+        order = self._create_pending_order()
+        self.client.force_login(self.buyer)
+        SellerPayPalAccount.objects.create(
+            user=self.seller1,
+            paypal_merchant_id="M_S1",
+            payments_receivable=True,
+            primary_email_confirmed=True,
+        )
+        resp = self.client.post(
+            reverse("orders:checkout_start", kwargs={"order_id": order.pk}),
+            data={"payment_method": "paypal"},
+            follow=True,
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "haven't completed PayPal onboarding")
 
     @override_settings(PAYPAL_CLIENT_ID="test-paypal-id", PAYPAL_CLIENT_SECRET="test-paypal-secret")
     def test_paypal_return_captures_and_marks_paid(self):
@@ -406,6 +437,48 @@ class CheckoutFlowTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         order.refresh_from_db()
         self.assertEqual(order.paypal_capture_id, "CAPTURE-WEBHOOK-1")
+
+    @override_settings(PAYPAL_CLIENT_ID="test-paypal-id", PAYPAL_CLIENT_SECRET="test-paypal-secret")
+    def test_create_paypal_order_builds_per_seller_purchase_units(self):
+        order = self._create_pending_order()
+        order.platform_fee_cents_snapshot = 125
+        order.recompute_totals()
+        order.save(update_fields=["platform_fee_cents_snapshot", "subtotal_cents", "tax_cents", "shipping_cents", "total_cents", "kind", "updated_at"])
+        self.client.force_login(self.buyer)
+        SellerPayPalAccount.objects.create(
+            user=self.seller1,
+            paypal_merchant_id="M_S1",
+            payments_receivable=True,
+            primary_email_confirmed=True,
+        )
+        SellerPayPalAccount.objects.create(
+            user=self.seller2,
+            paypal_merchant_id="M_S2",
+            payments_receivable=True,
+            primary_email_confirmed=True,
+        )
+        request = self.client.request().wsgi_request
+
+        captured_payload: dict = {}
+        fake_response = {
+            "id": "PO-123",
+            "links": [{"rel": "approve", "href": "https://www.paypal.com/checkoutnow?token=PO-123"}],
+        }
+
+        def _fake_paypal_request(*, method, path, json_payload=None, headers=None):
+            if method == "POST" and path == "/v2/checkout/orders":
+                captured_payload.update(json_payload or {})
+                return fake_response
+            return {}
+
+        with patch("orders.paypal_service._paypal_request", side_effect=_fake_paypal_request):
+            approve_url = create_paypal_order_for_checkout(request=request, order=order)
+
+        self.assertEqual(approve_url, "https://www.paypal.com/checkoutnow?token=PO-123")
+        units = captured_payload.get("purchase_units") or []
+        self.assertEqual(len(units), 2)
+        self.assertEqual(sum(int(Decimal(u["amount"]["value"]) * 100) for u in units), int(order.total_cents))
+        self.assertTrue(all("payee" in u and u["payee"].get("merchant_id") for u in units))
 
 
 class WebhookIdempotencyTests(TestCase):

@@ -140,6 +140,11 @@
     <div class="fw-semibold mb-1">Stripe setup status</div>
     You're ready to sell when all three badges show: Details submitted, Charges enabled, and Payouts enabled (or when "Ready to sell" appears).
   </div>
+
+  <div class="alert alert-light border small">
+    Need PayPal connected-seller onboarding too?
+    <a href="{% url 'payments:paypal_connect_status' %}" class="text-decoration-none">Open PayPal Seller Connect</a>.
+  </div>
 </div>
 {% endblock %}
 

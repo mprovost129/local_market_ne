@@ -108,9 +108,11 @@
                       </div>
                       <div class="d-flex gap-1">
                         {% if not img.is_primary %}
-                          <form method="post" action="{% url 'products:seller_image_update' product.pk img.pk %}" class="d-inline">
+                          {% url 'products:seller_image_update' product.pk img.pk as seller_image_update_url %}
+                          <form method="post" action="{{ seller_image_update_url|default:request.path }}" class="d-inline">
                             {% csrf_token %}
                             <input type="hidden" name="set_primary" value="1">
+                            <input type="hidden" name="set_primary_image_id" value="{{ img.pk }}">
                             <button class="btn btn-sm btn-outline-primary" type="submit">Set primary</button>
                           </form>
                         {% endif %}

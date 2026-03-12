@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}PayPal Seller Connect - Local Market NE{% endblock %}
+
+{% block content %}
+<div class="container-fluid lm-page-wrap">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div>
+      <h1 class="h4 mb-1">PayPal Seller Connect</h1>
+      <div class="text-secondary small">Connect a PayPal business account for marketplace seller onboarding.</div>
+    </div>
+  </div>
+
+  {% if messages %}
+    <div class="mb-3">
+      {% for message in messages %}
+        <div class="alert alert-info mb-2">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if not paypal_partner_enabled %}
+    <div class="alert alert-warning">
+      <div class="fw-semibold mb-1">PayPal partner onboarding is not configured</div>
+      <div class="small">Set <code>PAYPAL_PARTNER_MERCHANT_ID</code> in environment settings to enable connected seller onboarding.</div>
+    </div>
+  {% endif %}
+
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="text-secondary small mb-1">Seller merchant ID</div>
+          {% if paypal_account.paypal_merchant_id %}
+            <div class="fw-semibold">{{ paypal_account.paypal_merchant_id }}</div>
+          {% else %}
+            <div class="text-secondary">Not connected yet.</div>
+          {% endif %}
+        </div>
+        <div class="col-md-6">
+          <div class="text-secondary small mb-1">Status</div>
+          <div class="d-flex flex-column gap-1">
+            <div>
+              {% if paypal_account.primary_email_confirmed %}
+                <span class="badge text-bg-success">Email confirmed</span>
+              {% else %}
+                <span class="badge text-bg-secondary">Email not confirmed</span>
+              {% endif %}
+            </div>
+            <div>
+              {% if paypal_account.payments_receivable %}
+                <span class="badge text-bg-success">Payments receivable</span>
+              {% else %}
+                <span class="badge text-bg-secondary">Payments receivable pending</span>
+              {% endif %}
+            </div>
+            <div>
+              {% if paypal_account.is_ready %}
+                <span class="badge text-bg-success">Connected</span>
+              {% else %}
+                <span class="badge text-bg-secondary">Not connected</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% if paypal_account.paypal_account_email %}
+        <div class="text-secondary small mt-3">PayPal account email: <strong>{{ paypal_account.paypal_account_email }}</strong></div>
+      {% endif %}
+
+      <hr>
+
+      <form method="post" action="{% url 'payments:paypal_connect_start' %}">
+        {% csrf_token %}
+        <button class="btn btn-primary" type="submit" {% if not paypal_partner_enabled %}disabled{% endif %}>
+          <i class="bi bi-paypal me-1"></i>
+          {% if paypal_account.paypal_merchant_id %}Continue PayPal setup{% else %}Connect PayPal business account{% endif %}
+        </button>
+      </form>
+
+      <div class="text-secondary small mt-2">
+        You will be redirected to PayPal to grant marketplace permissions. This is separate from optional off-platform <code>paypal.me</code> links.
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

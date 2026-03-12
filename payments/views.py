@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import stripe
+import re
 
 from django.contrib import messages
 from django.conf import settings
@@ -24,7 +25,12 @@ from legal.services import has_accepted_doc_type, record_acceptance_for_doc_type
 
 from products.permissions import seller_required
 
-from .models import SellerBalanceEntry, SellerFeeInvoice, SellerStripeAccount
+from .models import SellerBalanceEntry, SellerFeeInvoice, SellerPayPalAccount, SellerStripeAccount
+from .paypal_connect import (
+    create_partner_referral,
+    get_merchant_integration_status,
+    paypal_partner_onboarding_enabled,
+)
 from .services import get_seller_balance_cents
 from .stripe_connect import create_account_link, create_express_account, retrieve_account
 
@@ -40,6 +46,61 @@ def _stripe_connect_setup_message(exc: Exception) -> str:
     if msg:
         return f"Stripe onboarding could not start: {msg}"
     return "Stripe onboarding could not start right now. Please try again."
+
+
+def _paypal_connect_setup_message(exc: Exception) -> str:
+    msg = str(exc or "").strip()
+    if msg:
+        return f"PayPal onboarding could not start: {msg}"
+    return "PayPal onboarding could not start right now. Please try again."
+
+
+def _bool_like(v) -> bool:
+    if isinstance(v, bool):
+        return v
+    if isinstance(v, (int, float)):
+        return bool(v)
+    txt = str(v or "").strip().lower()
+    return txt in {"1", "true", "yes", "y", "enabled"}
+
+
+def _merchant_status_from_payload(payload: dict) -> tuple[bool, bool, str]:
+    """
+    Parse PayPal merchant integration payload into:
+      (payments_receivable, primary_email_confirmed, account_email)
+    This is best-effort and resilient to schema variation.
+    """
+    if not isinstance(payload, dict):
+        return False, False, ""
+
+    text = str(payload)
+    payments_receivable = False
+    primary_email_confirmed = False
+
+    # Direct keys (preferred)
+    for key in ("payments_receivable", "paymentsReceivable"):
+        if key in payload:
+            payments_receivable = _bool_like(payload.get(key))
+            break
+    for key in ("primary_email_confirmed", "primaryEmailConfirmed", "email_confirmed", "emailConfirmed"):
+        if key in payload:
+            primary_email_confirmed = _bool_like(payload.get(key))
+            break
+
+    # Fallback heuristic for nested payloads.
+    if not payments_receivable and re.search(r"payments?_receivable['\"]?\s*[:=]\s*(true|1)", text, flags=re.I):
+        payments_receivable = True
+    if not primary_email_confirmed and re.search(r"email[_ ]?confirmed['\"]?\s*[:=]\s*(true|1)", text, flags=re.I):
+        primary_email_confirmed = True
+
+    account_email = ""
+    for key in ("email", "account_email", "primary_email", "payer_email"):
+        val = payload.get(key)
+        if isinstance(val, str) and val.strip():
+            account_email = val.strip()
+            break
+
+    return payments_receivable, primary_email_confirmed, account_email
 
 
 def _seller_email_for_connect(user) -> str:
@@ -312,6 +373,124 @@ def connect_return(request):
         )
 
     return redirect("payments:connect_status")
+
+
+@seller_required
+def paypal_connect_status(request):
+    """
+    Seller-facing PayPal partner onboarding status.
+
+    This is true connected-seller onboarding (not paypal.me handle setup).
+    """
+    obj, _ = SellerPayPalAccount.objects.get_or_create(user=request.user)
+    enabled = paypal_partner_onboarding_enabled()
+
+    # Best-effort status refresh if linked but not yet marked ready.
+    if enabled and obj.paypal_merchant_id:
+        try:
+            payload = get_merchant_integration_status(seller_merchant_id=obj.paypal_merchant_id)
+            recv, email_ok, account_email = _merchant_status_from_payload(payload)
+            updates = []
+            if obj.payments_receivable != recv:
+                obj.payments_receivable = recv
+                updates.append("payments_receivable")
+            if obj.primary_email_confirmed != email_ok:
+                obj.primary_email_confirmed = email_ok
+                updates.append("primary_email_confirmed")
+            if account_email and obj.paypal_account_email != account_email:
+                obj.paypal_account_email = account_email
+                updates.append("paypal_account_email")
+            if updates:
+                updates.append("updated_at")
+                obj.save(update_fields=updates)
+            obj.mark_onboarding_completed_if_ready()
+        except Exception:
+            pass
+
+    return render(
+        request,
+        "payments/paypal_connect_status.html",
+        {
+            "paypal_account": obj,
+            "paypal_partner_enabled": enabled,
+            "paypal_partner_merchant_id": (getattr(settings, "PAYPAL_PARTNER_MERCHANT_ID", "") or "").strip(),
+        },
+    )
+
+
+@seller_required
+@email_verified_required
+@require_POST
+def paypal_connect_start(request):
+    obj, _ = SellerPayPalAccount.objects.get_or_create(user=request.user)
+    if not paypal_partner_onboarding_enabled():
+        messages.error(
+            request,
+            "PayPal partner onboarding is not configured. Add PAYPAL_PARTNER_MERCHANT_ID and retry.",
+        )
+        return redirect("payments:paypal_connect_status")
+
+    try:
+        action_url, tracking_id = create_partner_referral(request=request, tracking_id=obj.partner_referral_tracking_id)
+    except Exception as e:
+        messages.error(request, _paypal_connect_setup_message(e))
+        return redirect("payments:paypal_connect_status")
+
+    obj.mark_onboarding_started(tracking_id=tracking_id)
+    return redirect(action_url)
+
+
+@seller_required
+def paypal_connect_refresh(request):
+    messages.info(request, "Your PayPal onboarding link expired. Start again to generate a new one.")
+    return redirect("payments:paypal_connect_status")
+
+
+@seller_required
+def paypal_connect_return(request):
+    obj, _ = SellerPayPalAccount.objects.get_or_create(user=request.user)
+
+    # Common return params: merchantIdInPayPal / merchantId (varies by PayPal flow).
+    merchant_id = (
+        (request.GET.get("merchantIdInPayPal") or "").strip()
+        or (request.GET.get("merchantId") or "").strip()
+        or (request.GET.get("merchant_id") or "").strip()
+    )
+
+    if merchant_id and obj.paypal_merchant_id != merchant_id:
+        obj.paypal_merchant_id = merchant_id
+        obj.save(update_fields=["paypal_merchant_id", "updated_at"])
+
+    if obj.paypal_merchant_id:
+        try:
+            payload = get_merchant_integration_status(seller_merchant_id=obj.paypal_merchant_id)
+            recv, email_ok, account_email = _merchant_status_from_payload(payload)
+            updates = []
+            if obj.payments_receivable != recv:
+                obj.payments_receivable = recv
+                updates.append("payments_receivable")
+            if obj.primary_email_confirmed != email_ok:
+                obj.primary_email_confirmed = email_ok
+                updates.append("primary_email_confirmed")
+            if account_email and obj.paypal_account_email != account_email:
+                obj.paypal_account_email = account_email
+                updates.append("paypal_account_email")
+            if updates:
+                updates.append("updated_at")
+                obj.save(update_fields=updates)
+            obj.mark_onboarding_completed_if_ready()
+        except Exception:
+            messages.info(
+                request,
+                "PayPal returned successfully, but account status is still syncing. Refresh in a moment.",
+            )
+            return redirect("payments:paypal_connect_status")
+
+    if obj.is_ready:
+        messages.success(request, "PayPal seller onboarding is connected.")
+    else:
+        messages.info(request, "PayPal onboarding saved. Complete any remaining PayPal steps if prompted.")
+    return redirect("payments:paypal_connect_status")
 
 
 @seller_required

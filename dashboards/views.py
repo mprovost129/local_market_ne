@@ -236,8 +236,6 @@ def seller_dashboard(request):
     profile = getattr(user, "profile", None)
     has_public_location = bool((getattr(profile, "zip_code", "") or "").strip())
     has_shop_name = bool((getattr(profile, "shop_name", "") or "").strip())
-    has_venmo = bool((getattr(profile, "venmo_handle", "") or "").strip())
-    has_paypal = bool((getattr(profile, "paypal_me_url", "") or "").strip())
     email_verified = bool(getattr(profile, "email_verified", False))
     age_ok = bool(getattr(profile, "is_age_18_confirmed", False))
     policy_ack = bool(getattr(profile, "seller_prohibited_items_ack", False))
@@ -248,8 +246,6 @@ def seller_dashboard(request):
         {"key": "age", "label": "Confirm you're 18+", "done": age_ok, "url": reverse("accounts:profile")},
         {"key": "policy", "label": "Acknowledge prohibited items policy", "done": policy_ack, "url": reverse("accounts:profile")},
         {"key": "stripe", "label": "Connect Stripe payouts", "done": bool(getattr(stripe_obj, "is_ready", False)), "url": reverse("payments:connect_start")},
-        {"key": "venmo", "label": "Add Venmo checkout handle", "done": has_venmo, "url": f"{reverse('accounts:profile')}#offplatform-payments"},
-        {"key": "paypal", "label": "Add PayPal checkout handle", "done": has_paypal, "url": f"{reverse('accounts:profile')}#offplatform-payments"},
         {"key": "shop", "label": "Add your shop name", "done": has_shop_name, "url": reverse("accounts:profile")},
         {"key": "location", "label": "Set your ZIP code", "done": has_public_location, "url": reverse("accounts:profile")},
         {"key": "listing", "label": "Create your first listing", "done": has_listing, "url": reverse("products:seller_create")},

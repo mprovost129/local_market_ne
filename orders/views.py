@@ -30,7 +30,12 @@ from products.permissions import is_owner_user, is_seller_user, seller_required
 from .models import Order, OrderItem, OrderEvent
 from .services import create_order_from_cart, refresh_fulfillment_task_for_seller
 from .stripe_service import create_checkout_session_for_order
-from .paypal_service import capture_paypal_order, create_paypal_order_for_checkout, paypal_enabled
+from .paypal_service import (
+    capture_paypal_order,
+    create_paypal_order_for_checkout,
+    get_unready_paypal_sellers,
+    paypal_enabled,
+)
 
 from legal.models import LegalDocument
 from legal.services import record_acceptance_for_doc_types
@@ -213,9 +218,11 @@ def _order_seller_groups(order: Order):
                 "items": [],
                 "tip_cents": 0,
                 "subtotal_cents": 0,
+                "shipping_cents": 0,
             }
         groups[sid]["items"].append(item)
         groups[sid]["subtotal_cents"] += int(item.line_total_cents or 0)
+        groups[sid]["shipping_cents"] += int(item.shipping_fee_cents_snapshot or 0) + int(item.delivery_fee_cents_snapshot or 0)
 
     for tip in order.items.select_related("seller").filter(is_tip=True):
         sid = int(tip.seller_id)
@@ -229,12 +236,16 @@ def _order_seller_groups(order: Order):
                 "items": [],
                 "tip_cents": 0,
                 "subtotal_cents": 0,
+                "shipping_cents": 0,
             }
         groups[sid]["tip_cents"] += int(tip.line_total_cents or 0)
 
     rows = []
     for _, g in sorted(groups.items(), key=lambda x: str(x[1]["company_name"]).lower()):
+        g["shipping_dollars"] = _money_text_from_cents(int(g["shipping_cents"]))
         g["tip_dollars"] = _money_text_from_cents(int(g["tip_cents"]))
+        g["total_due_cents"] = int(g["subtotal_cents"]) + int(g["shipping_cents"]) + int(g["tip_cents"])
+        g["total_due_dollars"] = _money_text_from_cents(int(g["total_due_cents"]))
         rows.append(g)
     return rows
 
@@ -453,17 +464,32 @@ def order_detail(request, order_id):
     # Off-platform QR codes (optional, seller-controlled toggles)
     offline_qr_by_seller = {}  # seller_id -> data uri
     offline_label_by_seller = {}  # seller_id -> display label/handle/url
+    offline_link_by_seller = {}  # seller_id -> deep link
     any_venmo = any_paypal = any_zelle = any_cashapp = False
+    can_venmo = can_paypal = can_zelle = can_cashapp = False
+    missing_by_method: dict[str, list[str]] = {}
     try:
         pm = (order.payment_method or "").strip()
+        seller_handles: dict[int, dict[str, str]] = {}
+        seller_name_by_id: dict[int, str] = {}
+        amounts_by_seller: dict[int, str] = {
+            int(g["seller_id"]): str(g["total_due_dollars"]) for g in _order_seller_groups(order)
+        }
         for oi in order.items.select_related("seller", "seller__profile").all():
             prof = getattr(oi.seller, "profile", None)
             if not prof:
                 continue
+            seller_name_by_id[int(oi.seller_id)] = str(getattr(oi.seller, "username", oi.seller_id))
             venmo = (getattr(prof, "venmo_handle", "") or "").strip()
             paypal = (getattr(prof, "paypal_me_url", "") or "").strip()
             zelle = (getattr(prof, "zelle_contact", "") or "").strip()
             cashapp = (getattr(prof, "cashapp_handle", "") or "").strip()
+            seller_handles[int(oi.seller_id)] = {
+                "venmo": venmo,
+                "paypal": paypal,
+                "zelle": zelle,
+                "cashapp": cashapp,
+            }
             if venmo:
                 any_venmo = True
             if paypal:
@@ -491,10 +517,42 @@ def order_detail(request, order_id):
             if data:
                 offline_qr_by_seller[oi.seller_id] = data
                 offline_label_by_seller[oi.seller_id] = label or ""
+
+            # Build optional deep-links for awaiting-payment guidance.
+            amount = amounts_by_seller.get(int(oi.seller_id), "0.00")
+            if pm == Order.PaymentMethod.VENMO and venmo:
+                offline_link_by_seller[int(oi.seller_id)] = f"https://venmo.com/{venmo.lstrip('@')}?txn=pay&amount={amount}"
+            elif pm == Order.PaymentMethod.PAYPAL and paypal:
+                base = paypal if paypal.startswith(("http://", "https://")) else f"https://{paypal}"
+                offline_link_by_seller[int(oi.seller_id)] = f"{base.rstrip('/')}/{amount}"
+            elif pm == Order.PaymentMethod.CASHAPP and cashapp:
+                offline_link_by_seller[int(oi.seller_id)] = f"https://cash.app/${cashapp.lstrip('$')}"
+
+        if seller_handles:
+            missing_by_method = {
+                "venmo": [seller_name_by_id[sid] for sid, v in seller_handles.items() if not v["venmo"]],
+                "zelle": [seller_name_by_id[sid] for sid, v in seller_handles.items() if not v["zelle"]],
+                "cashapp": [seller_name_by_id[sid] for sid, v in seller_handles.items() if not v["cashapp"]],
+            }
+            can_venmo = not bool(missing_by_method["venmo"])
+            can_zelle = not bool(missing_by_method["zelle"])
+            can_cashapp = not bool(missing_by_method["cashapp"])
+
+            # Native PayPal is available only when globally enabled and all sellers are connected.
+            if paypal_enabled():
+                missing_paypal_connect = get_unready_paypal_sellers(order=order)
+                can_paypal = not bool(missing_paypal_connect)
+                if missing_paypal_connect:
+                    missing_by_method["paypal_connect"] = list(missing_paypal_connect)
+            else:
+                can_paypal = False
     except Exception:
         offline_qr_by_seller = {}
         offline_label_by_seller = {}
+        offline_link_by_seller = {}
         any_venmo = any_paypal = any_zelle = any_cashapp = False
+        can_venmo = can_paypal = can_zelle = can_cashapp = False
+        missing_by_method = {}
 
 
     rated_seller_ids: set[int] = set()
@@ -523,10 +581,16 @@ def order_detail(request, order_id):
             "checkout_disabled_message": _safe_checkout_disabled_message(),
             "offline_qr_by_seller": offline_qr_by_seller,
             "offline_label_by_seller": offline_label_by_seller,
+            "offline_link_by_seller": offline_link_by_seller,
             "any_venmo": any_venmo,
             "any_paypal": any_paypal,
             "any_zelle": any_zelle,
             "any_cashapp": any_cashapp,
+            "can_venmo": can_venmo,
+            "can_paypal": can_paypal,
+            "can_zelle": can_zelle,
+            "can_cashapp": can_cashapp,
+            "missing_by_method": missing_by_method,
             "seller_groups": _order_seller_groups(order),
             "rated_seller_ids": rated_seller_ids,
         },
@@ -820,6 +884,10 @@ def checkout_start(request, order_id):
         messages.error(request, "This order includes a service deposit, which must be paid via Stripe.")
         return _redirect_order_detail(order, request)
 
+    if payment_method == Order.PaymentMethod.PAYPAL and not paypal_enabled():
+        messages.error(request, "PayPal checkout is not configured right now. Please choose another payment method.")
+        return _redirect_order_detail(order, request)
+
     if payment_method == Order.PaymentMethod.PAYPAL and paypal_enabled():
         inactive_titles = _order_inactive_titles(order)
         if inactive_titles and not _is_owner_request(request):
@@ -834,6 +902,14 @@ def checkout_start(request, order_id):
             messages.error(
                 request,
                 "One or more sellers in this order haven't completed payout setup yet: " + ", ".join(bad_sellers),
+            )
+            return _redirect_order_detail(order, request)
+
+        missing_paypal = get_unready_paypal_sellers(order=order)
+        if missing_paypal:
+            messages.error(
+                request,
+                "One or more sellers in this order haven't completed PayPal onboarding yet: " + ", ".join(missing_paypal),
             )
             return _redirect_order_detail(order, request)
 

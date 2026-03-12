@@ -41,12 +41,14 @@ Current behavior:
   - `venmo_handle`
   - `paypal_me_url`
 - PayPal can run as native in-app checkout when PayPal API env vars are configured.
+- PayPal connected-seller onboarding (partner referrals) requires partner merchant id.
 - Venmo remains seller-handle based in v1.
 
 | Variable | Required | Notes |
 |---|---:|---|
 | `PAYPAL_CLIENT_ID` | required for native PayPal | PayPal REST app client id. |
 | `PAYPAL_CLIENT_SECRET` | required for native PayPal | PayPal REST app client secret. |
+| `PAYPAL_PARTNER_MERCHANT_ID` | required for PayPal connected-seller onboarding | PayPal partner merchant id for `/v2/customer/partner-referrals` + merchant integration checks. |
 | `PAYPAL_WEBHOOK_ID` | recommended | Used to verify PayPal webhook signatures. Configure for app webhook URL: `/orders/webhooks/paypal/`. |
 | `PAYPAL_ENV` | optional | `sandbox` (default) or `live`. |
 | `VENMO_CLIENT_ID` | optional (future) | Needed only if Venmo direct API integration is added. |

@@ -7,7 +7,14 @@ from django.db.models import Sum
 
 from core.admin_filters import UserCompanyFilter
 
-from .models import SellerBalanceEntry, SellerFeeInvoice, SellerFeePlan, SellerFeeWaiver, SellerStripeAccount
+from .models import (
+    SellerBalanceEntry,
+    SellerFeeInvoice,
+    SellerFeePlan,
+    SellerFeeWaiver,
+    SellerPayPalAccount,
+    SellerStripeAccount,
+)
 
 
 class SellerCompanyFilter(UserCompanyFilter):
@@ -143,6 +150,36 @@ class SellerStripeAccountAdmin(admin.ModelAdmin):
     current_balance.short_description = "Balance"
 
     def user_company(self, obj: SellerStripeAccount) -> str:
+        profile = getattr(obj.user, "profile", None)
+        shop_name = (getattr(profile, "shop_name", "") or "").strip() if profile else ""
+        return shop_name or getattr(obj.user, "username", str(obj.user_id))
+
+    user_company.short_description = "Company"
+
+
+@admin.register(SellerPayPalAccount)
+class SellerPayPalAccountAdmin(admin.ModelAdmin):
+    list_display = (
+        "user",
+        "user_company",
+        "paypal_merchant_id",
+        "payments_receivable",
+        "primary_email_confirmed",
+        "onboarding_started_at",
+        "onboarding_completed_at",
+        "updated_at",
+    )
+    search_fields = (
+        "user__username",
+        "user__email",
+        "user__profile__shop_name",
+        "paypal_merchant_id",
+        "paypal_account_email",
+        "partner_referral_tracking_id",
+    )
+    list_filter = ("payments_receivable", "primary_email_confirmed", UserCompanyFilter)
+
+    def user_company(self, obj: SellerPayPalAccount) -> str:
         profile = getattr(obj.user, "profile", None)
         shop_name = (getattr(profile, "shop_name", "") or "").strip() if profile else ""
         return shop_name or getattr(obj.user, "username", str(obj.user_id))

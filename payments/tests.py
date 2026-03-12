@@ -11,7 +11,7 @@ from decimal import Decimal
 from catalog.models import Category
 from core.models import SiteConfig
 from legal.models import LegalDocument
-from payments.models import SellerFeeInvoice, SellerFeePlan, SellerFeeWaiver, SellerStripeAccount
+from payments.models import SellerFeeInvoice, SellerFeePlan, SellerFeeWaiver, SellerPayPalAccount, SellerStripeAccount
 from orders.models import Order
 from payments.services_fee_waiver import get_effective_marketplace_sales_percent_for_seller
 from products.models import Product
@@ -200,6 +200,37 @@ class SellerFeePlanOverrideTests(TestCase):
         SellerFeeWaiver.ensure_for_seller(user=self.seller, waiver_days=30)
         pct = get_effective_marketplace_sales_percent_for_seller(seller_user=self.seller)
         self.assertEqual(pct, Decimal("0.00"))
+
+
+class PayPalConnectStatusTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="seller_paypal_connect",
+            email="seller_paypal_connect@example.com",
+            password="pw123456",
+        )
+        profile = self.user.profile
+        profile.is_seller = True
+        profile.email_verified = True
+        profile.save(update_fields=["is_seller", "email_verified", "updated_at"])
+        self.client.force_login(self.user)
+
+    def test_paypal_connect_status_renders(self):
+        resp = self.client.get(reverse("payments:paypal_connect_status"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "PayPal Seller Connect")
+
+    def test_paypal_connect_start_marks_onboarding_started(self):
+        with patch("payments.views.paypal_partner_onboarding_enabled", return_value=True), patch(
+            "payments.views.create_partner_referral",
+            return_value=("https://paypal.example/onboard", "track_abc_123"),
+        ):
+            resp = self.client.post(reverse("payments:paypal_connect_start"))
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["Location"], "https://paypal.example/onboard")
+        acct = SellerPayPalAccount.objects.get(user=self.user)
+        self.assertTrue(bool(acct.onboarding_started_at))
+        self.assertEqual(acct.partner_referral_tracking_id, "track_abc_123")
 
 
 class SellerFeeInvoiceFlowTests(TestCase):

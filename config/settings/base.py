@@ -253,6 +253,8 @@ PAYPAL_CLIENT_ID = (os.getenv("PAYPAL_CLIENT_ID") or "").strip()
 PAYPAL_CLIENT_SECRET = (os.getenv("PAYPAL_CLIENT_SECRET") or "").strip()
 PAYPAL_WEBHOOK_ID = (os.getenv("PAYPAL_WEBHOOK_ID") or "").strip()
 PAYPAL_ENV = (os.getenv("PAYPAL_ENV") or "sandbox").strip().lower()
+# PayPal marketplace/partner onboarding
+PAYPAL_PARTNER_MERCHANT_ID = (os.getenv("PAYPAL_PARTNER_MERCHANT_ID") or "").strip()
 
 # ------------------------------------------------------------------------------
 # AWS S3 (optional)

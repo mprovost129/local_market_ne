@@ -109,6 +109,68 @@ class SellerStripeAccount(models.Model):
         self._sync_profile()
 
 
+class SellerPayPalAccount(models.Model):
+    """
+    Stores PayPal partner onboarding linkage for a seller user.
+
+    This is separate from profile.paypal_me_url (which is only an optional
+    off-platform handle and not a connected marketplace payout account).
+    """
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="paypal_connect",
+    )
+
+    # Set after PayPal seller onboarding succeeds.
+    paypal_merchant_id = models.CharField(max_length=255, blank=True, default="", db_index=True)
+    paypal_account_email = models.EmailField(blank=True, default="")
+
+    # We store the latest referral tracking id for diagnostics/webhook correlation.
+    partner_referral_tracking_id = models.CharField(max_length=64, blank=True, default="", db_index=True)
+
+    # Best-effort capability flags from merchant-integrations API.
+    payments_receivable = models.BooleanField(default=False)
+    primary_email_confirmed = models.BooleanField(default=False)
+
+    onboarding_started_at = models.DateTimeField(null=True, blank=True)
+    onboarding_completed_at = models.DateTimeField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["paypal_merchant_id"]),
+            models.Index(fields=["payments_receivable", "primary_email_confirmed"]),
+        ]
+
+    def __str__(self) -> str:
+        mid = self.paypal_merchant_id or "unlinked"
+        return f"SellerPayPalAccount<{self.user.id}> {mid}"
+
+    @property
+    def is_ready(self) -> bool:
+        return bool(self.paypal_merchant_id) and bool(self.payments_receivable)
+
+    def mark_onboarding_started(self, *, tracking_id: str = "") -> None:
+        changed = False
+        if not self.onboarding_started_at:
+            self.onboarding_started_at = timezone.now()
+            changed = True
+        if tracking_id and self.partner_referral_tracking_id != tracking_id:
+            self.partner_referral_tracking_id = tracking_id[:64]
+            changed = True
+        if changed:
+            self.save(update_fields=["onboarding_started_at", "partner_referral_tracking_id", "updated_at"])
+
+    def mark_onboarding_completed_if_ready(self) -> None:
+        if self.is_ready and not self.onboarding_completed_at:
+            self.onboarding_completed_at = timezone.now()
+            self.save(update_fields=["onboarding_completed_at", "updated_at"])
+
+
 class SellerFeeWaiver(models.Model):
     """
     Per-seller marketplace fee waiver window.
