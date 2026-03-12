@@ -61,11 +61,11 @@
                     <i class="bi bi-lightbulb me-1"></i>Tips
                   </a>
                 </li>
-<li>
-  <a class="dropdown-item" href="{% url 'core:contact' %}">
-    <i class="bi bi-envelope me-1"></i>Contact
-  </a>
-</li>
+                <li>
+                  <a class="dropdown-item" href="{% url 'core:contact' %}">
+                    <i class="bi bi-envelope me-1"></i>Contact
+                  </a>
+                </li>
 
                 <li><hr class="dropdown-divider"></li>
                 <li>
@@ -73,14 +73,14 @@
                     <i class="bi bi-shield-check me-1"></i>Policies
                   </a>
                 </li>
-</ul>
+              </ul>
             </li>
 
             {% if user.is_authenticated %}
               {% with user_is_seller=user_is_seller|default:False user_is_owner=user_is_owner|default:False %}
                 {% if user_is_seller or user_is_owner %}
                   <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" data-lm-ignore-deadend id="myStoreDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle" href="{% url 'products:seller_shop' user.id %}" id="myStoreDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                       My Store
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="myStoreDropdown">
@@ -99,7 +99,7 @@
                 {% endif %}
 
                 <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle" href="#" data-lm-ignore-deadend id="myOrdersDropdown" role="button"
+                  <a class="nav-link dropdown-toggle" href="{% url 'orders:my_orders' %}" id="myOrdersDropdown" role="button"
                      data-bs-toggle="dropdown" aria-expanded="false">
                     My Orders
                   </a>

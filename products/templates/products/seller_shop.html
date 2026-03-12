@@ -69,6 +69,13 @@
   .seller-shop--layout-minimal .seller-shop-pay-col .text-secondary.small.mb-3 {
     display: none;
   }
+  .seller-shop-links a {
+    text-decoration: none;
+  }
+  .seller-shop-links a:hover,
+  .seller-shop-links a:focus {
+    text-decoration: underline;
+  }
 </style>
 
 <div class="container-fluid seller-shop {% if storefront_theme_enabled %}seller-shop--custom{% endif %} seller-shop--layout-{{ storefront_layout|default:'balanced' }}" style="max-width: 1100px;">
@@ -105,6 +112,40 @@
            - <span class="text-secondary">Service radius ~{{ profile.service_radius_miles }} mi</span>
         {% endif %}
       </div>
+      {% if profile and profile.bio %}
+        <p class="mb-0 mt-2">{{ profile.bio }}</p>
+      {% endif %}
+      {% if profile %}
+        {% if profile.website or profile.social_instagram or profile.social_twitter or profile.social_facebook or profile.social_youtube %}
+          <div class="seller-shop-links d-flex flex-wrap gap-2 mt-2 small">
+            {% if profile.website %}
+              <a class="badge text-bg-light border" href="{{ profile.website }}" target="_blank" rel="noopener noreferrer nofollow">
+                <i class="bi bi-globe2 me-1"></i>Website
+              </a>
+            {% endif %}
+            {% if profile.social_instagram %}
+              <a class="badge text-bg-light border" href="{{ profile.social_instagram }}" target="_blank" rel="noopener noreferrer nofollow">
+                <i class="bi bi-instagram me-1"></i>Instagram
+              </a>
+            {% endif %}
+            {% if profile.social_twitter %}
+              <a class="badge text-bg-light border" href="{{ profile.social_twitter }}" target="_blank" rel="noopener noreferrer nofollow">
+                <i class="bi bi-twitter-x me-1"></i>X
+              </a>
+            {% endif %}
+            {% if profile.social_facebook %}
+              <a class="badge text-bg-light border" href="{{ profile.social_facebook }}" target="_blank" rel="noopener noreferrer nofollow">
+                <i class="bi bi-facebook me-1"></i>Facebook
+              </a>
+            {% endif %}
+            {% if profile.social_youtube %}
+              <a class="badge text-bg-light border" href="{{ profile.social_youtube }}" target="_blank" rel="noopener noreferrer nofollow">
+                <i class="bi bi-youtube me-1"></i>YouTube
+              </a>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endif %}
     </div>
   </div>
 
