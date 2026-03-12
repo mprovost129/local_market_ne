@@ -112,6 +112,13 @@
            - <span class="text-secondary">Service radius ~{{ profile.service_radius_miles }} mi</span>
         {% endif %}
       </div>
+      <div class="small mt-1">
+        {% if seller_rating_count %}
+          <span class="badge text-bg-light border">Seller rating {{ seller_rating_avg|floatformat:1 }}/5 ({{ seller_rating_count }})</span>
+        {% else %}
+          <span class="badge text-bg-light border">Seller rating: Not rated yet</span>
+        {% endif %}
+      </div>
       {% if profile and profile.bio %}
         <p class="mb-0 mt-2">{{ profile.bio }}</p>
       {% endif %}

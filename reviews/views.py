@@ -14,9 +14,10 @@ from core.throttle_rules import REVIEW_CREATE, REVIEW_REPLY
 from accounts.decorators import email_verified_required
 from core.recaptcha import require_recaptcha_v3
 
-from .forms import ReviewForm, ReviewReplyForm, SellerReviewForm
-from .models import Review, SellerReview
+from .forms import BuyerReviewForm, ReviewForm, ReviewReplyForm, SellerReviewForm
+from .models import BuyerReview, Review, SellerReview
 from .services import (
+    get_rateable_buyer_order_for_seller_or_403,
     create_review_reply_or_403,
     get_rateable_seller_order_or_403,
     get_reviewable_order_item_or_403,
@@ -121,6 +122,46 @@ def seller_review_create(request, order_id: int, seller_id: int):
         request,
         "reviews/seller_review_form.html",
         {"form": form, "order": order, "seller_id": seller_id},
+    )
+
+
+@require_http_methods(["GET", "POST"])
+@login_required
+@email_verified_required
+@require_recaptcha_v3("buyer_review_create")
+def buyer_review_create(request, order_id: int, buyer_id: int):
+    """Create a buyer rating by a seller within a specific PAID order."""
+    try:
+        order = get_rateable_buyer_order_for_seller_or_403(
+            user=request.user, order_id=order_id, buyer_id=buyer_id
+        )
+    except PermissionDenied:
+        raise Http404("Not found")
+
+    existing = BuyerReview.objects.filter(
+        order_id=order.id, seller_id=request.user.id, buyer_id=buyer_id
+    ).first()
+    if existing:
+        messages.info(request, "You already rated this buyer for this order.")
+        return redirect("orders:seller_order_detail", order_id=order.id)
+
+    if request.method == "POST":
+        form = BuyerReviewForm(request.POST)
+        if form.is_valid():
+            br: BuyerReview = form.save(commit=False)
+            br.order = order
+            br.seller = request.user
+            br.buyer_id = buyer_id
+            br.save()
+            messages.success(request, "Buyer rating posted.")
+            return redirect("orders:seller_order_detail", order_id=order.id)
+    else:
+        form = BuyerReviewForm()
+
+    return render(
+        request,
+        "reviews/buyer_review_form.html",
+        {"form": form, "order": order, "buyer_id": buyer_id},
     )
 
 

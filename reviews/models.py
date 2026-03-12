@@ -139,3 +139,50 @@ class SellerReview(models.Model):
 
     def __str__(self) -> str:
         return f"SellerReview<seller={self.seller_id} buyer={self.buyer_id} order={self.order_id}> ({self.rating}/5)"
+
+
+class BuyerReview(models.Model):
+    """Seller rating for a buyer they sold to in a specific paid order."""
+
+    seller = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="buyer_reviews_written",
+    )
+
+    buyer = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="buyer_reviews_received",
+    )
+
+    order = models.ForeignKey(
+        "orders.Order",
+        on_delete=models.CASCADE,
+        related_name="buyer_reviews",
+    )
+
+    rating = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        help_text="1-5 stars",
+    )
+
+    title = models.CharField(max_length=120, blank=True, default="")
+    body = models.TextField(blank=True, default="")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(fields=["seller", "buyer", "order"], name="uniq_buyer_review_per_order"),
+        ]
+        indexes = [
+            models.Index(fields=["buyer", "created_at"]),
+            models.Index(fields=["seller", "created_at"]),
+            models.Index(fields=["rating"]),
+        ]
+
+    def __str__(self) -> str:
+        return f"BuyerReview<buyer={self.buyer_id} seller={self.seller_id} order={self.order_id}> ({self.rating}/5)"

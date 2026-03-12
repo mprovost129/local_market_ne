@@ -75,6 +75,39 @@ def get_rateable_seller_order_or_403(*, user, order_id: int, seller_id: int) -> 
     return order
 
 
+def get_rateable_buyer_order_for_seller_or_403(*, user, order_id: int, buyer_id: int) -> Order:
+    """Return an Order a seller can use to rate a buyer, else raise PermissionDenied.
+
+    Rules:
+    - User must be authenticated seller.
+    - Order must exist and be PAID.
+    - Order.buyer must match buyer_id.
+    - Order must include at least one OrderItem where seller == user.
+    """
+
+    if not user or not getattr(user, "is_authenticated", False):
+        raise PermissionDenied("Authentication required")
+
+    order = Order.objects.filter(id=order_id).first()
+    if not order:
+        raise PermissionDenied("Order not found")
+
+    if order.status != Order.Status.PAID:
+        raise PermissionDenied("Order not paid")
+
+    if not getattr(order, "buyer_id", None) or int(order.buyer_id) != int(buyer_id):
+        raise PermissionDenied("Buyer mismatch")
+
+    has_seller_item = (
+        OrderItem.objects.filter(order_id=order.id, seller_id=getattr(user, "id", None))
+        .exists()
+    )
+    if not has_seller_item:
+        raise PermissionDenied("You didn't sell items in this order")
+
+    return order
+
+
 def create_review_reply_or_403(*, actor, review_id: int, body: str) -> ReviewReply:
     """Create a seller reply for a product review.
 

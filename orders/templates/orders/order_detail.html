@@ -439,8 +439,8 @@
               class="btn btn-sm btn-outline-primary"
               href="{% url 'reviews:seller_review_new' order.id seller_group.grouper.id %}"
             >
-              {% if order.seller_reviews|length > 0 %}
-                View rating
+              {% if seller_group.grouper.id in rated_seller_ids %}
+                Rated
               {% else %}
                 Rate seller
               {% endif %}

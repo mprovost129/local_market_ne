@@ -497,6 +497,17 @@ def order_detail(request, order_id):
         any_venmo = any_paypal = any_zelle = any_cashapp = False
 
 
+    rated_seller_ids: set[int] = set()
+    if request.user.is_authenticated and getattr(order, "buyer_id", None) == getattr(request.user, "id", None):
+        try:
+            from reviews.models import SellerReview
+
+            rated_seller_ids = set(
+                SellerReview.objects.filter(order_id=order.id, buyer_id=request.user.id).values_list("seller_id", flat=True)
+            )
+        except Exception:
+            rated_seller_ids = set()
+
     return render(
         request,
         "orders/order_detail.html",
@@ -517,6 +528,7 @@ def order_detail(request, order_id):
             "any_zelle": any_zelle,
             "any_cashapp": any_cashapp,
             "seller_groups": _order_seller_groups(order),
+            "rated_seller_ids": rated_seller_ids,
         },
     )
 
@@ -1137,6 +1149,8 @@ def seller_order_detail(request, order_id):
     """
     Seller view of a single order: shows only this seller's line items.
     """
+    from django.db.models import Avg, Count
+
     order = get_object_or_404(Order, id=order_id)
     _ensure_seller_can_access_order(request, order)
 
@@ -1145,6 +1159,27 @@ def seller_order_detail(request, order_id):
         .select_related("product")
         .order_by("created_at")
     )
+
+    buyer = getattr(order, "buyer", None)
+    buyer_rating_avg = None
+    buyer_rating_count = 0
+    buyer_review_for_order = None
+    if buyer:
+        try:
+            from reviews.models import BuyerReview
+
+            agg = BuyerReview.objects.filter(buyer_id=buyer.id).aggregate(avg=Avg("rating"), count=Count("id"))
+            buyer_rating_avg = agg.get("avg")
+            buyer_rating_count = int(agg.get("count") or 0)
+            buyer_review_for_order = BuyerReview.objects.filter(
+                order_id=order.id,
+                seller_id=request.user.id,
+                buyer_id=buyer.id,
+            ).first()
+        except Exception:
+            buyer_rating_avg = None
+            buyer_rating_count = 0
+            buyer_review_for_order = None
 
     # Useful rollups for template
     has_physical = any((not getattr(i, "is_service", False) and not getattr(i, "is_tip", False)) for i in seller_items)
@@ -1156,6 +1191,9 @@ def seller_order_detail(request, order_id):
         "seller_items": seller_items,
         "has_physical": has_physical,
         "has_digital": has_digital,
+        "buyer_rating_avg": buyer_rating_avg,
+        "buyer_rating_count": buyer_rating_count,
+        "buyer_review_for_order": buyer_review_for_order,
     }
     return render(request, "orders/seller_orders_detail.html", context)
 

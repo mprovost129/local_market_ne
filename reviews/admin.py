@@ -1,7 +1,7 @@
 # reviews/admin.py
 from django.contrib import admin
 
-from .models import Review, ReviewReply, SellerReview
+from .models import BuyerReview, Review, ReviewReply, SellerReview
 
 
 @admin.register(Review)
@@ -25,3 +25,10 @@ class ReviewReplyAdmin(admin.ModelAdmin):
     list_filter = ("created_at",)
     search_fields = ("review__product__title", "seller__username", "body")
     readonly_fields = ("created_at", "updated_at")
+
+
+@admin.register(BuyerReview)
+class BuyerReviewAdmin(admin.ModelAdmin):
+    list_display = ("id", "buyer", "seller", "rating", "created_at")
+    list_filter = ("rating", "created_at")
+    search_fields = ("buyer__username", "seller__username", "title", "body")

@@ -29,18 +29,37 @@
   </div>
   {% endif %}
 
-  <div class="card shadow-sm mb-3">
-    <div class="card-body">
-      <div class="fw-semibold mb-2">Internal note (seller-only)</div>
-      <form method="post" action="{% url 'orders:seller_update_order_note' order.id %}">
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <div class="fw-semibold mb-2">Internal note (seller-only)</div>
+          <form method="post" action="{% url 'orders:seller_update_order_note' order.id %}">
         {% csrf_token %}
         <textarea name="seller_internal_note" class="form-control" rows="3" placeholder="Private notes for you / your team...">{{ order.seller_internal_note }}</textarea>
         <div class="mt-2">
           <button class="btn btn-sm btn-outline-secondary" type="submit">Save note</button>
         </div>
       </form>
-    </div>
-  </div>
+        </div>
+      </div>
+
+      {% if order.buyer %}
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <div class="fw-semibold mb-1">Buyer trust</div>
+          <div class="small text-secondary mb-2">@{{ order.buyer.username }}</div>
+          <div class="mb-2">
+            {% if buyer_rating_count %}
+              <span class="badge text-bg-light border">Buyer rating {{ buyer_rating_avg|floatformat:1 }}/5 ({{ buyer_rating_count }})</span>
+            {% else %}
+              <span class="badge text-bg-light border">Buyer rating: Not rated yet</span>
+            {% endif %}
+          </div>
+          <a class="btn btn-sm btn-outline-primary" href="{% url 'reviews:buyer_review_new' order.id order.buyer.id %}">
+            {% if buyer_review_for_order %}Rated{% else %}Rate buyer{% endif %}
+          </a>
+        </div>
+      </div>
+      {% endif %}
 
 </div>
 

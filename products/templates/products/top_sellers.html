@@ -54,6 +54,13 @@
           {% if s.profile and s.profile.public_location_display %}
             <div class="text-secondary small">{{ s.profile.public_location_display }}</div>
           {% endif %}
+          <div class="small text-secondary">
+            {% if s.seller_rating_count %}
+              {{ s.seller_rating_avg|floatformat:1 }}/5 ({{ s.seller_rating_count }} rating{{ s.seller_rating_count|pluralize }})
+            {% else %}
+              Not rated yet
+            {% endif %}
+          </div>
         </div>
         <span class="badge text-bg-light">{{ s.active_listings_count }}</span>
       </a>

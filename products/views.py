@@ -652,6 +652,20 @@ def seller_shop(request: HttpRequest, seller_id: int) -> HttpResponse:
     storefront_primary_color = storefront_primary_color or "#2F4F2F"
     storefront_logo = getattr(profile, "storefront_logo", None) if profile else None
     storefront_banner = getattr(profile, "storefront_banner", None) if profile else None
+    seller_rating_avg = None
+    seller_rating_count = 0
+    try:
+        from reviews.models import SellerReview
+
+        agg = SellerReview.objects.filter(seller_id=seller.id).aggregate(
+            avg=Avg("rating"),
+            count=Count("id"),
+        )
+        seller_rating_avg = agg.get("avg")
+        seller_rating_count = int(agg.get("count") or 0)
+    except Exception:
+        seller_rating_avg = None
+        seller_rating_count = 0
 
     venmo = (getattr(profile, "venmo_handle", "") or "").strip() if profile else ""
     paypal = (getattr(profile, "paypal_me_url", "") or "").strip() if profile else ""
@@ -690,6 +704,8 @@ def seller_shop(request: HttpRequest, seller_id: int) -> HttpResponse:
             "storefront_primary_color": storefront_primary_color,
             "storefront_logo": storefront_logo,
             "storefront_banner": storefront_banner,
+            "seller_rating_avg": seller_rating_avg,
+            "seller_rating_count": seller_rating_count,
             "venmo": venmo_display,
             "paypal": paypal_display,
             "zelle": zelle_display,
@@ -711,7 +727,11 @@ def top_sellers(request: HttpRequest) -> HttpResponse:
     qs = (
         User.objects.filter(profile__is_seller=True)
         .select_related("profile")
-        .annotate(active_listings_count=Count("products", filter=Q(products__is_active=True)))
+        .annotate(
+            active_listings_count=Count("products", filter=Q(products__is_active=True), distinct=True),
+            seller_rating_avg=Avg("seller_reviews_received__rating"),
+            seller_rating_count=Count("seller_reviews_received", distinct=True),
+        )
         .order_by("-active_listings_count", "username")
     )
     q = (request.GET.get("q") or "").strip()[:MAX_QUERY_LEN]
