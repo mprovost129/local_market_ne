@@ -114,7 +114,6 @@ def profile_view(request):
     profile = request.user.profile
 
     if request.method == "POST":
-        was_seller = profile.is_seller
         before_zip = (profile.zip_code or "").strip()
 
         form = ProfileForm(request.POST, request.FILES, instance=profile, user=request.user)
@@ -155,16 +154,6 @@ def profile_view(request):
                 logger.info("Profile geo centroid lookup skipped/failed", extra={"user_id": request.user.id})
 
             messages.success(request, "Profile updated.")
-
-            # If they just enabled seller mode, redirect to Stripe onboarding (gated)
-            is_now_seller = form.cleaned_data.get("is_seller", False)
-            if is_now_seller and not was_seller:
-                if getattr(profile, "email_verified", False):
-                    messages.info(request, "Let's set up your seller account with Stripe.")
-                    return redirect("payments:connect_start")
-
-                messages.warning(request, "Verify your email to start Stripe onboarding.")
-                return redirect(reverse("accounts:verify_email_status") + "?next=" + reverse("payments:connect_start"))
 
             return redirect("accounts:profile")
     else:

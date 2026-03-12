@@ -150,6 +150,12 @@
 
           {% if user.is_authenticated %}
             <a class="nav-link px-0 px-lg-2" href="{% url 'dashboards:home' %}">Dashboard</a>
+            {% if not user_is_seller and not user_is_owner %}
+              <form method="post" action="{% url 'dashboards:start_selling' %}" class="d-inline">
+                {% csrf_token %}
+                <button class="btn btn-sm btn-primary" type="submit">Start Seller Onboarding</button>
+              </form>
+            {% endif %}
           {% endif %}
 
           <form class="d-flex" method="get" action="{% url 'products:list' %}" role="search" style="min-width: 260px;">

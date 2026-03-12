@@ -128,7 +128,7 @@
           <div class="help">Optional. Used for ZIP-based service matching.</div>
         </div>
 
-        <div class="profile-full profile-section">
+        <div class="profile-full profile-section" id="offplatform-payments">
           <div class="help" ><strong>Off-platform payment handles (optional)</strong></div>
         </div>
 
@@ -265,12 +265,6 @@
           {{ form.avatar }}
           {% for e in form.avatar.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
         </div>
-      </div>
-
-      <div class="mt-3">
-        <label for="{{ form.is_seller.id_for_label }}">Seller account</label>
-        {{ form.is_seller }}
-        <div class="help">Sellers will be required to complete Stripe onboarding before selling.</div>
       </div>
 
       <div class="actions">

@@ -174,7 +174,6 @@ class ProfileForm(forms.ModelForm):
             "state",
             "zip_code",
             "avatar",
-            "is_seller",  # allow opt-in; Stripe gating happens elsewhere
         ]
         widgets = {
             "shop_name": forms.TextInput(attrs={"placeholder": "Shop name (optional)"}),
@@ -227,7 +226,7 @@ class ProfileForm(forms.ModelForm):
 
     def clean(self):
         cleaned = super().clean()
-        is_seller = bool(cleaned.get("is_seller", False))
+        is_seller = bool(getattr(self.instance, "is_seller", False))
         raw_zip = (cleaned.get("zip_code") or "").strip()
 
         if is_seller and not raw_zip:

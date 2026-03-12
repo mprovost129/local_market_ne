@@ -85,6 +85,15 @@
         </div>
       {% endif %}
 
+      <div class="alert alert-light border small mb-3">
+        <div class="fw-semibold mb-1">Fee and payment reminder</div>
+        Local Market NE charges a <strong>10% fee per sale</strong>. Sellers are responsible for recording any offline
+        sales that were made through the platform. See our
+        <a href="{% url 'legal:seller_agreement' %}" class="text-decoration-none">Seller Agreement</a>,
+        <a href="{% url 'legal:seller_fees' %}" class="text-decoration-none">Seller Fees</a>, and
+        <a href="{% url 'legal:terms' %}" class="text-decoration-none">Terms of Service</a> for more information.
+      </div>
+
       <form method="post" action="{% url 'payments:connect_start' %}">
         {% csrf_token %}
 

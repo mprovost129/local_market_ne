@@ -10,6 +10,26 @@ from django.utils import timezone
 from analytics.models import AnalyticsEvent
 from core.config import get_site_config
 
+_NOISY_UA_SUBSTRINGS: tuple[str, ...] = (
+    "bot",
+    "spider",
+    "crawl",
+    "slurp",
+    "facebookexternalhit",
+    "whatsapp",
+    "telegrambot",
+    "discordbot",
+    "twitterbot",
+    "uptimerobot",
+    "pingdom",
+    "statuscake",
+    "datadog",
+    "go-http-client",
+    "python-requests",
+    "curl/",
+    "postmanruntime",
+)
+
 
 def is_configured() -> bool:
     return True
@@ -57,17 +77,34 @@ def _apply_native_filters(qs):
     return qs
 
 
+def _apply_human_pageview_filters(qs):
+    """
+    Tighten native analytics to approximate real user traffic.
+
+    Notes:
+    - Middleware already suppresses most bot traffic, but this protects
+      reporting from legacy rows and edge-case monitors.
+    """
+    qs = qs.filter(event_type=AnalyticsEvent.EventType.PAGEVIEW)
+    qs = qs.exclude(is_bot=True).exclude(user_agent="")
+    qs = qs.exclude(method="HEAD")
+    qs = qs.exclude(path__startswith="/admin/").exclude(path__startswith="/dashboard/")
+
+    for s in _NOISY_UA_SUBSTRINGS:
+        qs = qs.exclude(user_agent__icontains=s)
+
+    return qs
+
+
 def get_summary(*, days: int = 30, start: Optional[timezone.datetime] = None, end: Optional[timezone.datetime] = None) -> Dict[str, Any]:
     start_dt, end_dt = _normalize_range(start=start, end=end, days=days)
 
-    qs = AnalyticsEvent.objects.filter(
-        event_type=AnalyticsEvent.EventType.PAGEVIEW,
-        created_at__gte=start_dt,
-    )
+    qs = AnalyticsEvent.objects.filter(created_at__gte=start_dt)
     if end_dt is not None:
         qs = qs.filter(created_at__lt=end_dt)
 
     qs = _apply_native_filters(qs)
+    qs = _apply_human_pageview_filters(qs)
 
     pageviews = qs.count()
     visitors = qs.values("visitor_id").exclude(visitor_id="").distinct().count()
@@ -89,14 +126,12 @@ def get_top_pages(
 ) -> List[Dict[str, Any]]:
     start_dt, end_dt = _normalize_range(start=start, end=end, days=days)
 
-    qs = AnalyticsEvent.objects.filter(
-        event_type=AnalyticsEvent.EventType.PAGEVIEW,
-        created_at__gte=start_dt,
-    )
+    qs = AnalyticsEvent.objects.filter(created_at__gte=start_dt)
     if end_dt is not None:
         qs = qs.filter(created_at__lt=end_dt)
 
     qs = _apply_native_filters(qs)
+    qs = _apply_human_pageview_filters(qs)
 
     qs = (
         qs.values("path")
@@ -168,9 +203,7 @@ def get_active_users(*, minutes: int = 30) -> int:
     """Active users (distinct visitors) in the last N minutes."""
     mins = int(minutes or 30)
     cutoff = timezone.now() - timezone.timedelta(minutes=mins)
-    qs = AnalyticsEvent.objects.filter(
-        event_type=AnalyticsEvent.EventType.PAGEVIEW,
-        created_at__gte=cutoff,
-    )
+    qs = AnalyticsEvent.objects.filter(created_at__gte=cutoff)
     qs = _apply_native_filters(qs)
+    qs = _apply_human_pageview_filters(qs)
     return qs.values("visitor_id").exclude(visitor_id="").distinct().count()
