@@ -114,11 +114,18 @@
           {% for e in form.public_state.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
         </div>
 
+        <div class="profile-full">
+          <label for="{{ form.show_business_address_public.id_for_label }}">Show business address publicly (optional)</label>
+          <div>{{ form.show_business_address_public }}</div>
+          {% for e in form.show_business_address_public.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
+          <div class="help">Off by default. If enabled, your profile address is visible to buyers.</div>
+        </div>
+
         <div>
           <label for="{{ form.service_radius_miles.id_for_label }}">Service radius (miles)</label>
           {{ form.service_radius_miles }}
           {% for e in form.service_radius_miles.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
-          <div class="help">Optional. Useful if you offer services.</div>
+          <div class="help">Optional. Used for ZIP-based service matching.</div>
         </div>
 
         <div class="profile-full profile-section">

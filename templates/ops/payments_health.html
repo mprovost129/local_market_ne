@@ -1,0 +1,93 @@
+{% extends "ops/base_ops.html" %}
+
+{% block ops_content %}
+  <div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-3">
+    <div>
+      <h1 class="h4 mb-1">Payments Health</h1>
+      <div class="text-secondary small">Stripe + PayPal wiring checks for checkout and webhooks.</div>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-secondary" href="{% url 'ops:payments_health' %}?format=json" target="_blank" rel="noopener">View JSON</a>
+      <a class="btn btn-outline-secondary" href="{% url 'ops:webhooks_list' %}">Webhooks</a>
+      <a class="btn btn-outline-primary" href="{% url 'ops:ops_health' %}">Ops Health</a>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-3 lm-card">
+    <div class="card-body lm-card">
+      {% if ok %}
+        <span class="badge text-bg-success me-2">OK</span>
+        <span class="fw-semibold">Payment configuration looks complete for native Stripe + PayPal.</span>
+      {% else %}
+        <span class="badge text-bg-danger me-2">Attention</span>
+        <span class="fw-semibold">One or more payment settings are missing or invalid.</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-lg-6">
+      <div class="card shadow-sm h-100 lm-card">
+        <div class="card-header bg-white lm-card">
+          <div class="fw-semibold">Stripe Checks</div>
+        </div>
+        <div class="card-body lm-card">
+          <ul class="mb-3">
+            <li>Publishable key: {% if checks.stripe.publishable_key %}<span class="badge text-bg-success">set</span>{% else %}<span class="badge text-bg-danger">missing</span>{% endif %}</li>
+            <li>Secret key: {% if checks.stripe.secret_key %}<span class="badge text-bg-success">set</span>{% else %}<span class="badge text-bg-danger">missing</span>{% endif %}</li>
+            <li>Checkout webhook secret: {% if checks.stripe.checkout_webhook_secret %}<span class="badge text-bg-success">set</span>{% else %}<span class="badge text-bg-danger">missing</span>{% endif %}</li>
+            <li>Connect webhook secret: {% if checks.stripe.connect_webhook_secret %}<span class="badge text-bg-success">set</span>{% else %}<span class="badge text-bg-danger">missing</span>{% endif %}</li>
+          </ul>
+          <div class="small text-secondary mb-1">Expected Checkout Webhook URL</div>
+          <code class="small d-block mb-2">{{ checks.webhook_urls.stripe_checkout|default:"(unavailable)" }}</code>
+          <div class="small text-secondary mb-1">Expected Connect Webhook URL</div>
+          <code class="small d-block">{{ checks.webhook_urls.stripe_connect|default:"(unavailable)" }}</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+      <div class="card shadow-sm h-100 lm-card">
+        <div class="card-header bg-white lm-card">
+          <div class="fw-semibold">PayPal Checks</div>
+        </div>
+        <div class="card-body lm-card">
+          <ul class="mb-3">
+            <li>Client ID: {% if checks.paypal.client_id %}<span class="badge text-bg-success">set</span>{% else %}<span class="badge text-bg-danger">missing</span>{% endif %}</li>
+            <li>Client secret: {% if checks.paypal.client_secret %}<span class="badge text-bg-success">set</span>{% else %}<span class="badge text-bg-danger">missing</span>{% endif %}</li>
+            <li>Webhook ID: {% if checks.paypal.webhook_id %}<span class="badge text-bg-success">set</span>{% else %}<span class="badge text-bg-danger">missing</span>{% endif %}</li>
+            <li>Environment: <code>{{ checks.paypal_env }}</code> {% if checks.paypal.env_valid %}<span class="badge text-bg-success">valid</span>{% else %}<span class="badge text-bg-danger">invalid</span>{% endif %}</li>
+            <li>Native PayPal enabled: {% if checks.paypal_native_enabled %}<span class="badge text-bg-success">yes</span>{% else %}<span class="badge text-bg-secondary">no</span>{% endif %}</li>
+          </ul>
+          <div class="small text-secondary mb-1">PayPal API Base</div>
+          <code class="small d-block mb-2">{{ checks.paypal_api_base }}</code>
+          <div class="small text-secondary mb-1">Expected PayPal Webhook URL</div>
+          <code class="small d-block">{{ checks.webhook_urls.paypal|default:"(unavailable)" }}</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mt-3 lm-card">
+    <div class="card-header bg-white lm-card">
+      <div class="fw-semibold">Masked Values (Quick Sanity)</div>
+    </div>
+    <div class="card-body lm-card">
+      <div class="table-responsive">
+        <div class="lm-table">
+          <table class="table table-sm align-middle mb-0">
+            <tbody>
+              <tr><td>STRIPE_PUBLISHABLE_KEY</td><td><code>{{ masked.stripe_publishable_key|default:"(empty)" }}</code></td></tr>
+              <tr><td>STRIPE_SECRET_KEY</td><td><code>{{ masked.stripe_secret_key|default:"(empty)" }}</code></td></tr>
+              <tr><td>STRIPE_WEBHOOK_SECRET</td><td><code>{{ masked.stripe_webhook_secret|default:"(empty)" }}</code></td></tr>
+              <tr><td>STRIPE_CONNECT_WEBHOOK_SECRET</td><td><code>{{ masked.stripe_connect_webhook_secret|default:"(empty)" }}</code></td></tr>
+              <tr><td>PAYPAL_CLIENT_ID</td><td><code>{{ masked.paypal_client_id|default:"(empty)" }}</code></td></tr>
+              <tr><td>PAYPAL_CLIENT_SECRET</td><td><code>{{ masked.paypal_client_secret|default:"(empty)" }}</code></td></tr>
+              <tr><td>PAYPAL_WEBHOOK_ID</td><td><code>{{ masked.paypal_webhook_id|default:"(empty)" }}</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

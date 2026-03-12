@@ -102,6 +102,9 @@ class Order(models.Model):
     # Stripe
     stripe_session_id = models.CharField(max_length=255, blank=True, default="", db_index=True)
     stripe_payment_intent_id = models.CharField(max_length=255, blank=True, default="")
+    # PayPal (native in-app checkout)
+    paypal_order_id = models.CharField(max_length=255, blank=True, default="", db_index=True)
+    paypal_capture_id = models.CharField(max_length=255, blank=True, default="")
 
     paid_at = models.DateTimeField(null=True, blank=True, db_index=True)
 

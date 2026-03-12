@@ -202,6 +202,52 @@ class ListingFlowTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Providence")
 
+    def test_public_business_address_is_hidden_by_default(self):
+        profile = self.seller.profile
+        profile.address_1 = "123 Main St"
+        profile.city = "Providence"
+        profile.state = "RI"
+        profile.zip_code = "02860"
+        profile.show_business_address_public = False
+        profile.save(update_fields=["address_1", "city", "state", "zip_code", "show_business_address_public", "updated_at"])
+
+        Product.objects.create(
+            seller=self.seller,
+            kind=Product.Kind.GOOD,
+            title="Privacy Product",
+            category=self.goods_category,
+            price=Decimal("9.99"),
+            is_active=True,
+            stock_qty=5,
+            fulfillment_pickup_enabled=True,
+        )
+        resp = self.client.get(reverse("products:list"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertNotContains(resp, "123 Main St")
+
+    def test_public_business_address_is_shown_when_opted_in(self):
+        profile = self.seller.profile
+        profile.address_1 = "123 Main St"
+        profile.city = "Providence"
+        profile.state = "RI"
+        profile.zip_code = "02860"
+        profile.show_business_address_public = True
+        profile.save(update_fields=["address_1", "city", "state", "zip_code", "show_business_address_public", "updated_at"])
+
+        Product.objects.create(
+            seller=self.seller,
+            kind=Product.Kind.GOOD,
+            title="Business Address Product",
+            category=self.goods_category,
+            price=Decimal("9.99"),
+            is_active=True,
+            stock_qty=5,
+            fulfillment_pickup_enabled=True,
+        )
+        resp = self.client.get(reverse("products:list"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "123 Main St, Providence, RI 02860")
+
     def test_seller_storefront_applies_branding_when_enabled(self):
         profile = self.seller.profile
         profile.storefront_theme_enabled = True
@@ -299,6 +345,55 @@ class ListingFlowTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Zip Matched Service")
         self.assertNotContains(resp, "Zip Other Service")
+
+    def test_services_list_enforces_seller_radius_from_buyer_zip(self):
+        near_seller = User.objects.create_user(
+            username="seller_service_near",
+            email="seller_service_near@example.com",
+            password="pw123456",
+        )
+        near_profile = near_seller.profile
+        near_profile.is_seller = True
+        near_profile.email_verified = True
+        near_profile.zip_code = "02861"  # same ZIP3 => approx 10 miles
+        near_profile.service_radius_miles = 15
+        near_profile.save(update_fields=["is_seller", "email_verified", "zip_code", "service_radius_miles", "updated_at"])
+
+        far_seller = User.objects.create_user(
+            username="seller_service_far",
+            email="seller_service_far@example.com",
+            password="pw123456",
+        )
+        far_profile = far_seller.profile
+        far_profile.is_seller = True
+        far_profile.email_verified = True
+        far_profile.zip_code = "02862"  # same ZIP3 => approx 10 miles
+        far_profile.service_radius_miles = 5
+        far_profile.save(update_fields=["is_seller", "email_verified", "zip_code", "service_radius_miles", "updated_at"])
+
+        Product.objects.create(
+            seller=near_seller,
+            kind=Product.Kind.SERVICE,
+            title="Radius Matched Service",
+            category=self.service_category,
+            price=Decimal("50.00"),
+            is_active=True,
+            service_duration_minutes=60,
+        )
+        Product.objects.create(
+            seller=far_seller,
+            kind=Product.Kind.SERVICE,
+            title="Radius Excluded Service",
+            category=self.service_category,
+            price=Decimal("50.00"),
+            is_active=True,
+            service_duration_minutes=60,
+        )
+
+        resp = self.client.get(reverse("products:services"), {"zip": "02860"})
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Radius Matched Service")
+        self.assertNotContains(resp, "Radius Excluded Service")
 
     def test_products_sort_price_low_orders_results(self):
         Product.objects.create(

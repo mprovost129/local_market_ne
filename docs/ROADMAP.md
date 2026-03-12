@@ -15,6 +15,13 @@ Use this section as the active shortlist. Historical pack logs below remain unch
 - [ ] Finalize S3 media signing/region configuration in production.
 - [ ] Run final signoff and archive release notes in `docs/PRODUCTION_SIGNOFF.md`.
 
+### Recently Completed
+- Added seller owed-fee workflow for off-platform orders:
+  - auto-created per-seller fee invoices on off-platform payment confirmation
+  - seller dashboard owed-fees card with `Pay now`
+  - fee breakdown page with customer-level rows + contact action
+  - Stripe Checkout settlement for open fee invoices
+
 ### Notes
 - `docs/STATUS.md` is the single source of truth for “now.”
 - Entries below are historical pack updates and longer-horizon roadmap items.
@@ -1367,5 +1374,4 @@ Move from "working and branded" to "production-consistent UX" with a tracked, ph
 
 ### Next
 - Verify GA events appear under the intended property ID in production after deploy.
-
 

@@ -34,6 +34,24 @@ Use `.env.example` for local development and the Render dashboard (or Blueprint 
 | `STRIPE_WEBHOOK_SECRET` | recommended | Checkout webhooks. |
 | `STRIPE_CONNECT_WEBHOOK_SECRET` | recommended | Connect-related webhooks. |
 
+## Venmo / PayPal
+
+Current behavior:
+- Seller checkout support for Venmo/PayPal is driven by seller profile fields:
+  - `venmo_handle`
+  - `paypal_me_url`
+- PayPal can run as native in-app checkout when PayPal API env vars are configured.
+- Venmo remains seller-handle based in v1.
+
+| Variable | Required | Notes |
+|---|---:|---|
+| `PAYPAL_CLIENT_ID` | required for native PayPal | PayPal REST app client id. |
+| `PAYPAL_CLIENT_SECRET` | required for native PayPal | PayPal REST app client secret. |
+| `PAYPAL_WEBHOOK_ID` | recommended | Used to verify PayPal webhook signatures. Configure for app webhook URL: `/orders/webhooks/paypal/`. |
+| `PAYPAL_ENV` | optional | `sandbox` (default) or `live`. |
+| `VENMO_CLIENT_ID` | optional (future) | Needed only if Venmo direct API integration is added. |
+| `VENMO_CLIENT_SECRET` | optional (future) | Needed only if Venmo direct API integration is added. |
+
 ## Email
 
 | Variable | Required | Notes |

@@ -6,6 +6,7 @@ import logging
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.decorators.http import require_POST, require_http_methods
@@ -16,6 +17,7 @@ from core.throttle_rules import AUTH_LOGIN, AUTH_REGISTER
 from core.recaptcha import require_recaptcha_v3
 from .forms import RegisterForm, UsernameAuthenticationForm, ProfileForm
 from .services import send_email_verification
+from .geo import lookup_zip_centroid
 from .models import Profile
 
 
@@ -113,6 +115,7 @@ def profile_view(request):
 
     if request.method == "POST":
         was_seller = profile.is_seller
+        before_zip = (profile.zip_code or "").strip()
 
         form = ProfileForm(request.POST, request.FILES, instance=profile, user=request.user)
         if form.is_valid():
@@ -123,6 +126,33 @@ def profile_view(request):
                 logger.exception("Profile avatar upload failed", extra={"user_id": request.user.id})
                 messages.error(request, "Profile picture upload failed. Please try again in a moment.")
                 return redirect("accounts:profile")
+
+            # Keep private geo centroid in sync with ZIP (best effort).
+            try:
+                after_zip = (profile.zip_code or "").strip()
+                if not after_zip:
+                    profile.private_latitude = None
+                    profile.private_longitude = None
+                    profile.private_geo_updated_at = timezone.now()
+                    profile.save(update_fields=["private_latitude", "private_longitude", "private_geo_updated_at", "updated_at"])
+                elif after_zip != before_zip or profile.private_latitude is None or profile.private_longitude is None:
+                    centroid = lookup_zip_centroid(after_zip)
+                    if centroid:
+                        lat, lng = centroid
+                        profile.private_latitude = lat
+                        profile.private_longitude = lng
+                        profile.private_geo_updated_at = timezone.now()
+                        profile.save(
+                            update_fields=[
+                                "private_latitude",
+                                "private_longitude",
+                                "private_geo_updated_at",
+                                "updated_at",
+                            ]
+                        )
+            except Exception:
+                # Do not block profile updates on geo lookup failures.
+                logger.info("Profile geo centroid lookup skipped/failed", extra={"user_id": request.user.id})
 
             messages.success(request, "Profile updated.")
 

@@ -1428,6 +1428,89 @@ def ops_health(request: HttpRequest) -> HttpResponse:
     return render(request, "ops/health.html", ctx)
 
 
+@ops_required
+def payments_health(request: HttpRequest) -> HttpResponse:
+    """Ops-only payment wiring checks (Stripe + PayPal), no external API calls."""
+
+    def _has(v: object) -> bool:
+        return bool(str(v or "").strip())
+
+    def _masked(v: object, *, keep: int = 4) -> str:
+        raw = str(v or "").strip()
+        if not raw:
+            return ""
+        if len(raw) <= keep:
+            return "*" * len(raw)
+        return f"{'*' * (len(raw) - keep)}{raw[-keep:]}"
+
+    stripe_checks = {
+        "publishable_key": _has(getattr(settings, "STRIPE_PUBLISHABLE_KEY", "")),
+        "secret_key": _has(getattr(settings, "STRIPE_SECRET_KEY", "")),
+        "checkout_webhook_secret": _has(getattr(settings, "STRIPE_WEBHOOK_SECRET", "")),
+        "connect_webhook_secret": _has(getattr(settings, "STRIPE_CONNECT_WEBHOOK_SECRET", "")),
+    }
+
+    paypal_client_id = getattr(settings, "PAYPAL_CLIENT_ID", "")
+    paypal_client_secret = getattr(settings, "PAYPAL_CLIENT_SECRET", "")
+    paypal_webhook_id = getattr(settings, "PAYPAL_WEBHOOK_ID", "")
+    paypal_env = (getattr(settings, "PAYPAL_ENV", "sandbox") or "sandbox").strip().lower()
+    paypal_api_base = "https://api-m.paypal.com" if paypal_env in {"live", "production", "prod"} else "https://api-m.sandbox.paypal.com"
+
+    paypal_checks = {
+        "client_id": _has(paypal_client_id),
+        "client_secret": _has(paypal_client_secret),
+        "webhook_id": _has(paypal_webhook_id),
+        "env_valid": paypal_env in {"sandbox", "live", "production", "prod"},
+    }
+    paypal_native_enabled = bool(paypal_checks["client_id"] and paypal_checks["client_secret"])
+
+    try:
+        stripe_checkout_webhook_url = request.build_absolute_uri(reverse("orders:stripe_webhook"))
+    except Exception:
+        stripe_checkout_webhook_url = ""
+    try:
+        stripe_connect_webhook_url = request.build_absolute_uri(reverse("payments:stripe_connect_webhook"))
+    except Exception:
+        stripe_connect_webhook_url = ""
+    try:
+        paypal_webhook_url = request.build_absolute_uri(reverse("orders:paypal_webhook"))
+    except Exception:
+        paypal_webhook_url = ""
+
+    checks = {
+        "stripe": stripe_checks,
+        "paypal": paypal_checks,
+        "paypal_native_enabled": paypal_native_enabled,
+        "paypal_env": paypal_env,
+        "paypal_api_base": paypal_api_base,
+        "webhook_urls": {
+            "stripe_checkout": stripe_checkout_webhook_url,
+            "stripe_connect": stripe_connect_webhook_url,
+            "paypal": paypal_webhook_url,
+        },
+    }
+
+    ok = all(stripe_checks.values()) and paypal_native_enabled and paypal_checks["webhook_id"] and paypal_checks["env_valid"]
+
+    if (request.GET.get("format") or "").strip().lower() in {"json", "1", "true"}:
+        return JsonResponse({"ok": ok, "checks": checks}, status=200)
+
+    ctx = {
+        "ok": ok,
+        "checks": checks,
+        "masked": {
+            "paypal_client_id": _masked(paypal_client_id),
+            "paypal_client_secret": _masked(paypal_client_secret),
+            "paypal_webhook_id": _masked(paypal_webhook_id),
+            "stripe_publishable_key": _masked(getattr(settings, "STRIPE_PUBLISHABLE_KEY", "")),
+            "stripe_secret_key": _masked(getattr(settings, "STRIPE_SECRET_KEY", "")),
+            "stripe_webhook_secret": _masked(getattr(settings, "STRIPE_WEBHOOK_SECRET", "")),
+            "stripe_connect_webhook_secret": _masked(getattr(settings, "STRIPE_CONNECT_WEBHOOK_SECRET", "")),
+        },
+    }
+    return render(request, "ops/payments_health.html", ctx)
+
+
 
 @ops_required
 def launch_check(request: HttpRequest) -> HttpResponse:

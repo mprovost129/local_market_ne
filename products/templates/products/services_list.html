@@ -36,9 +36,9 @@
       {% endif %}
 
       <select class="form-select lm-browse-radius" name="radius">
-        <option value="">Any service radius</option>
+        <option value="">Any distance</option>
         {% for miles in radius_choices %}
-          <option value="{{ miles }}" {% if radius|stringformat:"s" == miles|stringformat:"s" %}selected{% endif %}>Seller travels {{ miles }} mi+</option>
+          <option value="{{ miles }}" {% if radius|stringformat:"s" == miles|stringformat:"s" %}selected{% endif %}>Within {{ miles }} mi</option>
         {% endfor %}
       </select>
 
@@ -105,7 +105,7 @@
           <a class="badge text-bg-light border text-decoration-none lm-filter-chip"
              href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if zip %}zip={{ zip|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort|urlencode }}&{% endif %}"
              aria-label="Remove radius filter">
-            Radius: {{ radius }}+ mi <i class="bi bi-x-lg"></i>
+            Within {{ radius }} mi <i class="bi bi-x-lg"></i>
           </a>
         {% endif %}
         {% if request.GET.sort and sort and sort != 'new' %}

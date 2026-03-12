@@ -21,4 +21,7 @@ urlpatterns = [
     ),
     # Seller payouts / ledger
     path("payouts/", views.payouts_dashboard, name="payouts_dashboard"),
+    path("fees/", views.fees_dashboard, name="fees_dashboard"),
+    path("fees/pay/", views.fees_pay_now, name="fees_pay_now"),
+    path("fees/success/", views.fees_success, name="fees_success"),
 ]

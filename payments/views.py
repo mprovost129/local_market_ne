@@ -1,7 +1,10 @@
 # payments/views.py
 from __future__ import annotations
 
+import stripe
+
 from django.contrib import messages
+from django.conf import settings
 
 from django.utils import timezone
 from core.config import get_site_config
@@ -9,9 +12,10 @@ from core.config import get_site_config
 from accounts.decorators import email_verified_required
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
@@ -20,7 +24,7 @@ from legal.services import has_accepted_doc_type, record_acceptance_for_doc_type
 
 from products.permissions import seller_required
 
-from .models import SellerBalanceEntry, SellerStripeAccount
+from .models import SellerBalanceEntry, SellerFeeInvoice, SellerStripeAccount
 from .services import get_seller_balance_cents
 from .stripe_connect import create_account_link, create_express_account, retrieve_account
 
@@ -347,6 +351,15 @@ def _verify_and_parse_connect_webhook(payload: bytes, sig_header: str):
     )
 
 
+def _stripe():
+    stripe.api_key = getattr(settings, "STRIPE_SECRET_KEY", "")
+    return stripe
+
+
+def _stripe_configured() -> bool:
+    return bool((getattr(settings, "STRIPE_SECRET_KEY", "") or "").strip())
+
+
 @csrf_exempt
 @require_POST
 def stripe_connect_webhook(request):
@@ -385,3 +398,151 @@ def stripe_connect_webhook(request):
                 obj.mark_onboarding_completed_if_ready()
 
     return HttpResponse(status=200)
+
+
+@seller_required
+def fees_dashboard(request):
+    seller = request.user
+    qs = (
+        SellerFeeInvoice.objects.filter(seller=seller)
+        .select_related("order", "order__buyer")
+        .order_by("-created_at")
+    )
+    status = (request.GET.get("status") or "").strip().lower()
+    if status in {SellerFeeInvoice.Status.OPEN, SellerFeeInvoice.Status.PAID, SellerFeeInvoice.Status.VOID}:
+        qs = qs.filter(status=status)
+
+    open_agg = SellerFeeInvoice.objects.filter(seller=seller, status=SellerFeeInvoice.Status.OPEN).aggregate(
+        total=Sum("amount_cents"),
+    )
+    open_total_cents = int(open_agg.get("total") or 0)
+    open_count = SellerFeeInvoice.objects.filter(seller=seller, status=SellerFeeInvoice.Status.OPEN).count()
+
+    rows = []
+    for inv in qs[:200]:
+        order = inv.order
+        buyer = getattr(order, "buyer", None)
+        buyer_name = ""
+        if buyer:
+            buyer_name = (getattr(buyer, "username", "") or "").strip()
+        if not buyer_name:
+            buyer_name = (getattr(order, "guest_email", "") or "").strip() or "Guest buyer"
+        buyer_email = (getattr(order, "buyer_email", "") or "").strip() if order else ""
+        rows.append(
+            {
+                "invoice": inv,
+                "buyer_name": buyer_name,
+                "buyer_email": buyer_email,
+                "contact_link": f"mailto:{buyer_email}" if buyer_email else "",
+            }
+        )
+
+    return render(
+        request,
+        "payments/fees_dashboard.html",
+        {
+            "rows": rows,
+            "open_total_cents": open_total_cents,
+            "open_count": open_count,
+            "status": status,
+        },
+    )
+
+
+@seller_required
+@require_POST
+def fees_pay_now(request):
+    seller = request.user
+    if not _stripe_configured():
+        messages.error(request, "Fee payment is unavailable right now. Stripe is not configured.")
+        return redirect("payments:fees_dashboard")
+
+    open_invoices = list(
+        SellerFeeInvoice.objects.filter(seller=seller, status=SellerFeeInvoice.Status.OPEN).order_by("created_at")
+    )
+    if not open_invoices:
+        messages.info(request, "No owed fees to pay right now.")
+        return redirect("payments:fees_dashboard")
+
+    total_cents = sum(int(inv.amount_cents or 0) for inv in open_invoices)
+    if total_cents <= 0:
+        messages.info(request, "No owed fees to pay right now.")
+        return redirect("payments:fees_dashboard")
+
+    success_url = request.build_absolute_uri(reverse("payments:fees_success")) + "?session_id={CHECKOUT_SESSION_ID}"
+    cancel_url = request.build_absolute_uri(reverse("payments:fees_dashboard"))
+
+    try:
+        s = _stripe()
+        session = s.checkout.Session.create(
+            mode="payment",
+            payment_method_types=["card"],
+            line_items=[
+                {
+                    "price_data": {
+                        "currency": "usd",
+                        "unit_amount": int(total_cents),
+                        "product_data": {"name": "Local Market NE marketplace fees owed"},
+                    },
+                    "quantity": 1,
+                }
+            ],
+            success_url=success_url,
+            cancel_url=cancel_url,
+            metadata={
+                "seller_id": str(seller.id),
+                "kind": "seller_fee_settlement",
+            },
+        )
+    except Exception:
+        messages.error(request, "Could not start fee payment right now. Please try again.")
+        return redirect("payments:fees_dashboard")
+
+    SellerFeeInvoice.objects.filter(id__in=[inv.id for inv in open_invoices]).update(
+        stripe_session_id=session.id,
+        updated_at=timezone.now(),
+    )
+    return redirect(session.url)
+
+
+@seller_required
+def fees_success(request):
+    seller = request.user
+    if not _stripe_configured():
+        messages.info(request, "Payment status is pending sync. Please refresh shortly.")
+        return redirect("payments:fees_dashboard")
+
+    session_id = (request.GET.get("session_id") or "").strip()
+    if not session_id:
+        messages.info(request, "Payment completed. If balances do not update immediately, refresh in a moment.")
+        return redirect("payments:fees_dashboard")
+
+    invoices_qs = SellerFeeInvoice.objects.filter(
+        seller=seller,
+        status=SellerFeeInvoice.Status.OPEN,
+        stripe_session_id=session_id,
+    )
+    if not invoices_qs.exists():
+        messages.info(request, "No open fee invoices matched this session.")
+        return redirect("payments:fees_dashboard")
+
+    try:
+        s = _stripe()
+        session = s.checkout.Session.retrieve(session_id)
+    except Exception:
+        messages.info(request, "We could not verify payment status yet. Please refresh in a moment.")
+        return redirect("payments:fees_dashboard")
+
+    payment_status = str(getattr(session, "payment_status", "") or "")
+    payment_intent = str(getattr(session, "payment_intent", "") or "")
+    if payment_status == "paid":
+        invoices_qs.update(
+            status=SellerFeeInvoice.Status.PAID,
+            paid_at=timezone.now(),
+            stripe_payment_intent_id=payment_intent,
+            updated_at=timezone.now(),
+        )
+        messages.success(request, "Fee payment received. Thank you.")
+    else:
+        messages.info(request, "Payment is not marked paid yet. Please refresh shortly.")
+    return redirect("payments:fees_dashboard")

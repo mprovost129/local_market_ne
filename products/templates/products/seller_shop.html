@@ -98,8 +98,8 @@
       </h1>
       <div class="text-secondary small">
         Seller storefront
-        {% if profile and profile.public_location_label %}
-           - <span class="text-secondary">{{ profile.public_location_label }}</span>
+        {% if profile and profile.public_location_display %}
+           - <span class="text-secondary">{{ profile.public_location_display }}</span>
         {% endif %}
         {% if profile and profile.service_radius_miles and profile.service_radius_miles > 0 %}
            - <span class="text-secondary">Service radius ~{{ profile.service_radius_miles }} mi</span>

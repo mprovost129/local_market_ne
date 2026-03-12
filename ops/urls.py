@@ -13,6 +13,7 @@ urlpatterns = [
     path("emails/failed/<int:pk>/", views.failed_email_detail, name="failed_email_detail"),
     path("emails/failed/<int:pk>/resend/", views.failed_email_resend, name="failed_email_resend"),
     path("health/", views.ops_health, name="ops_health"),
+    path("payments/health/", views.payments_health, name="payments_health"),
     path("alerts/summary/", views.alerts_summary, name="alerts_summary"),
     path("launch-check/", views.launch_check, name="launch_check"),
     path("runbook/", views.runbook, name="runbook"),

@@ -36,10 +36,8 @@
     {% if p.seller and p.seller.profile %}
       <div class="small text-secondary mt-2">
         <i class="bi bi-geo-alt me-1"></i>
-        {% if p.seller.profile.public_city %}
-          {{ p.seller.profile.public_city }}
-        {% elif p.seller.profile.public_location_label %}
-          {{ p.seller.profile.public_location_label }}
+        {% if p.seller.profile.public_location_display %}
+          {{ p.seller.profile.public_location_display }}
         {% else %}
           Local seller
         {% endif %}

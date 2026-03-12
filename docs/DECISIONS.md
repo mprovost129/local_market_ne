@@ -1,3 +1,39 @@
+## 2026-03-11 - Public location privacy with optional business-address opt-in
+
+Decision:
+- Default public location remains approximate only (city/state).
+- Exact address is private by default.
+- Sellers can explicitly opt in to show their business address publicly.
+- Geo matching uses private coordinates when available; otherwise ZIP-prefix buckets as fallback.
+
+Rationale:
+- Protects user privacy while allowing storefront flexibility for brick-and-mortar businesses.
+
+
+## 2026-03-11 - Off-platform payments require in-app seller fee settlement
+
+Decision:
+- Off-platform buyer payments (PayPal/Venmo/Zelle/Cash App) remain buyer-to-seller in v1.
+- Marketplace fees from those orders are tracked as seller fee invoices in-app.
+- Sellers can pay all open fee invoices through a single Stripe Checkout "Pay now" flow.
+- Fee dashboard includes invoice-level customer breakdown and a per-row contact action.
+
+Rationale:
+- Preserves checkout flexibility for buyers while keeping platform fee collection auditable.
+- Avoids manual spreadsheet reconciliation as off-platform volume grows.
+- Keeps one reliable in-app settlement rail (Stripe) for owed platform fees.
+
+## 2026-03-12 - Native PayPal checkout enabled (platform-collected)
+
+Decision:
+- PayPal is wired as a native checkout method when `PAYPAL_CLIENT_ID` and `PAYPAL_CLIENT_SECRET` are configured.
+- PayPal capture marks orders paid in-app (same order ledger flow as Stripe for fee/net snapshots).
+- PayPal webhook endpoint is `/orders/webhooks/paypal/` and is signature-verified with `PAYPAL_WEBHOOK_ID`.
+
+Rationale:
+- Platform collects payment directly, so marketplace fees are captured automatically and do not rely on manual seller settlement.
+
+
 ## 2026-02-18 - RC reporting
 
 - Decision: Add `rc_report` as a convenience wrapper to summarize RC readiness across multiple checks.

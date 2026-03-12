@@ -3,6 +3,7 @@ from __future__ import annotations
 from decimal import Decimal
 from types import SimpleNamespace
 from unittest.mock import patch
+from requests import HTTPError
 
 from django.contrib.auth import get_user_model
 from django.db.models import Q
@@ -13,7 +14,9 @@ from accounts.models import Profile
 from catalog.models import Category
 from core.config import get_site_config
 from orders.models import Order, OrderEvent, OrderItem, StripeWebhookEvent
+from payments.models import SellerFeeInvoice
 from orders.stripe_service import create_checkout_session_for_order, create_transfers_for_paid_order
+from orders.paypal_service import capture_paypal_order
 from orders.webhooks import process_stripe_event_dict
 from orders.views import _order_seller_groups
 from payments.models import SellerStripeAccount
@@ -234,6 +237,175 @@ class CheckoutFlowTests(TestCase):
         self.assertEqual(order.platform_fee_cents_snapshot, 250)
         self.assertEqual(order.subtotal_cents, 3000)
         self.assertEqual(order.total_cents, 3250)
+
+    @override_settings(RECAPTCHA_ENABLED=False)
+    def test_offplatform_method_requires_all_sellers_support(self):
+        order = self._create_pending_order()
+        self.client.force_login(self.buyer)
+
+        p1 = self.seller1.profile
+        p2 = self.seller2.profile
+        p1.venmo_handle = "sellerone"
+        p2.venmo_handle = ""
+        p1.save(update_fields=["venmo_handle", "updated_at"])
+        p2.save(update_fields=["venmo_handle", "updated_at"])
+
+        resp = self.client.post(
+            reverse("orders:checkout_start", kwargs={"order_id": order.pk}),
+            data={"payment_method": "venmo"},
+            follow=True,
+        )
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.Status.PENDING)
+        self.assertContains(resp, "Not all sellers in this order accept Venmo")
+
+    def test_order_detail_exposes_offplatform_support_flags(self):
+        order = self._create_pending_order()
+        self.client.force_login(self.buyer)
+
+        p1 = self.seller1.profile
+        p2 = self.seller2.profile
+        p1.paypal_me_url = "https://paypal.me/seller1"
+        p2.paypal_me_url = "https://paypal.me/seller2"
+        p1.zelle_contact = "seller1@example.com"
+        p2.zelle_contact = ""
+        p1.save(update_fields=["paypal_me_url", "zelle_contact", "updated_at"])
+        p2.save(update_fields=["paypal_me_url", "zelle_contact", "updated_at"])
+
+        resp = self.client.get(reverse("orders:detail", kwargs={"order_id": order.pk}))
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.context["can_paypal"])
+        self.assertFalse(resp.context["can_zelle"])
+
+    def test_awaiting_payment_builds_paypal_me_link_with_amount(self):
+        order = self._create_pending_order()
+        order.status = Order.Status.AWAITING_PAYMENT
+        order.payment_method = Order.PaymentMethod.PAYPAL
+        order.save(update_fields=["status", "payment_method", "updated_at"])
+        self.client.force_login(self.buyer)
+
+        p1 = self.seller1.profile
+        p2 = self.seller2.profile
+        p1.paypal_me_url = "paypal.me/seller1"
+        p2.paypal_me_url = "paypal.me/seller2"
+        p1.save(update_fields=["paypal_me_url", "updated_at"])
+        p2.save(update_fields=["paypal_me_url", "updated_at"])
+
+        resp = self.client.get(reverse("orders:detail", kwargs={"order_id": order.pk}))
+        self.assertEqual(resp.status_code, 200)
+        link_map = resp.context["offline_link_by_seller"]
+        self.assertIn("/30.00", link_map[self.seller1.id])
+        self.assertIn("/5.00", link_map[self.seller2.id])
+
+    def test_seller_confirm_offplatform_logs_manual_fee_due_warning(self):
+        order = self._create_pending_order()
+        order.status = Order.Status.AWAITING_PAYMENT
+        order.payment_method = Order.PaymentMethod.VENMO
+        order.platform_fee_cents_snapshot = 150
+        order.save(update_fields=["status", "payment_method", "platform_fee_cents_snapshot", "updated_at"])
+
+        self.client.force_login(self.seller1)
+        resp = self.client.post(reverse("orders:seller_confirm_payment", kwargs={"order_id": order.pk}))
+        self.assertEqual(resp.status_code, 302)
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.Status.PAID)
+        self.assertTrue(
+            OrderEvent.objects.filter(
+                order=order,
+                type=OrderEvent.Type.WARNING,
+                message__icontains="manual collection",
+            ).exists()
+        )
+        self.assertTrue(
+            SellerFeeInvoice.objects.filter(order=order, seller=self.seller1, status=SellerFeeInvoice.Status.OPEN).exists()
+        )
+
+    @override_settings(RECAPTCHA_ENABLED=False, PAYPAL_CLIENT_ID="test-paypal-id", PAYPAL_CLIENT_SECRET="test-paypal-secret")
+    def test_paypal_native_checkout_redirects_to_paypal_approval(self):
+        order = self._create_pending_order()
+        self.client.force_login(self.buyer)
+
+        with patch("orders.views.create_paypal_order_for_checkout", return_value="https://www.paypal.com/checkoutnow?token=abc123"):
+            resp = self.client.post(
+                reverse("orders:checkout_start", kwargs={"order_id": order.pk}),
+                data={"payment_method": "paypal"},
+            )
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["Location"], "https://www.paypal.com/checkoutnow?token=abc123")
+
+    @override_settings(PAYPAL_CLIENT_ID="test-paypal-id", PAYPAL_CLIENT_SECRET="test-paypal-secret")
+    def test_paypal_return_captures_and_marks_paid(self):
+        order = self._create_pending_order()
+        order.status = Order.Status.AWAITING_PAYMENT
+        order.payment_method = Order.PaymentMethod.PAYPAL
+        order.paypal_order_id = "PAYPAL-ORDER-1"
+        order.save(update_fields=["status", "payment_method", "paypal_order_id", "updated_at"])
+        self.client.force_login(self.buyer)
+
+        with patch("orders.views.capture_paypal_order", return_value=(True, "CAPTURE-1")):
+            resp = self.client.get(
+                reverse("orders:paypal_return", kwargs={"order_id": order.pk}),
+                {"token": "PAYPAL-ORDER-1"},
+            )
+
+        self.assertEqual(resp.status_code, 302)
+
+    def test_seller_payments_queue_page_loads_on_get(self):
+        self.client.force_login(self.seller1)
+        resp = self.client.get(reverse("orders:seller_payments_queue"))
+        self.assertEqual(resp.status_code, 200)
+
+    @override_settings(PAYPAL_CLIENT_ID="test-paypal-id", PAYPAL_CLIENT_SECRET="test-paypal-secret")
+    def test_capture_paypal_order_handles_already_captured_race(self):
+        order = self._create_pending_order()
+        order.payment_method = Order.PaymentMethod.PAYPAL
+        order.paypal_order_id = "PAYPAL-ORDER-1"
+        order.save(update_fields=["payment_method", "paypal_order_id", "updated_at"])
+
+        with patch(
+            "orders.paypal_service._paypal_request",
+            side_effect=[
+                HTTPError("capture already processed"),
+                {
+                    "status": "COMPLETED",
+                    "purchase_units": [
+                        {"payments": {"captures": [{"id": "CAPTURE-ALREADY-1"}]}},
+                    ],
+                },
+            ],
+        ):
+            ok, info = capture_paypal_order(order=order, paypal_order_id="PAYPAL-ORDER-1")
+
+        self.assertTrue(ok)
+        self.assertEqual(info, "CAPTURE-ALREADY-1")
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.Status.PAID)
+        self.assertEqual(order.paypal_capture_id, "CAPTURE-ALREADY-1")
+
+    def test_paypal_webhook_updates_capture_id_even_if_order_already_paid(self):
+        order = self._create_pending_order()
+        order.status = Order.Status.PAID
+        order.payment_method = Order.PaymentMethod.PAYPAL
+        order.paypal_order_id = "PAYPAL-ORDER-1"
+        order.save(update_fields=["status", "payment_method", "paypal_order_id", "updated_at"])
+
+        payload = {
+            "event_type": "PAYMENT.CAPTURE.COMPLETED",
+            "resource": {
+                "id": "CAPTURE-WEBHOOK-1",
+                "supplementary_data": {
+                    "related_ids": {"order_id": "PAYPAL-ORDER-1"},
+                },
+            },
+        }
+        resp = self.client.post(
+            reverse("orders:paypal_webhook"),
+            data=payload,
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, 200)
+        order.refresh_from_db()
+        self.assertEqual(order.paypal_capture_id, "CAPTURE-WEBHOOK-1")
 
 
 class WebhookIdempotencyTests(TestCase):

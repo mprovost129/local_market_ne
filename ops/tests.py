@@ -14,7 +14,7 @@ from django.core.management import call_command
 from django.core.cache import cache
 from django.http import HttpResponse
 from django.test import RequestFactory
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -426,6 +426,45 @@ class AlertsSummaryViewTests(TestCase):
         payload = resp.json()
         self.assertIn("status", payload)
         self.assertIn("metrics", payload)
+
+
+class PaymentsHealthViewTests(TestCase):
+    def setUp(self):
+        self.ops_user = User.objects.create_user(
+            username="ops_payments_health_user",
+            email="ops_payments_health_user@example.com",
+            password="pw123456",
+        )
+        ops_group, _ = Group.objects.get_or_create(name="ops")
+        self.ops_user.groups.add(ops_group)
+
+    def test_requires_ops_auth(self):
+        resp = self.client.get(reverse("ops:payments_health"))
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn(reverse("accounts:login"), resp["Location"])
+
+    @override_settings(
+        STRIPE_PUBLISHABLE_KEY="pk_test_123",
+        STRIPE_SECRET_KEY="sk_test_123",
+        STRIPE_WEBHOOK_SECRET="whsec_123",
+        STRIPE_CONNECT_WEBHOOK_SECRET="whsec_connect_123",
+        PAYPAL_CLIENT_ID="paypal_client_123",
+        PAYPAL_CLIENT_SECRET="paypal_secret_123",
+        PAYPAL_WEBHOOK_ID="wh_123",
+        PAYPAL_ENV="sandbox",
+    )
+    def test_returns_json_payload_for_ops_user(self):
+        self.client.force_login(self.ops_user)
+        resp = self.client.get(reverse("ops:payments_health") + "?format=json")
+        self.assertEqual(resp.status_code, 200)
+        payload = resp.json()
+        self.assertIn("ok", payload)
+        self.assertIn("checks", payload)
+        self.assertIn("stripe", payload["checks"])
+        self.assertIn("paypal", payload["checks"])
+        self.assertIn("webhook_urls", payload["checks"])
+        self.assertIn("stripe_checkout", payload["checks"]["webhook_urls"])
+        self.assertIn("paypal", payload["checks"]["webhook_urls"])
 
 
 class WebhooksBulkReprocessViewTests(TestCase):

@@ -1,5 +1,6 @@
 {# orders/templates/orders/seller_orders_detail.html #}
 {% extends "base.html" %}
+{% load money %}
 {% block title %}Order  - Local Market NE{% endblock %}
 
 {% block content %}
@@ -16,6 +17,9 @@
     <div>
       <strong>Awaiting off-platform payment</strong>
       <div class="small text-secondary">Buyer selected {{ order.get_payment_method_display }}. Confirm once you receive payment.</div>
+      {% if offplatform_fee_due_cents|default:0|add:0 > 0 %}
+      <div class="small mt-1">Marketplace fee due (manual collection): <strong>${{ offplatform_fee_due_cents|cents_to_dollars }}</strong></div>
+      {% endif %}
       <div class="small mt-2">{% if order.offplatform_sent_at %}<span class="badge text-bg-light border">Buyer marked sent {{ order.offplatform_sent_at }}</span>{% if order.offplatform_note %}<div class="text-secondary small mt-1">Buyer note: {{ order.offplatform_note }}</div>{% endif %}{% endif %}</div>
     </div>
     <form method="post" action="{% url 'orders:seller_confirm_payment' order.id %}">
@@ -76,9 +80,9 @@
             <tr>
               <td class="fw-semibold">{{ it.product.title }}</td>
               <td class="text-end">{{ it.quantity }}</td>
-              <td class="text-end">${{ it.unit_price_cents|add:0 }}</td>
-              <td class="text-end">${{ it.marketplace_fee_cents|add:0 }}</td>
-              <td class="text-end fw-semibold">${{ it.seller_net_cents|add:0 }}</td>
+              <td class="text-end">${{ it.unit_price_cents|cents_to_dollars }}</td>
+              <td class="text-end">${{ it.marketplace_fee_cents|cents_to_dollars }}</td>
+              <td class="text-end fw-semibold">${{ it.seller_net_cents|cents_to_dollars }}</td>
               <td>
                 {% if it.requires_shipping %}
                   <form method="post" action="{% url 'orders:seller_set_item_status' order.id it.id %}" class="d-flex gap-2 align-items-center">

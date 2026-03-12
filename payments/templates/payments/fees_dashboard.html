@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% load money %}
+{% block title %}Seller Fees Due - Local Market NE{% endblock %}
+
+{% block content %}
+<div class="container-fluid lm-page-shell">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+      <h1 class="h4 mb-1">Marketplace Fees Due</h1>
+      <div class="text-secondary small">Fees from off-platform payments awaiting settlement.</div>
+    </div>
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'dashboards:seller' %}">Back to Seller Dashboard</a>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-12 col-md-4">
+      <div class="card lm-card lm-panel lm-metric-card h-100">
+        <div class="card-body lm-card-body">
+          <div class="text-secondary small">Open fee invoices</div>
+          <div class="h4 mb-0">{{ open_count }}</div>
+          <div class="text-secondary small mt-1">Total due: <strong>${{ open_total_cents|cents_to_dollars }}</strong></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-8">
+      <div class="card lm-card lm-panel h-100">
+        <div class="card-body lm-card-body d-flex flex-wrap align-items-center justify-content-between gap-2">
+          <div class="small text-secondary">Pay all open fees in one Stripe payment.</div>
+          <form method="post" action="{% url 'payments:fees_pay_now' %}">
+            {% csrf_token %}
+            <button class="btn btn-primary btn-sm" type="submit" {% if open_count <= 0 %}disabled{% endif %}>
+              Pay now
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card lm-card lm-panel">
+    <div class="lm-table table-responsive">
+      <table class="table table-sm align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Date</th>
+            <th>Customer</th>
+            <th>Order</th>
+            <th>Method</th>
+            <th class="text-end">Fee due</th>
+            <th>Status</th>
+            <th>Contact</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+            <tr>
+              <td class="small">{{ row.invoice.created_at|date:"Y-m-d" }}</td>
+              <td>
+                <div class="fw-semibold">{{ row.buyer_name }}</div>
+                {% if row.buyer_email %}<div class="small text-secondary">{{ row.buyer_email }}</div>{% endif %}
+              </td>
+              <td>
+                <a class="text-decoration-none" href="{% url 'orders:seller_order_detail' row.invoice.order.id %}">
+                  #{{ row.invoice.order.id|slice:":8" }}
+                </a>
+              </td>
+              <td class="small text-uppercase">{{ row.invoice.payment_method_snapshot }}</td>
+              <td class="text-end">${{ row.invoice.amount_cents|cents_to_dollars }}</td>
+              <td>
+                {% if row.invoice.status == "paid" %}
+                  <span class="badge text-bg-success">Paid</span>
+                {% elif row.invoice.status == "open" %}
+                  <span class="badge text-bg-warning text-dark">Open</span>
+                {% else %}
+                  <span class="badge text-bg-secondary">{{ row.invoice.status|title }}</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if row.contact_link %}
+                  <a class="btn btn-sm btn-outline-secondary" href="{{ row.contact_link }}">Contact</a>
+                {% else %}
+                  <span class="small text-secondary">N/A</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" class="py-0">{% include 'partials/empty_state.html' with title='' message='No fee invoices yet.' action_route='dashboards:seller' action_label='Back to dashboard' show_support_links=True %}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

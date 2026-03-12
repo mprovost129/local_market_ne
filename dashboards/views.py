@@ -34,7 +34,7 @@ from .analytics import get_top_throttle_rules as analytics_get_top_throttle_rule
 from .analytics import is_configured as analytics_is_configured
 from orders.models import Order, OrderItem, OrderEvent, StripeWebhookDelivery, SellerFulfillmentTask
 from refunds.models import RefundRequest, RefundAttempt
-from payments.models import SellerStripeAccount, SellerBalanceEntry
+from payments.models import SellerStripeAccount, SellerBalanceEntry, SellerFeeInvoice
 from payments.services_fee_waiver import ensure_fee_waiver_for_new_seller
 from products.models import Product, ProductEngagementEvent, SavedSearchAlert
 from products.permissions import is_owner_user, is_seller_user
@@ -314,6 +314,11 @@ def seller_dashboard(request):
     net_sold_count = int(sales_totals.get('sold_count') or 0) - int(sales_totals.get('refunded_count') or 0)
 
     payout_available_cents = max(0, int(balance_cents))
+    fee_due_agg = SellerFeeInvoice.objects.filter(seller=user, status=SellerFeeInvoice.Status.OPEN).aggregate(
+        total=Sum("amount_cents")
+    )
+    fee_due_cents = int(fee_due_agg.get("total") or 0)
+    fee_due_count = SellerFeeInvoice.objects.filter(seller=user, status=SellerFeeInvoice.Status.OPEN).count()
 
     ledger_entries = SellerBalanceEntry.objects.filter(seller=user).order_by("-created_at")[:10]
 
@@ -338,6 +343,8 @@ def seller_dashboard(request):
             "balance_abs": abs(balance_dollars),
             "payout_available": payout_available_dollars,
             "payout_available_abs": abs(payout_available_dollars),
+            "fee_due_cents": fee_due_cents,
+            "fee_due_count": fee_due_count,
             "ledger_entries": ledger_entries,
             "sold_count": net_sold_count,
             "order_count": sales_totals.get("order_count") or 0,

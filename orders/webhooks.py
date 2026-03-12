@@ -8,8 +8,10 @@ from django.conf import settings
 from django.db import transaction
 from django.http import HttpRequest, HttpResponse
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import Order, StripeWebhookDelivery, StripeWebhookEvent
+from .paypal_service import verify_paypal_webhook
 from .stripe_service import create_transfers_for_paid_order
 
 
@@ -188,6 +190,7 @@ def process_stripe_event_dict(
 
 
 @transaction.atomic
+@csrf_exempt
 def stripe_webhook(request: HttpRequest) -> HttpResponse:
     event = _verify_and_parse(request)
     if not isinstance(event, dict) or not event.get("id"):
@@ -216,3 +219,45 @@ def stripe_webhook(request: HttpRequest) -> HttpResponse:
         return HttpResponse(status=200)
     except Exception:
         return HttpResponse(status=200)
+
+
+@transaction.atomic
+@csrf_exempt
+def paypal_webhook(request: HttpRequest) -> HttpResponse:
+    try:
+        event = json.loads((request.body or b"{}").decode("utf-8"))
+    except Exception:
+        return HttpResponse(status=400)
+
+    # Validate webhook signature in production-like environments.
+    if not bool(getattr(settings, "DEBUG", False)):
+        hdrs = {k.lower(): v for k, v in request.headers.items()}
+        try:
+            if not verify_paypal_webhook(headers=hdrs, body=event):
+                return HttpResponse(status=400)
+        except Exception:
+            return HttpResponse(status=400)
+
+    event_type = str(event.get("event_type") or "").strip().upper()
+    resource = (event.get("resource") or {}) if isinstance(event, dict) else {}
+
+    # Handle capture completion as the source of truth for paid status.
+    if event_type == "PAYMENT.CAPTURE.COMPLETED":
+        related = (resource.get("supplementary_data") or {}).get("related_ids") or {}
+        paypal_order_id = str(related.get("order_id") or "").strip()
+        capture_id = str(resource.get("id") or "").strip()
+        if paypal_order_id:
+            order = Order.objects.select_for_update().filter(paypal_order_id=paypal_order_id).first()
+            if order:
+                order.paypal_capture_id = capture_id
+                order.save(update_fields=["paypal_capture_id", "updated_at"])
+                if order.status != Order.Status.PAID:
+                    try:
+                        order.mark_paid(
+                            payment_intent_id=f"PAYPAL:{capture_id or paypal_order_id}",
+                            note="PayPal capture completed via webhook.",
+                        )
+                    except Exception:
+                        pass
+
+    return HttpResponse(status=200)

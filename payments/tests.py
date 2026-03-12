@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
@@ -9,7 +10,8 @@ from decimal import Decimal
 
 from catalog.models import Category
 from core.models import SiteConfig
-from payments.models import SellerFeePlan, SellerFeeWaiver, SellerStripeAccount
+from payments.models import SellerFeeInvoice, SellerFeePlan, SellerFeeWaiver, SellerStripeAccount
+from orders.models import Order
 from payments.services_fee_waiver import get_effective_marketplace_sales_percent_for_seller
 from products.models import Product
 
@@ -142,6 +144,85 @@ class SellerFeePlanOverrideTests(TestCase):
         SellerFeeWaiver.ensure_for_seller(user=self.seller, waiver_days=30)
         pct = get_effective_marketplace_sales_percent_for_seller(seller_user=self.seller)
         self.assertEqual(pct, Decimal("0.00"))
+
+
+class SellerFeeInvoiceFlowTests(TestCase):
+    def setUp(self):
+        self.seller = User.objects.create_user(
+            username="seller_fee_invoice",
+            email="seller_fee_invoice@example.com",
+            password="pw123456",
+        )
+        prof = self.seller.profile
+        prof.is_seller = True
+        prof.email_verified = True
+        prof.save(update_fields=["is_seller", "email_verified", "updated_at"])
+        self.client.force_login(self.seller)
+
+        self.order = Order.objects.create(
+            buyer=None,
+            guest_email="buyer@example.com",
+            status=Order.Status.PAID,
+            payment_method=Order.PaymentMethod.VENMO,
+        )
+
+    def test_fees_dashboard_shows_open_invoices(self):
+        SellerFeeInvoice.objects.create(
+            seller=self.seller,
+            order=self.order,
+            amount_cents=425,
+            status=SellerFeeInvoice.Status.OPEN,
+            payment_method_snapshot=Order.PaymentMethod.VENMO,
+        )
+        resp = self.client.get(reverse("payments:fees_dashboard"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Marketplace Fees Due")
+        self.assertEqual(resp.context["open_total_cents"], 425)
+
+    def test_fees_pay_now_creates_checkout_and_tags_open_invoices(self):
+        inv = SellerFeeInvoice.objects.create(
+            seller=self.seller,
+            order=self.order,
+            amount_cents=500,
+            status=SellerFeeInvoice.Status.OPEN,
+            payment_method_snapshot=Order.PaymentMethod.PAYPAL,
+        )
+
+        fake_session = SimpleNamespace(id="cs_fee_123", url="https://checkout.stripe.test/fees")
+        fake_stripe = SimpleNamespace(
+            checkout=SimpleNamespace(
+                Session=SimpleNamespace(create=lambda **kwargs: fake_session)
+            )
+        )
+        with patch("payments.views._stripe", return_value=fake_stripe):
+            resp = self.client.post(reverse("payments:fees_pay_now"))
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["Location"], "https://checkout.stripe.test/fees")
+        inv.refresh_from_db()
+        self.assertEqual(inv.stripe_session_id, "cs_fee_123")
+
+    def test_fees_success_marks_invoices_paid(self):
+        inv = SellerFeeInvoice.objects.create(
+            seller=self.seller,
+            order=self.order,
+            amount_cents=500,
+            status=SellerFeeInvoice.Status.OPEN,
+            payment_method_snapshot=Order.PaymentMethod.PAYPAL,
+            stripe_session_id="cs_fee_200",
+        )
+        fake_stripe = SimpleNamespace(
+            checkout=SimpleNamespace(
+                Session=SimpleNamespace(retrieve=lambda _sid: SimpleNamespace(payment_status="paid", payment_intent="pi_fee_200"))
+            )
+        )
+        with patch("payments.views._stripe", return_value=fake_stripe):
+            resp = self.client.get(reverse("payments:fees_success") + "?session_id=cs_fee_200")
+
+        self.assertEqual(resp.status_code, 302)
+        inv.refresh_from_db()
+        self.assertEqual(inv.status, SellerFeeInvoice.Status.PAID)
+        self.assertEqual(inv.stripe_payment_intent_id, "pi_fee_200")
 
     def test_active_fixed_plan_overrides_waiver(self):
         SellerFeeWaiver.ensure_for_seller(user=self.seller, waiver_days=30)

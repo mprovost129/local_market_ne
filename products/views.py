@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import base64
 import io
+import math
 from datetime import timedelta
 import re
 from urllib.parse import urlencode
@@ -21,6 +22,7 @@ from django.views.decorators.http import require_POST
 
 from catalog.models import Category
 from core.qr import qr_data_uri
+from accounts.geo import lookup_zip_centroid
 from core.throttle import ThrottleRule, throttle
 from payments.models import SellerStripeAccount
 from products.permissions import is_owner_user
@@ -92,6 +94,68 @@ def _normalized_zip_prefix(raw: str) -> str:
         return ""
     # ZIP5 + optional ZIP4: we only need ZIP5 prefix for location filtering.
     return digits[:5]
+
+
+def _zip_distance_case(zip_code: str):
+    """
+    Approximate ZIP distance buckets for local matching.
+    This is intentionally coarse for v1 and used only for sorting/filter gating.
+    """
+    zip5 = _normalized_zip_prefix(zip_code)
+    if len(zip5) < 5:
+        return Value(999, output_field=IntegerField())
+    zip3 = zip5[:3]
+    zip2 = zip5[:2]
+    return Case(
+        When(seller__profile__zip_code__istartswith=zip5, then=Value(0)),
+        When(seller__profile__zip_code__istartswith=zip3, then=Value(10)),
+        When(seller__profile__zip_code__istartswith=zip2, then=Value(50)),
+        default=Value(999),
+        output_field=IntegerField(),
+    )
+
+
+def _zip_distance_bucket(zip_code: str, seller_zip: str) -> int:
+    buyer_zip = _normalized_zip_prefix(zip_code)
+    seller_zip = _normalized_zip_prefix(seller_zip)
+    if len(buyer_zip) < 5 or len(seller_zip) < 5:
+        return 999
+    if seller_zip.startswith(buyer_zip):
+        return 0
+    if seller_zip.startswith(buyer_zip[:3]):
+        return 10
+    if seller_zip.startswith(buyer_zip[:2]):
+        return 50
+    return 999
+
+
+def _haversine_miles(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    r = 3958.7613  # earth radius miles
+    d_lat = math.radians(lat2 - lat1)
+    d_lon = math.radians(lon2 - lon1)
+    a = (
+        math.sin(d_lat / 2.0) ** 2
+        + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(d_lon / 2.0) ** 2
+    )
+    c = 2.0 * math.atan2(math.sqrt(a), math.sqrt(1.0 - a))
+    return float(r * c)
+
+
+def _distance_from_buyer_zip(zip_code: str, seller_profile) -> float:
+    """
+    Return approximate miles from buyer ZIP to seller.
+    Uses private lat/lng when available, otherwise ZIP-prefix buckets.
+    """
+    buyer_centroid = lookup_zip_centroid(zip_code)
+    seller_lat = getattr(seller_profile, "private_latitude", None)
+    seller_lng = getattr(seller_profile, "private_longitude", None)
+    if buyer_centroid and seller_lat is not None and seller_lng is not None:
+        try:
+            bl_lat, bl_lng = buyer_centroid
+            return _haversine_miles(float(bl_lat), float(bl_lng), float(seller_lat), float(seller_lng))
+        except Exception:
+            pass
+    return float(_zip_distance_bucket(zip_code, getattr(seller_profile, "zip_code", "")))
 
 
 def _get_per_page(request: HttpRequest) -> int:
@@ -175,17 +239,9 @@ def _apply_listing_sort(qs, *, sort: str, zip_code: str):
     if sort == "trending":
         return qs.order_by("-is_trending", "-created_at")
     if sort == "local" and zip_code:
-        zip3 = zip_code[:3]
         return (
-            qs.annotate(
-                local_rank=Case(
-                    When(seller__profile__zip_code__istartswith=zip_code, then=Value(0)),
-                    When(seller__profile__zip_code__istartswith=zip3, then=Value(1)),
-                    default=Value(2),
-                    output_field=IntegerField(),
-                )
-            )
-            .order_by("local_rank", "-created_at")
+            qs.annotate(local_distance_miles=_zip_distance_case(zip_code))
+            .order_by("local_distance_miles", "-created_at")
         )
     return qs.order_by("-created_at")
 
@@ -239,12 +295,29 @@ def product_list(request: HttpRequest) -> HttpResponse:
         qs = qs.filter(Q(category_id=cid) | Q(subcategory_id=cid))
 
     zip_code = _normalized_zip_prefix(request.GET.get("zip"))
-    if zip_code:
-        qs = qs.filter(seller__profile__zip_code__istartswith=zip_code)
     sort = _sort_key(request.GET.get("sort"), has_zip=bool(zip_code))
-    qs = _apply_listing_sort(qs, sort=sort, zip_code=zip_code)
-
-    page_obj = _paginate(request, qs)
+    if zip_code:
+        if sort != "local":
+            qs = _apply_listing_sort(qs, sort=sort, zip_code="")
+        rows = list(qs)
+        seller_distance_cache: dict[int, float] = {}
+        out = []
+        for p in rows:
+            sid = int(getattr(p, "seller_id", 0) or 0)
+            dist = seller_distance_cache.get(sid)
+            if dist is None:
+                dist = _distance_from_buyer_zip(zip_code, p.seller.profile)
+                seller_distance_cache[sid] = dist
+            p.local_distance_miles = dist
+            # Keep product browsing meaningfully local when ZIP is set.
+            if dist <= 10:
+                out.append(p)
+        if sort == "local":
+            out.sort(key=lambda p: (float(getattr(p, "local_distance_miles", 999.0)), -int(p.created_at.timestamp())))
+        page_obj = _paginate(request, out)
+    else:
+        qs = _apply_listing_sort(qs, sort=sort, zip_code=zip_code)
+        page_obj = _paginate(request, qs)
     selected_category_name = _selected_category_name(category)
     trending_badge_ids = sorted(get_trending_badge_ids())
     saved_search = None
@@ -292,17 +365,39 @@ def services_list(request: HttpRequest) -> HttpResponse:
         qs = qs.filter(Q(category_id=cid) | Q(subcategory_id=cid))
 
     zip_code = _normalized_zip_prefix(request.GET.get("zip"))
-    if zip_code:
-        qs = qs.filter(seller__profile__zip_code__istartswith=zip_code)
-
     radius_raw = (request.GET.get("radius") or "").strip()
     radius = _safe_int(radius_raw, 0)
-    if radius > 0:
-        qs = qs.filter(seller__profile__service_radius_miles__gte=radius)
     sort = _sort_key(request.GET.get("sort"), has_zip=bool(zip_code))
-    qs = _apply_listing_sort(qs, sort=sort, zip_code=zip_code)
-
-    page_obj = _paginate(request, qs)
+    if zip_code:
+        if sort != "local":
+            qs = _apply_listing_sort(qs, sort=sort, zip_code="")
+        rows = list(qs)
+        seller_distance_cache: dict[int, float] = {}
+        out = []
+        for p in rows:
+            sid = int(getattr(p, "seller_id", 0) or 0)
+            dist = seller_distance_cache.get(sid)
+            if dist is None:
+                dist = _distance_from_buyer_zip(zip_code, p.seller.profile)
+                seller_distance_cache[sid] = dist
+            p.local_distance_miles = dist
+            if dist > 10:
+                continue
+            seller_radius = int(getattr(p.seller.profile, "service_radius_miles", 0) or 0)
+            # If seller set a radius, enforce it against buyer distance.
+            if seller_radius > 0 and dist > float(seller_radius):
+                continue
+            if radius > 0 and dist > float(radius):
+                continue
+            out.append(p)
+        if sort == "local":
+            out.sort(key=lambda p: (float(getattr(p, "local_distance_miles", 999.0)), -int(p.created_at.timestamp())))
+        page_obj = _paginate(request, out)
+    else:
+        if radius > 0:
+            qs = qs.filter(seller__profile__service_radius_miles__gte=radius)
+        qs = _apply_listing_sort(qs, sort=sort, zip_code=zip_code)
+        page_obj = _paginate(request, qs)
     selected_category_name = _selected_category_name(category)
     trending_badge_ids = sorted(get_trending_badge_ids())
     saved_search = None
@@ -625,15 +720,29 @@ def top_sellers(request: HttpRequest) -> HttpResponse:
             Q(username__icontains=q)
             | Q(first_name__icontains=q)
             | Q(last_name__icontains=q)
-            | Q(profile__public_seller_name__icontains=q)
-            | Q(profile__public_location_label__icontains=q)
+            | Q(profile__shop_name__icontains=q)
+            | Q(profile__public_city__icontains=q)
+            | Q(profile__public_state__icontains=q)
+            | Q(profile__show_business_address_public=True, profile__city__icontains=q)
+            | Q(profile__show_business_address_public=True, profile__state__icontains=q)
         )
 
     zip_code = _normalized_zip_prefix(request.GET.get("zip"))
     if zip_code:
-        qs = qs.filter(profile__zip_code__istartswith=zip_code)
-
-    page_obj = _paginate(request, qs, per_page=50)
+        rows = list(qs)
+        out = []
+        for u in rows:
+            prof = getattr(u, "profile", None)
+            if prof is None:
+                continue
+            dist = _distance_from_buyer_zip(zip_code, prof)
+            u.local_distance_miles = dist
+            if dist <= 10:
+                out.append(u)
+        out.sort(key=lambda u: (float(getattr(u, "local_distance_miles", 999.0)), -int(getattr(u, "active_listings_count", 0))))
+        page_obj = _paginate(request, out, per_page=50)
+    else:
+        page_obj = _paginate(request, qs, per_page=50)
 
     return _maybe_cached_render(
         request,

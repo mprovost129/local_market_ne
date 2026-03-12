@@ -80,6 +80,23 @@
         </div>
       </div>
     </div>
+
+    <div class="col-12 col-md-3">
+      <div class="card lm-card h-100 lm-panel lm-metric-card">
+        <div class="card-body lm-card-body">
+          <div class="text-secondary small">Owed marketplace fees</div>
+          <div class="h4 mb-0">${{ fee_due_cents|cents_to_dollars }}</div>
+          <div class="text-secondary small mt-1">{{ fee_due_count }} open invoice{{ fee_due_count|pluralize }}</div>
+          <div class="mt-2 d-flex gap-2 flex-wrap">
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'payments:fees_dashboard' %}">Breakdown</a>
+            <form method="post" action="{% url 'payments:fees_pay_now' %}">
+              {% csrf_token %}
+              <button class="btn btn-sm btn-primary" type="submit" {% if fee_due_count <= 0 %}disabled{% endif %}>Pay now</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="card lm-card lm-panel mb-3">

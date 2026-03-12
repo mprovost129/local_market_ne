@@ -16,7 +16,7 @@
     <div class="card shadow-sm mb-3">
       <div class="card-body">
         <div class="fw-semibold mb-2">Choose a payment method</div>
-        <div class="small text-secondary mb-3">Pay securely with Stripe, or use a quick local option like Venmo/PayPal/Zelle.</div>
+        <div class="small text-secondary mb-3">Pay securely with Stripe or PayPal, or use a quick local option like Venmo/Zelle/Cash App.</div>
 
         {% if not checkout_enabled %}
           <div class="alert alert-warning small mb-3">
@@ -33,29 +33,34 @@
             <button class="btn btn-primary" type="submit" name="payment_method" value="stripe" {% if not checkout_enabled %}disabled{% endif %}>
               <i class="bi bi-credit-card me-1"></i>Pay with Stripe
             </button>
-            {% if any_venmo %}
+            {% if can_venmo %}
             <button class="btn btn-outline-secondary" type="submit" name="payment_method" value="venmo" {% if not checkout_enabled %}disabled{% endif %}>
               Pay with Venmo
             </button>
             {% endif %}
-            {% if any_paypal %}
+            {% if can_paypal %}
             <button class="btn btn-outline-secondary" type="submit" name="payment_method" value="paypal" {% if not checkout_enabled %}disabled{% endif %}>
               Pay with PayPal
             </button>
             {% endif %}
-            {% if any_zelle %}
+            {% if can_zelle %}
             <button class="btn btn-outline-secondary" type="submit" name="payment_method" value="zelle" {% if not checkout_enabled %}disabled{% endif %}>
               Pay with Zelle
             </button>
             {% endif %}
-            {% if any_cashapp %}
+            {% if can_cashapp %}
             <button class="btn btn-outline-secondary" type="submit" name="payment_method" value="cashapp" {% if not checkout_enabled %}disabled{% endif %}>
               Pay with Cash App
             </button>
             {% endif %}
           </div>
-          {% if not any_venmo and not any_paypal and not any_zelle and not any_cashapp %}
-            <div class="small text-secondary mt-2">No off-platform payment methods are listed by sellers in this order.</div>
+          {% if not can_venmo and not can_paypal and not can_zelle and not can_cashapp %}
+            <div class="small text-secondary mt-2">No single off-platform method is available across all sellers in this order.</div>
+          {% endif %}
+          {% if missing_by_method %}
+            <div class="small text-secondary mt-2">
+              Method availability depends on each seller's setup.
+            </div>
           {% endif %}
         </form>
 
@@ -69,7 +74,9 @@
                   <th>Seller / Company</th>
                   <th>Items</th>
                   <th class="text-end">Subtotal</th>
+                  <th class="text-end">Ship/Delivery</th>
                   <th class="text-end">Current Tip</th>
+                  <th class="text-end">Due Now</th>
                 </tr>
               </thead>
               <tbody>
@@ -85,7 +92,9 @@
                       {% endfor %}
                     </td>
                     <td class="text-end">${{ g.subtotal_cents|cents_to_dollars }}</td>
+                    <td class="text-end">${{ g.shipping_dollars }}</td>
                     <td class="text-end">${{ g.tip_dollars }}</td>
+                    <td class="text-end fw-semibold">${{ g.total_due_dollars }}</td>
                   </tr>
                 {% endfor %}
               </tbody>
@@ -178,6 +187,13 @@
               {% endif %}
             </div>
             {% if order.status == 'awaiting_payment' %}
+              {% with link=offline_link_by_seller|dict_get:item.seller_id %}
+                {% if link %}
+                  <div class="mt-2">
+                    <a class="btn btn-sm btn-outline-secondary" href="{{ link }}" target="_blank" rel="noopener">Pay now in app</a>
+                  </div>
+                {% endif %}
+              {% endwith %}
               {% with qr=offline_qr_by_seller|dict_get:item.seller_id %}
                 {% if qr %}
                   <div class="mt-2">

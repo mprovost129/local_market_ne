@@ -7,7 +7,7 @@ from django.db.models import Sum
 
 from core.admin_filters import UserCompanyFilter
 
-from .models import SellerBalanceEntry, SellerFeePlan, SellerFeeWaiver, SellerStripeAccount
+from .models import SellerBalanceEntry, SellerFeeInvoice, SellerFeePlan, SellerFeeWaiver, SellerStripeAccount
 
 
 class SellerCompanyFilter(UserCompanyFilter):
@@ -181,6 +181,37 @@ class SellerBalanceEntryAdmin(admin.ModelAdmin):
     )
 
     def seller_company(self, obj: SellerBalanceEntry) -> str:
+        profile = getattr(obj.seller, "profile", None)
+        shop_name = (getattr(profile, "shop_name", "") or "").strip() if profile else ""
+        return shop_name or getattr(obj.seller, "username", str(obj.seller_id))
+
+    seller_company.short_description = "Company"
+
+
+@admin.register(SellerFeeInvoice)
+class SellerFeeInvoiceAdmin(admin.ModelAdmin):
+    list_display = (
+        "created_at",
+        "seller",
+        "seller_company",
+        "order",
+        "amount_cents",
+        "status",
+        "payment_method_snapshot",
+        "paid_at",
+    )
+    list_filter = ("status", "payment_method_snapshot", SellerCompanyFilter)
+    search_fields = (
+        "seller__username",
+        "seller__email",
+        "seller__profile__shop_name",
+        "order__id",
+        "stripe_session_id",
+        "stripe_payment_intent_id",
+    )
+    readonly_fields = ("created_at", "updated_at")
+
+    def seller_company(self, obj: SellerFeeInvoice) -> str:
         profile = getattr(obj.seller, "profile", None)
         shop_name = (getattr(profile, "shop_name", "") or "").strip() if profile else ""
         return shop_name or getattr(obj.seller, "username", str(obj.seller_id))

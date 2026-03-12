@@ -18,6 +18,7 @@ urlpatterns = [
     path("<uuid:order_id>/update-tips/", views.order_update_tips, name="update_tips"),
     path("<uuid:order_id>/checkout/start/", views.checkout_start, name="checkout_start"),
     path("checkout/success/", views.checkout_success, name="checkout_success"),
+    path("<uuid:order_id>/checkout/paypal/return/", views.paypal_return, name="paypal_return"),
     path("<uuid:order_id>/checkout/cancel/", views.checkout_cancel, name="checkout_cancel"),
 
     # Buyer order history
@@ -38,4 +39,5 @@ urlpatterns = [
 
     # Stripe webhook endpoint
     path("webhooks/stripe/", webhooks.stripe_webhook, name="stripe_webhook"),
+    path("webhooks/paypal/", webhooks.paypal_webhook, name="paypal_webhook"),
 ]

@@ -30,6 +30,7 @@ from products.permissions import is_owner_user, is_seller_user, seller_required
 from .models import Order, OrderItem, OrderEvent
 from .services import create_order_from_cart, refresh_fulfillment_task_for_seller
 from .stripe_service import create_checkout_session_for_order
+from .paypal_service import capture_paypal_order, create_paypal_order_for_checkout, paypal_enabled
 
 from legal.models import LegalDocument
 from legal.services import record_acceptance_for_doc_types
@@ -291,7 +292,6 @@ def _require_legal_acceptance_or_redirect(request, *, guest_email: str = "", nex
     return None
 
 
-@require_POST
 @throttle(CHECKOUT_PLACE_RULE)
 @require_recaptcha_v3("checkout_place_order")
 def place_order(request):
@@ -808,6 +808,31 @@ def checkout_start(request, order_id):
         messages.error(request, "This order includes a service deposit, which must be paid via Stripe.")
         return _redirect_order_detail(order, request)
 
+    if payment_method == Order.PaymentMethod.PAYPAL and paypal_enabled():
+        inactive_titles = _order_inactive_titles(order)
+        if inactive_titles and not _is_owner_request(request):
+            messages.error(
+                request,
+                "One or more items in this order are no longer available: " + ", ".join(inactive_titles),
+            )
+            return _redirect_order_detail(order, request)
+
+        bad_sellers = _order_has_unready_sellers(request, order)
+        if bad_sellers:
+            messages.error(
+                request,
+                "One or more sellers in this order haven't completed payout setup yet: " + ", ".join(bad_sellers),
+            )
+            return _redirect_order_detail(order, request)
+
+        try:
+            approve_url = create_paypal_order_for_checkout(request=request, order=order)
+        except Exception:
+            logger.exception("PayPal checkout start failed for order=%s", order.pk)
+            messages.error(request, "We couldn't start PayPal checkout right now. Please try again.")
+            return _redirect_order_detail(order, request)
+        return redirect(approve_url)
+
     if payment_method and payment_method != Order.PaymentMethod.STRIPE:
         order.payment_method = payment_method if payment_method in dict(Order.PaymentMethod.choices) else Order.PaymentMethod.VENMO
         order.status = Order.Status.AWAITING_PAYMENT
@@ -867,6 +892,36 @@ def checkout_success(request):
     return render(request, "orders/checkout_success.html", {"order": order, "order_detail_url": order_detail_url})
 
 
+def paypal_return(request, order_id):
+    order = get_object_or_404(Order, pk=order_id)
+    if not _user_can_access_order(request, order):
+        if order.buyer_id and not request.user.is_authenticated:
+            return redirect("accounts:login")
+        raise Http404("Not found")
+
+    token = (request.GET.get("token") or "").strip()
+    if not token:
+        messages.error(request, "PayPal did not return an order token.")
+        return _redirect_order_detail(order, request)
+
+    if order.status == Order.Status.PAID:
+        messages.success(request, "PayPal payment received.")
+        return _redirect_order_detail(order, request)
+
+    try:
+        ok, info = capture_paypal_order(order=order, paypal_order_id=token)
+    except Exception:
+        logger.exception("PayPal capture failed for order=%s", order.pk)
+        messages.error(request, "We couldn't verify your PayPal payment yet. Please try again in a moment.")
+        return _redirect_order_detail(order, request)
+
+    if ok:
+        messages.success(request, "PayPal payment complete. Your order is confirmed.")
+    else:
+        messages.error(request, f"PayPal payment is not complete yet. {info}")
+    return _redirect_order_detail(order, request)
+
+
 def checkout_cancel(request, order_id):
     order = get_object_or_404(Order, pk=order_id)
     if not _user_can_access_order(request, order):
@@ -904,6 +959,9 @@ def seller_orders_list(request):
     if not (is_seller_user(user) or is_owner_user(user)):
         messages.info(request, "You don’t have access to seller orders.")
         return redirect("dashboards:consumer")
+    if not is_owner_user(user) and not seller_is_stripe_ready(user):
+        messages.info(request, "Complete Stripe onboarding to access seller payments.")
+        return redirect("payments:connect_status")
 
     status = (request.GET.get("status") or "pending").strip().lower()
     if status not in {"pending", "ready", "out_for_delivery", "picked_up", "shipped", "delivered", "all"}:
@@ -970,15 +1028,15 @@ def seller_orders_list(request):
     )
 
 @login_required
-@require_POST
-
 def seller_payments_queue(request):
     """Seller queue for off-platform payments awaiting confirmation."""
     user = request.user
     if not (is_seller_user(user) or is_owner_user(user)):
         messages.info(request, "You don’t have access to seller payments.")
         return redirect("dashboards:consumer")
-
+    if not is_owner_user(user) and not seller_is_stripe_ready(user):
+        messages.info(request, "Complete Stripe onboarding to access seller payments.")
+        return redirect("payments:connect_status")
     from .models import OrderItem, Order
 
     qs = (

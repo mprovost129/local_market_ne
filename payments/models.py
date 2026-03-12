@@ -325,3 +325,48 @@ class SellerBalanceEntry(models.Model):
 
     def __str__(self) -> str:
         return f"{self.seller.id}: {self.amount_cents} ({self.reason})"
+
+
+class SellerFeeInvoice(models.Model):
+    """
+    Tracks marketplace fees owed by sellers for off-platform-paid orders.
+    """
+
+    class Status(models.TextChoices):
+        OPEN = "open", "Open"
+        PAID = "paid", "Paid"
+        VOID = "void", "Voided"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    seller = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="fee_invoices",
+    )
+    order = models.ForeignKey(
+        "orders.Order",
+        on_delete=models.CASCADE,
+        related_name="seller_fee_invoices",
+    )
+    amount_cents = models.PositiveIntegerField(default=0)
+    status = models.CharField(max_length=16, choices=Status.choices, default=Status.OPEN, db_index=True)
+    payment_method_snapshot = models.CharField(max_length=20, blank=True, default="")
+    stripe_session_id = models.CharField(max_length=255, blank=True, default="", db_index=True)
+    stripe_payment_intent_id = models.CharField(max_length=255, blank=True, default="")
+    paid_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    note = models.TextField(blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["seller", "status", "-created_at"]),
+            models.Index(fields=["order", "status"]),
+        ]
+        constraints = [
+            models.UniqueConstraint(fields=["seller", "order"], name="uniq_seller_fee_invoice_per_order"),
+        ]
+        ordering = ("-created_at",)
+
+    def __str__(self) -> str:
+        return f"SellerFeeInvoice<{self.seller_id}:{self.order_id}> ${self.amount_cents/100:.2f} {self.status}"

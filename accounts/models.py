@@ -133,11 +133,15 @@ class Profile(models.Model):
         choices=US_STATES,
         help_text="Optional public state shown on your storefront (approximate).",
     )
+    show_business_address_public = models.BooleanField(
+        default=False,
+        help_text="If enabled, your business address is shown publicly on your storefront/listings.",
+    )
 
-    # Service providers: typical service area radius (miles). Used for buyer expectation only (v1).
+    # Service providers: service area radius (miles). Used for ZIP-based browse matching.
     service_radius_miles = models.PositiveIntegerField(
         default=0,
-        help_text="Service providers: typical radius in miles (0 = not set).",
+        help_text="Service providers: service radius in miles (0 = not set).",
     )
 
     # Used for correspondence; username is public
@@ -169,6 +173,21 @@ class Profile(models.Model):
 
     state = models.CharField(max_length=2, blank=True, choices=US_STATES)
     zip_code = models.CharField(max_length=10, blank=True)
+    private_latitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        help_text="Private seller latitude for internal geo matching. Never shown publicly.",
+    )
+    private_longitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        help_text="Private seller longitude for internal geo matching. Never shown publicly.",
+    )
+    private_geo_updated_at = models.DateTimeField(null=True, blank=True)
 
     avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
 
@@ -218,6 +237,39 @@ class Profile(models.Model):
         if state:
             return state
         return ""
+
+    @property
+    def public_business_address_label(self) -> str:
+        """Public full address label when seller explicitly opts in."""
+        if not bool(self.show_business_address_public):
+            return ""
+        line1 = (self.address_1 or "").strip()
+        city = (self.city or "").strip()
+        state = (self.state or "").strip()
+        postal = (self.zip_code or "").strip()
+        if not line1 or not city or not state:
+            return ""
+        if postal:
+            return f"{line1}, {city}, {state} {postal}"
+        return f"{line1}, {city}, {state}"
+
+    @property
+    def public_location_display(self) -> str:
+        """
+        Public location text used on cards/storefronts.
+        Default is approximate city/state, with optional full business address opt-in.
+        """
+        full = self.public_business_address_label
+        if full:
+            return full
+        approx = self.public_location_label
+        if approx:
+            return approx
+        city = (self.city or "").strip()
+        state = (self.state or "").strip()
+        if city and state:
+            return f"{city}, {state}"
+        return city or state
 
     @property
     def can_access_seller_dashboard(self) -> bool:

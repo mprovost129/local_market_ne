@@ -161,6 +161,7 @@ class ProfileForm(forms.ModelForm):
             # Approximate public location
             "public_city",
             "public_state",
+            "show_business_address_public",
             "service_radius_miles",
             "first_name",
             "last_name",

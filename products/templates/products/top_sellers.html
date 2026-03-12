@@ -51,8 +51,8 @@
       <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="{% url 'products:seller_shop' s.id %}">
         <div>
           <div class="fw-semibold">{% if s.profile and s.profile.public_seller_name %}{{ s.profile.public_seller_name }}{% else %}{{ s.username }}{% endif %}</div>
-          {% if s.profile and s.profile.public_location_label %}
-            <div class="text-secondary small">{{ s.profile.public_location_label }}</div>
+          {% if s.profile and s.profile.public_location_display %}
+            <div class="text-secondary small">{{ s.profile.public_location_display }}</div>
           {% endif %}
         </div>
         <span class="badge text-bg-light">{{ s.active_listings_count }}</span>
