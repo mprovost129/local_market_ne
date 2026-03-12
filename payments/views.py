@@ -129,33 +129,42 @@ def connect_start(request):
     """Create Stripe Express account if needed, then redirect to onboarding link."""
     obj, _ = SellerStripeAccount.objects.get_or_create(user=request.user)
 
-    # Pack V: Require Seller Agreement acceptance before starting Stripe onboarding.
-    try:
-        accepted = has_accepted_doc_type(
+    # Pack V: Require Seller Agreement acceptance only when a published Seller Agreement exists.
+    seller_agreement_doc = (
+        LegalDocument.objects.filter(
             doc_type=LegalDocument.DocType.SELLER_AGREEMENT,
-            request=request,
-            user=request.user,
+            is_published=True,
         )
-    except Exception:
-        accepted = False
-
-    if not accepted:
-        checked = (request.POST.get("accept_seller_agreement") or "").strip() == "1"
-        if not checked:
-            messages.error(request, "Please accept the Seller Agreement to continue.")
-            return redirect("payments:connect_status")
+        .order_by("-version")
+        .first()
+    )
+    if seller_agreement_doc is not None:
         try:
-            record_acceptance_for_doc_types(
+            accepted = has_accepted_doc_type(
+                doc_type=LegalDocument.DocType.SELLER_AGREEMENT,
                 request=request,
                 user=request.user,
-                doc_types=[LegalDocument.DocType.SELLER_AGREEMENT],
             )
-        except ValidationError:
-            messages.error(request, "Seller Agreement is not published yet. Please try again later.")
-            return redirect("payments:connect_status")
         except Exception:
-            messages.error(request, "We couldn't record your acceptance. Please try again.")
-            return redirect("payments:connect_status")
+            accepted = False
+
+        if not accepted:
+            checked = (request.POST.get("accept_seller_agreement") or "").strip() == "1"
+            if not checked:
+                messages.error(request, "Please accept the Seller Agreement to continue.")
+                return redirect("payments:connect_status")
+            try:
+                record_acceptance_for_doc_types(
+                    request=request,
+                    user=request.user,
+                    doc_types=[LegalDocument.DocType.SELLER_AGREEMENT],
+                )
+            except ValidationError:
+                messages.error(request, "Seller Agreement is not published yet. Please try again later.")
+                return redirect("payments:connect_status")
+            except Exception:
+                messages.error(request, "We couldn't record your acceptance. Please try again.")
+                return redirect("payments:connect_status")
 
     # Pack BK: Seller onboarding policy acknowledgements
     cfg = get_site_config()

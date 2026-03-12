@@ -10,6 +10,7 @@ from decimal import Decimal
 
 from catalog.models import Category
 from core.models import SiteConfig
+from legal.models import LegalDocument
 from payments.models import SellerFeeInvoice, SellerFeePlan, SellerFeeWaiver, SellerStripeAccount
 from orders.models import Order
 from payments.services_fee_waiver import get_effective_marketplace_sales_percent_for_seller
@@ -59,6 +60,50 @@ class ConnectReturnRedirectTests(TestCase):
         with patch("payments.views._refresh_connect_status", return_value=None):
             resp = self.client.get(reverse("payments:connect_return"))
 
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["Location"], reverse("payments:connect_status"))
+
+
+class ConnectStartAgreementGateTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="seller_connect_start",
+            email="seller_connect_start@example.com",
+            password="pw123456",
+        )
+        profile = self.user.profile
+        profile.is_seller = True
+        profile.email_verified = True
+        profile.save(update_fields=["is_seller", "email_verified", "updated_at"])
+        self.client.force_login(self.user)
+
+    def _connect_start_post(self, **extra):
+        data = {
+            "confirm_seller_age_18": "1",
+            "ack_prohibited_items": "1",
+        }
+        data.update(extra)
+        return self.client.post(reverse("payments:connect_start"), data=data)
+
+    def test_connect_start_does_not_require_seller_agreement_when_not_published(self):
+        fake_account = {"id": "acct_new_123", "details_submitted": False, "charges_enabled": False, "payouts_enabled": False}
+        fake_link = {"url": "https://connect.stripe.test/onboarding"}
+        with patch("payments.views.create_express_account", return_value=fake_account), patch(
+            "payments.views.create_account_link", return_value=fake_link
+        ):
+            resp = self._connect_start_post()
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["Location"], "https://connect.stripe.test/onboarding")
+
+    def test_connect_start_requires_seller_agreement_when_published(self):
+        LegalDocument.objects.create(
+            doc_type=LegalDocument.DocType.SELLER_AGREEMENT,
+            version=1,
+            title="Seller Agreement v1",
+            body="<p>Agreement</p>",
+            is_published=True,
+        )
+        resp = self._connect_start_post()
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp["Location"], reverse("payments:connect_status"))
 
