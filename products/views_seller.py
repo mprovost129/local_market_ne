@@ -19,7 +19,7 @@ from payments.decorators import stripe_ready_required
 
 from .forms import ProductForm, ProductImageUploadForm, ProductImageBulkUploadForm, ProductImageForm
 from .models import Product, ProductImage
-from .permissions import seller_required, is_owner_user
+from .permissions import seller_required
 
 
 SELLER_PRODUCT_MUTATE_RULE = SELLER_MUTATE
@@ -29,8 +29,6 @@ SELLER_CATEGORY_AJAX_RULE = CATEGORY_LOOKUP
 
 
 def _can_edit_product(user, product: Product) -> bool:
-    if is_owner_user(user):
-        return True
     return product.seller == user
 
 
@@ -117,11 +115,9 @@ def seller_product_list(request):
     qs = (
         Product.objects.select_related("category", "subcategory")
         .prefetch_related("images")
+        .filter(seller=request.user)
         .order_by("-created_at")
     )
-
-    if not is_owner_user(request.user):
-        qs = qs.filter(seller=request.user)
 
     products = list(qs)
     product_data = []

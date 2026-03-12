@@ -137,6 +137,59 @@ class ListingFlowTests(TestCase):
         self.assertTrue(detail.context["can_buy"])
         self.assertContains(detail, "Add to cart")
 
+    def test_seller_list_is_isolated_per_account_including_superuser(self):
+        other_seller = User.objects.create_user(
+            username="seller_list_other",
+            email="seller_list_other@example.com",
+            password="pw123456",
+        )
+        other_profile = other_seller.profile
+        other_profile.is_seller = True
+        other_profile.email_verified = True
+        other_profile.save(update_fields=["is_seller", "email_verified", "updated_at"])
+
+        Product.objects.create(
+            seller=self.seller,
+            kind=Product.Kind.GOOD,
+            title="Seller One Product",
+            category=self.goods_category,
+            price=Decimal("15.00"),
+            stock_qty=3,
+            fulfillment_pickup_enabled=True,
+            is_active=True,
+        )
+        Product.objects.create(
+            seller=other_seller,
+            kind=Product.Kind.GOOD,
+            title="Seller Two Product",
+            category=self.goods_category,
+            price=Decimal("18.00"),
+            stock_qty=3,
+            fulfillment_pickup_enabled=True,
+            is_active=True,
+        )
+
+        self.client.force_login(self.seller)
+        resp = self.client.get(reverse("products:seller_list"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Seller One Product")
+        self.assertNotContains(resp, "Seller Two Product")
+
+        self.client.logout()
+        superuser = User.objects.create_superuser(
+            username="super_seller_scope",
+            email="super_seller_scope@example.com",
+            password="pw123456",
+        )
+        resp = self.client.get(reverse("products:seller_list"))
+        self.assertEqual(resp.status_code, 302)
+
+        self.client.force_login(superuser)
+        resp = self.client.get(reverse("products:seller_list"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertNotContains(resp, "Seller One Product")
+        self.assertNotContains(resp, "Seller Two Product")
+
     def test_listing_edit_preserves_selected_category_and_subcategory(self):
         self.client.force_login(self.seller)
 
