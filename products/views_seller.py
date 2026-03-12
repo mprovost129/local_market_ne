@@ -102,6 +102,15 @@ def _first_error_field_name(form: ProductForm) -> str:
     return ""
 
 
+def _requested_step(request, *, default: int = 1) -> int:
+    raw = (request.POST.get("current_step") or request.GET.get("step") or "").strip()
+    try:
+        step = int(raw)
+    except Exception:
+        step = int(default)
+    return max(1, min(4, step))
+
+
 @seller_required
 def seller_product_list(request):
     qs = (
@@ -169,6 +178,7 @@ def seller_product_list(request):
 def seller_product_create(request):
     if request.method == "POST":
         save_mode = (request.POST.get("save_mode") or "").strip().lower()
+        current_step = _requested_step(request, default=1)
         form = ProductForm(request.POST)
         if form.is_valid():
             obj: Product = form.save(commit=False)
@@ -189,9 +199,12 @@ def seller_product_create(request):
             obj.save()
             if save_mode == "draft":
                 messages.success(request, "Draft saved.")
-                return redirect("products:seller_edit", pk=obj.pk)
-            messages.success(request, "Listing created. Add images and publish when ready.")
-            return redirect("products:seller_images", pk=obj.pk)
+                return redirect(f"{reverse('products:seller_edit', kwargs={'pk': obj.pk})}?step={current_step}")
+            if save_mode == "to_media":
+                messages.success(request, "Draft saved. Continue with images.")
+                return redirect("products:seller_images", pk=obj.pk)
+            messages.success(request, "Listing saved.")
+            return redirect(f"{reverse('products:seller_edit', kwargs={'pk': obj.pk})}?step={current_step}")
     else:
         form = ProductForm()
 
@@ -209,6 +222,7 @@ def seller_product_edit(request, pk: int):
 
     if request.method == "POST":
         save_mode = (request.POST.get("save_mode") or "").strip().lower()
+        current_step = _requested_step(request, default=1)
         form = ProductForm(request.POST, instance=product)
         if form.is_valid():
             obj: Product = form.save(commit=False)
@@ -228,14 +242,17 @@ def seller_product_edit(request, pk: int):
             obj.save()
             if save_mode == "draft":
                 messages.success(request, "Draft saved.")
-            else:
-                messages.success(request, "Listing updated.")
-            return redirect("products:seller_edit", pk=obj.pk)
+                return redirect(f"{reverse('products:seller_edit', kwargs={'pk': obj.pk})}?step={current_step}")
+            if save_mode == "to_media":
+                messages.success(request, "Listing saved. Continue with images.")
+                return redirect("products:seller_images", pk=obj.pk)
+            messages.success(request, "Listing updated.")
+            return redirect(f"{reverse('products:seller_edit', kwargs={'pk': obj.pk})}?step={current_step}")
     else:
         form = ProductForm(instance=product)
 
     ok, missing = _publish_checklist(product)
-    error_step = _form_error_step(form) if form.errors else 1
+    error_step = _form_error_step(form) if form.errors else _requested_step(request, default=1)
     error_field = _first_error_field_name(form) if form.errors else ""
     return render(
         request,
@@ -259,6 +276,24 @@ def seller_product_images(request, pk: int):
     product = _get_owned_product_or_404(request, pk)
 
     if request.method == "POST":
+        action = (request.POST.get("action") or "").strip().lower()
+        if action == "save_draft":
+            if product.is_active:
+                product.is_active = False
+                product.save(update_fields=["is_active", "updated_at"])
+            messages.success(request, "Draft saved.")
+            return redirect("products:seller_images", pk=product.pk)
+        if action == "publish":
+            ok, missing = _publish_checklist(product)
+            if not ok:
+                messages.error(request, "Cannot publish yet. Missing: " + ", ".join(missing))
+                return redirect("products:seller_images", pk=product.pk)
+            if not product.is_active:
+                product.is_active = True
+                product.save(update_fields=["is_active", "updated_at"])
+            messages.success(request, "Listing published.")
+            return redirect("products:seller_list")
+
         bulk_form = ProductImageBulkUploadForm(request.POST, request.FILES)
         single_form = ProductImageUploadForm(request.POST, request.FILES)
         # Prefer bulk if images[] present

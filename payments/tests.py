@@ -107,6 +107,17 @@ class ConnectStartAgreementGateTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp["Location"], reverse("payments:connect_status"))
 
+    def test_connect_start_handles_connect_not_enabled_error(self):
+        with patch(
+            "payments.views.create_express_account",
+            side_effect=Exception(
+                "You can only create new accounts if you've signed up for Connect"
+            ),
+        ):
+            resp = self._connect_start_post()
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["Location"], reverse("payments:connect_status"))
+
 
 class SellerFeeWaiverStartTriggerTests(TestCase):
     def setUp(self):

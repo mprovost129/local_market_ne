@@ -11,8 +11,9 @@
     var saveMode = document.getElementById('id_save_mode');
     if (!form || !root || !nav || !progress || !saveMode) return;
 
-    var steps = [1, 2, 3, 4, 5];
+    var steps = [1, 2, 3, 4];
     var current = 1;
+    var currentStepInput = document.getElementById('id_current_step');
 
     function setActive(step) {
       current = step;
@@ -29,12 +30,20 @@
       var pct = Math.round((step / steps.length) * 100);
       progress.style.width = pct + '%';
       progress.setAttribute('aria-valuenow', String(pct));
+      if (currentStepInput) currentStepInput.value = String(step);
 
       // Prev/Next
       var prevBtn = qs(nav, '[data-wizard-prev]');
       var nextBtn = qs(nav, '[data-wizard-next]');
       if (prevBtn) prevBtn.disabled = (step === 1);
-      if (nextBtn) nextBtn.disabled = (step === steps.length);
+      if (nextBtn) {
+        nextBtn.disabled = false;
+        if (step === steps.length) {
+          nextBtn.innerHTML = 'Continue to media<i class="bi bi-arrow-right ms-1"></i>';
+        } else {
+          nextBtn.innerHTML = 'Next<i class="bi bi-arrow-right ms-1"></i>';
+        }
+      }
 
       // Scroll to top of card
       var cardBody = form.closest('.card-body');
@@ -66,7 +75,15 @@
       var t = e.target.closest('[data-wizard-next],[data-wizard-prev]');
       if (!t) return;
       e.preventDefault();
-      if (t.hasAttribute('data-wizard-next')) next();
+      if (t.hasAttribute('data-wizard-next')) {
+        if (current === steps.length) {
+          saveMode.value = 'to_media';
+          if (currentStepInput) currentStepInput.value = String(current);
+          form.submit();
+          return;
+        }
+        next();
+      }
       if (t.hasAttribute('data-wizard-prev')) prev();
     });
 
@@ -84,11 +101,13 @@
     if (btnDraft) {
       btnDraft.addEventListener('click', function () {
         saveMode.value = 'draft';
+        if (currentStepInput) currentStepInput.value = String(current);
       });
     }
     if (btnNormal) {
       btnNormal.addEventListener('click', function () {
         saveMode.value = '';
+        if (currentStepInput) currentStepInput.value = String(current);
       });
     }
 

@@ -48,7 +48,7 @@
     return kindEl ? String(kindEl.value || "").toUpperCase() : "";
   }
 
-  async function refreshCategories(preserveCategoryId) {
+  async function refreshCategories(preserveCategoryId, preserveSubcategoryId) {
     const kindEl = byId("id_kind");
     const categoryEl = byId("id_category");
     const subcategoryEl = byId("id_subcategory");
@@ -74,11 +74,11 @@
 
     // Trigger subcategory refresh if we have a selected category.
     if (categoryEl.value) {
-      await refreshSubcategories();
+      await refreshSubcategories(preserveSubcategoryId);
     }
   }
 
-  async function refreshSubcategories() {
+  async function refreshSubcategories(preserveSubcategoryId) {
     const categoryEl = byId("id_category");
     const subcategoryEl = byId("id_subcategory");
     if (!categoryEl || !subcategoryEl) return;
@@ -87,7 +87,7 @@
     if (!endpoint) return;
 
     const categoryId = categoryEl.value;
-    const current = subcategoryEl.value;
+    const current = preserveSubcategoryId != null ? String(preserveSubcategoryId || "") : String(subcategoryEl.value || "");
 
     if (!categoryId) {
       clearOptions(subcategoryEl, "- Select a category first -");
@@ -115,12 +115,13 @@
     // First render: load categories for the current kind.
     // Preserve initial category id (for edit mode).
     const initialCategoryId = categoryEl.value;
-    refreshCategories(initialCategoryId);
+    const initialSubcategoryId = subcategoryEl.value;
+    refreshCategories(initialCategoryId, initialSubcategoryId);
 
     kindEl.addEventListener("change", function () {
       categoryEl.value = "";
       subcategoryEl.value = "";
-      refreshCategories("");
+      refreshCategories("", "");
     });
 
     categoryEl.addEventListener("change", function () {

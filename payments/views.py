@@ -29,6 +29,19 @@ from .services import get_seller_balance_cents
 from .stripe_connect import create_account_link, create_express_account, retrieve_account
 
 
+def _stripe_connect_setup_message(exc: Exception) -> str:
+    msg = str(exc or "").strip()
+    lowered = msg.lower()
+    if "signed up for connect" in lowered or "create new accounts" in lowered:
+        return (
+            "Stripe Connect is not enabled on the platform account yet. "
+            "Enable Connect in Stripe Dashboard, then try again."
+        )
+    if msg:
+        return f"Stripe onboarding could not start: {msg}"
+    return "Stripe onboarding could not start right now. Please try again."
+
+
 def _seller_email_for_connect(user) -> str:
     """Pick a stable email for Stripe Connect.
 
@@ -209,8 +222,11 @@ def connect_start(request):
                 "Your account is missing an email. Add one in your profile, then try again.",
             )
             return redirect("payments:connect_status")
-
-        acct = create_express_account(email=email, country="US")
+        try:
+            acct = create_express_account(email=email, country="US")
+        except Exception as e:
+            messages.error(request, _stripe_connect_setup_message(e))
+            return redirect("payments:connect_status")
         obj.stripe_account_id = acct["id"]
         obj.details_submitted = bool(acct.get("details_submitted"))
         obj.charges_enabled = bool(acct.get("charges_enabled"))
@@ -229,8 +245,11 @@ def connect_start(request):
         obj.mark_onboarding_completed_if_ready()
 
     obj.mark_onboarding_started()
-
-    link = create_account_link(stripe_account_id=obj.stripe_account_id)
+    try:
+        link = create_account_link(stripe_account_id=obj.stripe_account_id)
+    except Exception as e:
+        messages.error(request, _stripe_connect_setup_message(e))
+        return redirect("payments:connect_status")
     return redirect(link["url"])
 
 

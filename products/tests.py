@@ -137,6 +137,94 @@ class ListingFlowTests(TestCase):
         self.assertTrue(detail.context["can_buy"])
         self.assertContains(detail, "Add to cart")
 
+    def test_listing_edit_preserves_selected_category_and_subcategory(self):
+        self.client.force_login(self.seller)
+
+        sub = Category.objects.create(
+            parent=self.goods_category,
+            type=Category.CategoryType.GOOD,
+            name="Candles",
+            slug=f"candles-{uuid4().hex[:8]}",
+            is_active=True,
+        )
+        product = Product.objects.create(
+            seller=self.seller,
+            kind=Product.Kind.GOOD,
+            category=self.goods_category,
+            subcategory=sub,
+            title="Edit Category Sticky",
+            short_description="short",
+            description="desc",
+            price=Decimal("10.00"),
+            stock_qty=3,
+            fulfillment_pickup_enabled=True,
+            is_active=False,
+        )
+
+        resp = self.client.get(reverse("products:seller_edit", kwargs={"pk": product.pk}))
+        self.assertEqual(resp.status_code, 200)
+        html = resp.content.decode("utf-8")
+        self.assertIn(f'<option value="{self.goods_category.id}" selected>', html)
+        self.assertIn(f'<option value="{sub.id}" selected>', html)
+
+    def test_listing_create_save_draft_redirects_back_to_same_step(self):
+        self.client.force_login(self.seller)
+        resp = self.client.post(
+            reverse("products:seller_create"),
+            data={
+                "kind": Product.Kind.GOOD,
+                "category": self.goods_category.id,
+                "subcategory": "",
+                "title": "Draft Sticky Step",
+                "short_description": "short",
+                "description": "desc",
+                "price": "12.00",
+                "stock_qty": "3",
+                "fulfillment_pickup_enabled": "on",
+                "save_mode": "draft",
+                "current_step": "3",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        created = Product.objects.get(title="Draft Sticky Step", seller=self.seller)
+        self.assertIn(
+            f"{reverse('products:seller_edit', kwargs={'pk': created.pk})}?step=3",
+            resp["Location"],
+        )
+
+    def test_listing_edit_to_media_redirects_images(self):
+        self.client.force_login(self.seller)
+        product = Product.objects.create(
+            seller=self.seller,
+            kind=Product.Kind.GOOD,
+            category=self.goods_category,
+            title="Edit To Media",
+            short_description="short",
+            description="desc",
+            price=Decimal("10.00"),
+            stock_qty=3,
+            fulfillment_pickup_enabled=True,
+            is_active=False,
+        )
+        resp = self.client.post(
+            reverse("products:seller_edit", kwargs={"pk": product.pk}),
+            data={
+                "kind": Product.Kind.GOOD,
+                "category": self.goods_category.id,
+                "subcategory": "",
+                "title": "Edit To Media",
+                "short_description": "short",
+                "description": "desc",
+                "price": "10.00",
+                "stock_qty": "3",
+                "fulfillment_pickup_enabled": "on",
+                "save_mode": "to_media",
+                "current_step": "4",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn(reverse("products:seller_images", kwargs={"pk": product.pk}), resp["Location"])
+
     def test_paid_purchases_feed_trending_badge_membership(self):
         p1 = Product.objects.create(
             seller=self.seller,

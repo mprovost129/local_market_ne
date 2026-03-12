@@ -47,6 +47,7 @@
       <form method="post" novalidate data-wizard-form data-initial-step="{{ error_step|default:'1' }}" data-first-error-field="{{ error_field|default:'' }}">
         {% csrf_token %}
         <input type="hidden" name="save_mode" id="id_save_mode" value="" />
+        <input type="hidden" name="current_step" id="id_current_step" value="{{ error_step|default:'1' }}" />
 
         <div class="lm-stepper mb-3" data-listing-wizard>
           <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between">
@@ -55,12 +56,16 @@
               <button type="button" class="btn btn-sm btn-outline-secondary lm-step-btn" data-step-target="2">2. Category</button>
               <button type="button" class="btn btn-sm btn-outline-secondary lm-step-btn" data-step-target="3">3. Details</button>
               <button type="button" class="btn btn-sm btn-outline-secondary lm-step-btn" data-step-target="4">4. Fulfillment</button>
-              <button type="button" class="btn btn-sm btn-outline-secondary lm-step-btn" data-step-target="5">5. Media & Publish</button>
             </div>
-            <div class="text-secondary small">Drafts are allowed - use "Save draft" any time.</div>
+            <div class="d-flex align-items-center gap-2">
+              <div class="text-secondary small">Drafts are allowed - use "Save draft" any time.</div>
+              <button class="btn btn-outline-secondary btn-sm" type="submit" data-save-draft>
+                <i class="bi bi-file-earmark me-1"></i>Save draft
+              </button>
+            </div>
           </div>
           <div class="progress mt-2 lm-step-progress">
-            <div class="progress-bar" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" data-step-progress></div>
+            <div class="progress-bar" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" data-step-progress></div>
           </div>
         </div>
 
@@ -262,44 +267,6 @@
                 </div>
               </div>
 
-            </div>
-          </div>
-
-          {# STEP 5 - Media & Publish #}
-          <div class="col-12" data-step="5">
-            <div class="row g-3">
-              {% if product %}
-                <div class="col-12">
-                  <div class="lm-card p-3">
-                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 lm-sticky-actions">
-                      <div>
-                        <div class="fw-semibold">Images</div>
-                        <div class="text-secondary small">Add at least one image, and set a primary image.</div>
-                      </div>
-                      <a class="btn btn-outline-secondary btn-sm" href="{% url 'products:seller_images' product.pk %}"><i class="bi bi-images me-1"></i>Manage images</a>
-                    </div>
-                  </div>
-                </div>
-              {% else %}
-                <div class="col-12">
-                  <div class="alert alert-info mb-0">Save your draft first, then you can add images.</div>
-                </div>
-              {% endif %}
-
-              <div class="col-12 d-flex align-items-center justify-content-between">
-                <div class="form-check">
-                  {{ form.is_active }}
-                  <label class="form-check-label" for="{{ form.is_active.id_for_label }}">Published</label>
-                </div>
-                <div class="d-flex gap-2">
-                  <button class="btn btn-outline-secondary" type="submit" data-save-draft>
-                    <i class="bi bi-file-earmark me-1"></i>Save draft
-                  </button>
-                  <button class="btn btn-primary" type="submit" data-save-normal>
-                    <i class="bi bi-save me-1"></i>Save
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
 
