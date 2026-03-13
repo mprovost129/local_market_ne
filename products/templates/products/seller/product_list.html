@@ -28,11 +28,11 @@
 
     <div class="d-flex gap-2">
       {% if allow_new_listing|default:True %}
-        <a class="btn btn-sm btn-outline-secondary" href="{% url 'products:seller_create' %}">
+        <a class="btn btn-sm btn-secondary" href="{% url 'products:seller_create' %}">
           <i class="bi bi-plus-lg me-1"></i>New Listing
         </a>
       {% else %}
-        <span class="btn btn-sm btn-outline-secondary disabled" tabindex="-1" aria-disabled="true">
+        <span class="btn btn-sm btn-secondary disabled" tabindex="-1" aria-disabled="true">
           <i class="bi bi-plus-lg me-1"></i>New Listing
         </span>
       {% endif %}
@@ -106,7 +106,7 @@
 
                   <div class="d-flex flex-wrap align-items-center gap-2">
                     <div class="dropdown">
-                      <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-sliders me-1"></i>Manage
                       </button>
                       <ul class="dropdown-menu dropdown-menu-end">
@@ -124,7 +124,7 @@
                           <form method="post" action="{% url 'products:seller_toggle_active' p.pk %}">
                             {% csrf_token %}
                             <button type="submit"
-                                    class="btn btn-sm {% if p.is_active %}btn-outline-secondary{% else %}btn-success{% endif %} w-100"
+                                    class="btn btn-sm {% if p.is_active %}btn-secondary{% else %}btn-success{% endif %} w-100"
                                     {% if not row.publish_ok %}disabled{% endif %}>
                               {% if p.is_active %}
                                 <i class="bi bi-pause-circle me-1"></i>Deactivate

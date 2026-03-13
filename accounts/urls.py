@@ -11,6 +11,7 @@ urlpatterns = [
     path("logout/", views.logout_view, name="logout"),
     path("register/", views.register_view, name="register"),
     path("profile/", views.profile_view, name="profile"),
+    path("store-profile/", views.store_profile_view, name="store_profile"),
     path("verify/", views.verify_email_status, name="verify_email_status"),
     path("verify/<str:token>/", views.verify_email_confirm, name="verify_email_confirm"),
     path("verify-email/resend/", views.verify_email_resend, name="verify_email_resend"),

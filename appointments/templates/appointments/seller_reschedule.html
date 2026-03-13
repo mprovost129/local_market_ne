@@ -12,7 +12,7 @@
         {{ ar.service.title|default:ar.service.name }} * Buyer: {{ ar.buyer.get_full_name|default:ar.buyer.username }}
       </div>
     </div>
-    <a class="btn btn-sm btn-outline-secondary" href="{% url 'appointments:seller_requests' %}">Back</a>
+    <a class="btn btn-sm btn-secondary" href="{% url 'appointments:seller_requests' %}">Back</a>
   </div>
 
   <div class="card shadow-sm">
@@ -41,7 +41,7 @@
 
         <div class="d-flex gap-2">
           <button class="btn btn-primary" type="submit">Save reschedule</button>
-          <a class="btn btn-outline-secondary" href="{% url 'appointments:seller_requests' %}">Cancel</a>
+          <a class="btn btn-secondary" href="{% url 'appointments:seller_requests' %}">Cancel</a>
         </div>
       </form>
     </div>

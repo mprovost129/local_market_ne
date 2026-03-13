@@ -6,6 +6,7 @@ from uuid import uuid4
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.core.management import call_command
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
@@ -14,7 +15,7 @@ from catalog.models import Category
 from notifications.models import EmailDeliveryAttempt, Notification
 from orders.models import Order, OrderItem
 from payments.models import SellerStripeAccount
-from products.models import Product, SavedSearchAlert
+from products.models import Product, ProductImage, SavedSearchAlert
 from products.services.trending import get_trending_badge_ids
 
 
@@ -342,6 +343,36 @@ class ListingFlowTests(TestCase):
         resp = self.client.get(reverse("products:list"))
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Providence")
+
+    def test_product_detail_uses_primary_product_image_for_social_meta(self):
+        product = Product.objects.create(
+            seller=self.seller,
+            kind=Product.Kind.GOOD,
+            title="Shared Product Image",
+            category=self.goods_category,
+            price=Decimal("9.99"),
+            is_active=True,
+            stock_qty=5,
+            fulfillment_pickup_enabled=True,
+        )
+        image = SimpleUploadedFile(
+            "share.gif",
+            b"GIF89a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\xff\xff\xff!\xf9\x04\x00\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02L\x01\x00;",
+            content_type="image/gif",
+        )
+        ProductImage.objects.create(
+            product=product,
+            image=image,
+            alt_text="Shared listing photo",
+            is_primary=True,
+            sort_order=0,
+        )
+
+        resp = self.client.get(reverse("products:detail", kwargs={"pk": product.pk, "slug": product.slug}))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'property="og:type" content="product"')
+        self.assertContains(resp, 'property="og:image" content="http://testserver/media/products/images/share.gif"')
+        self.assertContains(resp, 'name="twitter:image" content="http://testserver/media/products/images/share.gif"')
 
     def test_public_business_address_is_hidden_by_default(self):
         profile = self.seller.profile

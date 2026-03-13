@@ -24,27 +24,26 @@ class StartSellingFlowTests(TestCase):
         )
         self.client.force_login(self.user)
 
-    def test_start_selling_marks_seller_and_redirects_verified_user_to_connect_status(self):
+    def test_start_selling_marks_seller_and_redirects_verified_user_to_store_profile(self):
         profile = self.user.profile
         profile.email_verified = True
         profile.save(update_fields=["email_verified", "updated_at"])
 
         resp = self.client.post(reverse("dashboards:start_selling"))
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp["Location"], reverse("payments:connect_status"))
+        self.assertEqual(resp["Location"], reverse("accounts:store_profile"))
 
         profile.refresh_from_db()
         self.assertTrue(profile.is_seller)
 
-    def test_start_selling_marks_seller_and_redirects_unverified_to_verify_with_next(self):
+    def test_start_selling_marks_seller_and_redirects_unverified_user_to_store_profile(self):
         profile = self.user.profile
         profile.email_verified = False
         profile.save(update_fields=["email_verified", "updated_at"])
 
         resp = self.client.post(reverse("dashboards:start_selling"))
         self.assertEqual(resp.status_code, 302)
-        self.assertIn(reverse("accounts:verify_email_status"), resp["Location"])
-        self.assertIn(reverse("payments:connect_status"), resp["Location"])
+        self.assertEqual(resp["Location"], reverse("accounts:store_profile"))
 
         profile.refresh_from_db()
         self.assertTrue(profile.is_seller)

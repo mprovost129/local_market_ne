@@ -10,7 +10,7 @@
     <h1 class="h4 mb-0">Refund request</h1>
 
     {# If you arrived from an order link, best UX is to go back to the order. #}
-    <a class="btn btn-outline-secondary btn-sm"
+    <a class="btn btn-secondary btn-sm"
        href="{% url 'orders:detail' order_id=rr.order_id %}{% if order_token %}?t={{ order_token }}{% endif %}">
       Back to order
     </a>

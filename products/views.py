@@ -598,6 +598,14 @@ def product_detail(request: HttpRequest, pk: int, slug: str) -> HttpResponse:
         .order_by("-created_at")[:4]
     )
 
+    primary_image = product.primary_image
+    share_image_url = ""
+    if primary_image and getattr(primary_image, "image", None):
+        try:
+            share_image_url = request.build_absolute_uri(primary_image.image.url)
+        except Exception:
+            share_image_url = ""
+
     return _maybe_cached_render(
         request,
         "products/product_detail.html",
@@ -612,6 +620,7 @@ def product_detail(request: HttpRequest, pk: int, slug: str) -> HttpResponse:
             "qa_thread_count": qa_thread_count,
             "more_from_seller": more_from_seller,
             "more_from_others": more_from_others,
+            "share_image_url": share_image_url,
         },
     )
 

@@ -10,7 +10,7 @@ from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.core.validators import validate_email
-from django.db.models import Avg, Count, F, FloatField, Q, Value
+from django.db.models import Avg, Count, F, FloatField, Q, Sum, Value
 from django.db.models.functions import Coalesce
 import os
 
@@ -207,20 +207,25 @@ def _build_home_context(request):
     featured = list(qs.filter(is_featured=True).order_by("-created_at")[:HOME_BUCKET_SIZE])
     new_items = list(qs.order_by("-created_at")[:HOME_BUCKET_SIZE])
 
-    manual_trending = list(qs.filter(is_trending=True).order_by("-created_at")[:HOME_BUCKET_SIZE])
-    manual_ids = {p.id for p in manual_trending}
-
-    trending_needed = max(0, HOME_BUCKET_SIZE - len(manual_trending))
-    computed_trending: list[Product] = []
-    computed_ids: set[int] = get_trending_badge_ids(since_days=TRENDING_WINDOW_DAYS)
-
-    if trending_needed > 0:
-        trending_qs = annotate_trending(qs, since_days=TRENDING_WINDOW_DAYS).exclude(id__in=manual_ids)
-        computed_trending = list(
-            trending_qs.order_by("-trending_score", "-avg_rating", "-created_at")[:trending_needed]
+    # Best sellers = most purchased items (by paid order quantity).
+    trending = (
+        _base_home_qs()
+        .annotate(
+            total_units_sold=Coalesce(
+                Sum(
+                    "order_items__quantity",
+                    filter=Q(order_items__order__status=Order.Status.PAID),
+                ),
+                Value(0),
+            )
         )
-
-    trending = manual_trending + computed_trending
+        .filter(total_units_sold__gt=0)
+        .order_by("-total_units_sold", "-created_at")[:HOME_BUCKET_SIZE]
+    )
+    trending = _annotate_rating(trending)
+    trending = list(trending)
+    _apply_can_buy_flag(trending)
+    computed_ids: set[int] = get_trending_badge_ids(since_days=TRENDING_WINDOW_DAYS)
 
     exclude_ids = {p.id for p in featured} | {p.id for p in new_items} | {p.id for p in trending}
     misc = list(qs.exclude(id__in=exclude_ids).order_by("-created_at")[:HOME_BUCKET_SIZE])
@@ -246,18 +251,20 @@ def _build_home_context(request):
     recently_purchased_list = list(recently_purchased)
     _apply_can_buy_flag(recently_purchased_list)
 
-    # Most popular (using order counts)
+    # Most booked services (using paid quantity)
     most_popular = (
         _base_home_qs()
         .annotate(
-            total_purchase_count=Count(
-                "order_items",
-                filter=Q(order_items__order__status=Order.Status.PAID),
-                distinct=True,
+            total_booked_qty=Coalesce(
+                Sum(
+                    "order_items__quantity",
+                    filter=Q(order_items__order__status=Order.Status.PAID),
+                ),
+                Value(0),
             )
         )
-        .filter(total_purchase_count__gt=0, kind=Product.Kind.SERVICE)
-        .order_by("-total_purchase_count", "-created_at")[:HOME_BUCKET_SIZE]
+        .filter(total_booked_qty__gt=0, kind=Product.Kind.SERVICE)
+        .order_by("-total_booked_qty", "-created_at")[:HOME_BUCKET_SIZE]
     )
     most_popular = _annotate_rating(most_popular)
     most_popular_list = list(most_popular)

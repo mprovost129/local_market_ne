@@ -9,7 +9,7 @@
     <div class="text-muted">Backup, recovery, and incident response playbook for LocalMarketNE.</div>
   </div>
   <div class="text-end">
-    <a class="btn btn-sm btn-outline-secondary" href="{% url 'ops:ops_health' %}"><i class="bi bi-heart-pulse me-1"></i>Ops Health</a>
+    <a class="btn btn-sm btn-secondary" href="{% url 'ops:ops_health' %}"><i class="bi bi-heart-pulse me-1"></i>Ops Health</a>
   </div>
 </div>
 
@@ -173,7 +173,7 @@
                         {% for k, v in row.rerun_params.items %}
                           <input type="hidden" name="{{ k }}" value="{{ v }}">
                         {% endfor %}
-                        <button type="submit" class="btn btn-outline-secondary btn-sm">Run now</button>
+                        <button type="submit" class="btn btn-secondary btn-sm">Run now</button>
                       </form>
                     </td>
                   </tr>

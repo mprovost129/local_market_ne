@@ -1,6 +1,15 @@
 {# products/templates/products/product_detail.html #}
 {% extends "base.html" %}
 {% block title %}{{ product.title }} - Local Market NE{% endblock %}
+{% block meta_description %}{% if product.short_description %}{{ product.short_description|striptags|truncatechars:160 }}{% elif product.description %}{{ product.description|striptags|truncatechars:160 }}{% else %}View {{ product.title }} on Local Market NE.{% endif %}{% endblock %}
+{% block og_type %}product{% endblock %}
+{% block og_title %}{{ product.title }} - Local Market NE{% endblock %}
+{% block og_description %}{% if product.short_description %}{{ product.short_description|striptags|truncatechars:200 }}{% elif product.description %}{{ product.description|striptags|truncatechars:200 }}{% else %}View {{ product.title }} on Local Market NE.{% endif %}{% endblock %}
+{% block og_image %}{% if share_image_url %}{{ share_image_url }}{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block og_image_alt %}{% if product.primary_image and product.primary_image.alt_text %}{{ product.primary_image.alt_text }}{% else %}{{ product.title }}{% endif %}{% endblock %}
+{% block twitter_title %}{{ product.title }} - Local Market NE{% endblock %}
+{% block twitter_description %}{% if product.short_description %}{{ product.short_description|striptags|truncatechars:200 }}{% elif product.description %}{{ product.description|striptags|truncatechars:200 }}{% else %}View {{ product.title }} on Local Market NE.{% endif %}{% endblock %}
+{% block twitter_image %}{% if share_image_url %}{{ share_image_url }}{% else %}{{ block.super }}{% endif %}{% endblock %}
 
 {% block content %}
 <div class="container-fluid lm-page-shell lm-page-wrap-lg">
@@ -17,9 +26,9 @@
 
     <div class="lm-page-actions">
       {% if product.kind == "SERVICE" %}
-        <a class="btn btn-outline-secondary btn-sm" href="{% url 'products:services' %}"><i class="bi bi-arrow-left me-1"></i>Back to Services</a>
+        <a class="btn btn-secondary btn-sm" href="{% url 'products:services' %}"><i class="bi bi-arrow-left me-1"></i>Back to Services</a>
       {% else %}
-        <a class="btn btn-outline-secondary btn-sm" href="{% url 'products:list' %}"><i class="bi bi-arrow-left me-1"></i>Back to Products</a>
+        <a class="btn btn-secondary btn-sm" href="{% url 'products:list' %}"><i class="bi bi-arrow-left me-1"></i>Back to Products</a>
       {% endif %}
     </div>
   </div>
@@ -88,7 +97,7 @@
                 <span class="h5 mb-0">${{ product.price }}</span>
               {% endif %}
             </div>
-            <a class="btn btn-outline-secondary btn-sm" href="{% url 'products:seller_shop' product.seller_id %}">Store</a>
+            <a class="btn btn-secondary btn-sm" href="{% url 'products:seller_shop' product.seller_id %}">Store</a>
           </div>
 
           {% if product.short_description %}
@@ -181,7 +190,7 @@
                   Add to cart
                 </button>
               </form>
-              <a class="btn btn-outline-secondary w-100 mt-2" href="{% url 'cart:detail' %}">View cart</a>
+              <a class="btn btn-secondary w-100 mt-2" href="{% url 'cart:detail' %}">View cart</a>
             {% endif %}
           {% else %}
             <a class="btn btn-primary w-100" href="{% url 'accounts:login' %}?next={{ request.path }}">Sign in to continue</a>
@@ -273,9 +282,9 @@
 
         <div class="mb-3">
           {% if user.is_authenticated %}
-            <a class="btn btn-outline-secondary btn-sm" href="{% url 'qa:thread_create' product.id %}"><i class="bi bi-chat-dots me-1"></i>Ask a question</a>
+            <a class="btn btn-secondary btn-sm" href="{% url 'qa:thread_create' product.id %}"><i class="bi bi-chat-dots me-1"></i>Ask a question</a>
           {% else %}
-            <a class="btn btn-outline-secondary btn-sm" href="{% url 'accounts:login' %}?next={{ request.path }}"><i class="bi bi-chat-dots me-1"></i>Sign in to ask</a>
+            <a class="btn btn-secondary btn-sm" href="{% url 'accounts:login' %}?next={{ request.path }}"><i class="bi bi-chat-dots me-1"></i>Sign in to ask</a>
           {% endif %}
         </div>
 

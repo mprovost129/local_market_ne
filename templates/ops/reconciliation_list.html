@@ -25,7 +25,7 @@
         <label class="form-check-label small" for="issues">Issues only</label>
       </div>
       <button class="btn btn-sm btn-primary" type="submit">Apply</button>
-      <a class="btn btn-sm btn-outline-secondary" href="?{% if company %}company={{ company|urlencode }}&{% endif %}{% if status %}status={{ status }}&{% endif %}{% if only_issues %}issues=1&{% endif %}format=csv">Export CSV</a>
+      <a class="btn btn-sm btn-secondary" href="?{% if company %}company={{ company|urlencode }}&{% endif %}{% if status %}status={{ status }}&{% endif %}{% if only_issues %}issues=1&{% endif %}format=csv">Export CSV</a>
     </form>
   </div>
 

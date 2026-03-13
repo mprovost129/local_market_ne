@@ -10,7 +10,7 @@
       <h1 class="h4 mb-0">Order #{{ order.id }}</h1>
       <div class="text-secondary small">{{ order.get_status_display }}{% if order.paid_at %}  - Paid {{ order.paid_at }}{% endif %}</div>
     </div>
-    <a class="btn btn-outline-secondary" href="{% url 'orders:seller_orders_list' %}">Back</a>
+    <a class="btn btn-secondary" href="{% url 'orders:seller_orders_list' %}">Back</a>
   
   {% if order.status == 'awaiting_payment' and order.payment_method != 'stripe' %}
   <div class="alert alert-warning d-flex align-items-center justify-content-between mb-3">
@@ -36,7 +36,7 @@
         {% csrf_token %}
         <textarea name="seller_internal_note" class="form-control" rows="3" placeholder="Private notes for you / your team...">{{ order.seller_internal_note }}</textarea>
         <div class="mt-2">
-          <button class="btn btn-sm btn-outline-secondary" type="submit">Save note</button>
+          <button class="btn btn-sm btn-secondary" type="submit">Save note</button>
         </div>
       </form>
         </div>
@@ -128,7 +128,7 @@
                       <input type="text" name="tracking_carrier" class="form-control form-control-sm" placeholder="Carrier" style="max-width: 140px;" value="{{ it.tracking_carrier }}">
                       <input type="text" name="tracking_number" class="form-control form-control-sm" placeholder="Tracking #" style="max-width: 200px;" value="{{ it.tracking_number }}">
                     {% endif %}
-                    <button class="btn btn-sm btn-outline-secondary" type="submit">Update</button>
+                    <button class="btn btn-sm btn-secondary" type="submit">Update</button>
                   </form>
                 {% else %}
                   <span class="text-secondary">"</span>
@@ -159,12 +159,12 @@
                         {% if it.tracking_carrier %}  - {% endif %}
                         <span class="text-monospace">{{ it.tracking_number }}</span>
                         <a class="ms-2" href="https://trackingmore.com/track/?tracknumber={{ it.tracking_number|urlencode }}" target="_blank" rel="noopener">Track</a>
-                        <button class="btn btn-sm btn-outline-secondary ms-2" type="button" data-copy-tracking="{{ it.tracking_number }}">Copy</button>
+                        <button class="btn btn-sm btn-secondary ms-2" type="button" data-copy-tracking="{{ it.tracking_number }}">Copy</button>
                       {% endif %}
                     </div>
                     <form method="post" action="{% url 'orders:mark_item_delivered' order.id it.id %}" class="d-inline">
                       {% csrf_token %}
-                      <button type="submit" class="btn btn-sm btn-outline-secondary">Mark delivered</button>
+                      <button type="submit" class="btn btn-sm btn-secondary">Mark delivered</button>
                     </form>
                   {% elif it.tracking_carrier or it.tracking_number %}
                     <div class="small">
@@ -173,7 +173,7 @@
                         {% if it.tracking_carrier %}  - {% endif %}
                         <span class="text-monospace">{{ it.tracking_number }}</span>
                         <a class="ms-2" href="https://trackingmore.com/track/?tracknumber={{ it.tracking_number|urlencode }}" target="_blank" rel="noopener">Track</a>
-                        <button class="btn btn-sm btn-outline-secondary ms-2" type="button" data-copy-tracking="{{ it.tracking_number }}">Copy</button>
+                        <button class="btn btn-sm btn-secondary ms-2" type="button" data-copy-tracking="{{ it.tracking_number }}">Copy</button>
                       {% endif %}
                     </div>
                   {% else %}

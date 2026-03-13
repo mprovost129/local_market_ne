@@ -11,7 +11,7 @@
         {{ review_count }} review{{ review_count|pluralize }}  - Avg {{ avg_rating|floatformat:1 }}/5
       </div>
     </div>
-    <a class="btn btn-outline-secondary" href="{% url 'products:detail' pk=product_id slug='-' %}" style="display:none;"></a>
+    <a class="btn btn-secondary" href="{% url 'products:detail' pk=product_id slug='-' %}" style="display:none;"></a>
   </div>
 
   <div class="card">

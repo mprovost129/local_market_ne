@@ -32,11 +32,11 @@
 
     <div class="d-flex flex-wrap gap-2">
       {% if product %}
-        <a class="btn btn-outline-secondary btn-sm" href="{% url 'products:seller_images' product.pk %}">
+        <a class="btn btn-secondary btn-sm" href="{% url 'products:seller_images' product.pk %}">
           <i class="bi bi-images me-1"></i>Images
         </a>
       {% endif %}
-      <a class="btn btn-outline-secondary btn-sm" href="{% url 'products:seller_list' %}">
+      <a class="btn btn-secondary btn-sm" href="{% url 'products:seller_list' %}">
         <i class="bi bi-arrow-left me-1"></i>Back to listings
       </a>
     </div>
@@ -52,14 +52,14 @@
         <div class="lm-stepper mb-3" data-listing-wizard>
           <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between">
             <div class="d-flex flex-wrap gap-2">
-              <button type="button" class="btn btn-sm btn-outline-secondary lm-step-btn" data-step-target="1">1. Type</button>
-              <button type="button" class="btn btn-sm btn-outline-secondary lm-step-btn" data-step-target="2">2. Category</button>
-              <button type="button" class="btn btn-sm btn-outline-secondary lm-step-btn" data-step-target="3">3. Details</button>
-              <button type="button" class="btn btn-sm btn-outline-secondary lm-step-btn" data-step-target="4">4. Fulfillment</button>
+              <button type="button" class="btn btn-sm btn-secondary lm-step-btn" data-step-target="1">1. Type</button>
+              <button type="button" class="btn btn-sm btn-secondary lm-step-btn" data-step-target="2">2. Category</button>
+              <button type="button" class="btn btn-sm btn-secondary lm-step-btn" data-step-target="3">3. Details</button>
+              <button type="button" class="btn btn-sm btn-secondary lm-step-btn" data-step-target="4">4. Fulfillment</button>
             </div>
             <div class="d-flex align-items-center gap-2">
               <div class="text-secondary small">Drafts are allowed - use "Save draft" any time.</div>
-              <button class="btn btn-outline-secondary btn-sm" type="submit" data-save-draft>
+              <button class="btn btn-secondary btn-sm" type="submit" data-save-draft>
                 <i class="bi bi-file-earmark me-1"></i>Save draft
               </button>
             </div>
@@ -271,7 +271,7 @@
           </div>
 
           <div class="col-12 d-flex justify-content-between" data-wizard-nav>
-            <button type="button" class="btn btn-sm btn-outline-secondary" data-wizard-prev><i class="bi bi-arrow-left me-1"></i>Back</button>
+            <button type="button" class="btn btn-sm btn-secondary" data-wizard-prev><i class="bi bi-arrow-left me-1"></i>Back</button>
             <button type="button" class="btn btn-sm btn-primary" data-wizard-next>Next<i class="bi bi-arrow-right ms-1"></i></button>
           </div>
 

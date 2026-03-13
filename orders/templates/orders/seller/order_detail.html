@@ -15,7 +15,7 @@
     </div>
 
     <div class="d-flex gap-2">
-      <a class="btn btn-outline-secondary" href="{% url 'orders:seller_orders_list' %}">
+      <a class="btn btn-secondary" href="{% url 'orders:seller_orders_list' %}">
         <i class="bi bi-arrow-left me-1"></i>Back to orders
       </a>
     </div>
@@ -62,7 +62,7 @@
                             </div>
                             {% if it.tracking_number %}
                               <a href="https://trackingmore.com/track/?tracknumber={{ it.tracking_number|urlencode }}" target="_blank" rel="noopener">Track</a>
-                              <button class="btn btn-sm btn-outline-secondary" type="button" data-copy-tracking="{{ it.tracking_number }}">Copy</button>
+                              <button class="btn btn-sm btn-secondary" type="button" data-copy-tracking="{{ it.tracking_number }}">Copy</button>
                             {% endif %}
                           </div>
                         {% endif %}
@@ -99,7 +99,7 @@
                             {% if order.status == "PAID" %}
                               <form class="mt-2" method="post" action="{% url 'orders:mark_item_delivered' order.id it.id %}">
                                 {% csrf_token %}
-                                <button class="btn btn-sm btn-outline-secondary" type="submit">
+                                <button class="btn btn-sm btn-secondary" type="submit">
                                   <i class="bi bi-check2-circle me-1"></i>Mark delivered
                                 </button>
                               </form>

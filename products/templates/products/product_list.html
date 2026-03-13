@@ -10,14 +10,14 @@
       <p class="small lm-page-subtitle">Browse local products listed by sellers.</p>
     </div>
     <div class="lm-page-actions">
-      <a class="btn btn-outline-secondary" href="{% url 'products:services' %}"><i class="bi bi-calendar2-check me-1"></i>Services</a>
-      <a class="btn btn-outline-secondary" href="{% url 'products:top_sellers' %}"><i class="bi bi-shop me-1"></i>Top sellers</a>
+      <a class="btn btn-secondary" href="{% url 'products:services' %}"><i class="bi bi-calendar2-check me-1"></i>Services</a>
+      <a class="btn btn-secondary" href="{% url 'products:top_sellers' %}"><i class="bi bi-shop me-1"></i>Top sellers</a>
     </div>
   </div>
 
   <div class="lm-sticky-bar mb-3">
     <div class="d-lg-none mb-2">
-      <button class="btn btn-outline-secondary w-100" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-controls="sidebarOffcanvas">
+      <button class="btn btn-secondary w-100" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-controls="sidebarOffcanvas">
         <i class="bi bi-funnel me-1"></i>Filters & categories
       </button>
     </div>
@@ -30,7 +30,7 @@
         {% endfor %}
       </select>
       {% if user.is_authenticated and user.profile.zip_code %}
-        <a class="btn btn-outline-secondary lm-browse-zip-me" href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}{% if sort %}sort={{ sort|urlencode }}&{% endif %}zip={{ user.profile.zip_code|urlencode }}">
+        <a class="btn btn-secondary lm-browse-zip-me" href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}{% if sort %}sort={{ sort|urlencode }}&{% endif %}zip={{ user.profile.zip_code|urlencode }}">
           Use my ZIP ({{ user.profile.zip_code }})
         </a>
       {% endif %}
@@ -39,7 +39,7 @@
       {% endif %}
       <button class="btn btn-primary lm-browse-submit" type="submit"><i class="bi bi-search me-1"></i>Search</button>
       {% if q or category or zip or sort != 'new' %}
-        <a class="btn btn-outline-secondary lm-browse-clear" href="{% url 'products:list' %}">Clear</a>
+        <a class="btn btn-secondary lm-browse-clear" href="{% url 'products:list' %}">Clear</a>
       {% endif %}
     </form>
     {% if user.is_authenticated %}
@@ -64,7 +64,7 @@
             <button class="btn btn-sm btn-outline-primary lm-saved-search-btn" type="submit">Save this search</button>
           </form>
         {% endif %}
-        <a class="btn btn-sm btn-outline-secondary lm-saved-search-btn" href="{% url 'products:saved_search_list' %}">Manage saved searches</a>
+        <a class="btn btn-sm btn-secondary lm-saved-search-btn" href="{% url 'products:saved_search_list' %}">Manage saved searches</a>
       </div>
     {% endif %}
 

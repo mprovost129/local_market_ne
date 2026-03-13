@@ -20,7 +20,7 @@
         <option value="canceled" {% if status == "canceled" %}selected{% endif %}>canceled</option>
       </select>
       <button class="btn btn-sm btn-primary" type="submit">Filter</button>
-      <a class="btn btn-sm btn-outline-secondary" href="?{% if company %}company={{ company|urlencode }}&{% endif %}{% if status %}status={{ status }}&{% endif %}format=csv">Export CSV</a>
+      <a class="btn btn-sm btn-secondary" href="?{% if company %}company={{ company|urlencode }}&{% endif %}{% if status %}status={{ status }}&{% endif %}format=csv">Export CSV</a>
     </form>
   </div>
 

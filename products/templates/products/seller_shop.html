@@ -235,7 +235,7 @@
               </select>
               <button class="btn btn-sm btn-primary lm-browse-submit" type="submit">Search</button>
               {% if q or kind or category %}
-                <a class="btn btn-sm btn-outline-secondary lm-browse-clear" href="{% url 'products:seller_shop' seller.id %}">Clear</a>
+                <a class="btn btn-sm btn-secondary lm-browse-clear" href="{% url 'products:seller_shop' seller.id %}">Clear</a>
               {% endif %}
             </form>
 

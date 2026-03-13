@@ -19,7 +19,7 @@
     </div>
 
     <div class="lm-page-actions">
-      <a class="btn btn-outline-secondary" href="{% url 'products:list' %}">
+      <a class="btn btn-secondary" href="{% url 'products:list' %}">
         <i class="bi bi-arrow-left me-1"></i>Continue shopping
       </a>
       <form method="post" action="{% url 'cart:clear' %}" data-recaptcha-action="cart_clear">
@@ -110,7 +110,7 @@
                       <div class="input-group input-group-sm">
                         <span class="input-group-text">Notes</span>
                         <input class="form-control buyer-notes-input" name="buyer_notes" value="{{ line.buyer_notes }}" placeholder="Add a note for the seller (optional)" maxlength="1000" data-maxlength="1000">
-                        <button class="btn btn-outline-secondary" type="submit">Save</button>
+                        <button class="btn btn-secondary" type="submit">Save</button>
                       </div>
                       <div class="form-text d-flex justify-content-between">
                         <span>Shown to the seller after purchase.</span>
@@ -135,7 +135,7 @@
                     <input type="hidden" name="recaptcha_token" value="">
                     <input type="hidden" name="product_id" value="{{ line.product.pk }}">
                     <input class="form-control form-control-sm" type="number" name="quantity" min="1" value="{{ line.quantity }}">
-                    <button class="btn btn-sm btn-outline-secondary" type="submit">Update</button>
+                    <button class="btn btn-sm btn-secondary" type="submit">Update</button>
                   </form>
                   <div class="form-text">Use the remove button to delete an item.</div>{% endif %}
               </td>

@@ -188,10 +188,9 @@ header.bg-body {
   --bs-btn-hover-border-color: var(--lm-secondary-700);
   --bs-btn-active-bg: #b94807;
   --bs-btn-active-border-color: #9f4006;
-  background-image: linear-gradient(180deg, var(--lm-secondary) 0%, var(--lm-secondary-500) 100%);
-  border-color: color-mix(in srgb, var(--lm-secondary-700) 64%, var(--lm-secondary));
+  background-image: linear-gradient(135deg, var(--lm-secondary-300) 0%, var(--lm-secondary) 58%, var(--lm-secondary-700) 100%);
+  border-color: color-mix(in srgb, var(--lm-secondary-700) 70%, var(--lm-secondary));
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 2px 8px rgba(243, 111, 33, 0.2);
-  transition: background-image 180ms ease, box-shadow 180ms ease, border-color 180ms ease, filter 180ms ease;
 }
 
 .btn-secondary:hover,
@@ -218,6 +217,7 @@ header.bg-body {
 
 .btn-outline-primary {
   --bs-btn-color: var(--lm-primary);
+  --bs-btn-bg: white;
   --bs-btn-border-color: var(--lm-primary);
   --bs-btn-hover-bg: var(--lm-primary);
   --bs-btn-hover-border-color: var(--lm-primary);

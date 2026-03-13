@@ -10,7 +10,7 @@
       <div class="text-secondary small">Your purchase history and orders access.</div>
     </div>
 
-    <a class="btn btn-outline-secondary" href="{% url 'products:list' %}">
+    <a class="btn btn-secondary" href="{% url 'products:list' %}">
       <i class="bi bi-arrow-left me-1"></i>Continue shopping
     </a>
   </div>
@@ -61,7 +61,7 @@
               <td class="text-end"><strong>${{ o.subtotal }}</strong></td>
 
               <td class="text-end">
-                <a class="btn btn-sm btn-outline-secondary" href="{% url 'orders:detail' o.id %}">
+                <a class="btn btn-sm btn-secondary" href="{% url 'orders:detail' o.id %}">
                   View
                 </a>
               </td>

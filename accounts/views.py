@@ -15,7 +15,7 @@ from botocore.exceptions import BotoCoreError, ClientError
 from core.throttle import throttle
 from core.throttle_rules import AUTH_LOGIN, AUTH_REGISTER
 from core.recaptcha import require_recaptcha_v3
-from .forms import RegisterForm, UsernameAuthenticationForm, ProfileForm
+from .forms import RegisterForm, UsernameAuthenticationForm, ConsumerProfileForm, StoreProfileForm
 from .services import send_email_verification
 from .geo import lookup_zip_centroid
 from .models import Profile
@@ -96,16 +96,7 @@ def _register_post(request):
     except Exception:
         pass
 
-    # If user registered as seller, gate onboarding behind verified email
-    if form.cleaned_data.get("register_as_seller"):
-        if getattr(getattr(user, "profile", None), "email_verified", False):
-            messages.info(request, "Let's set up your seller account with Stripe.")
-            return redirect("payments:connect_start")
-
-        messages.warning(request, "Verify your email to start Stripe onboarding.")
-        return redirect(reverse("accounts:verify_email_status") + "?next=" + reverse("payments:connect_start"))
-
-    return redirect("accounts:profile")
+    return redirect("dashboards:consumer")
 
 
 @login_required
@@ -116,7 +107,7 @@ def profile_view(request):
     if request.method == "POST":
         before_zip = (profile.zip_code or "").strip()
 
-        form = ProfileForm(request.POST, request.FILES, instance=profile, user=request.user)
+        form = ConsumerProfileForm(request.POST, request.FILES, instance=profile, user=request.user)
         if form.is_valid():
             try:
                 form.save()
@@ -157,9 +148,60 @@ def profile_view(request):
 
             return redirect("accounts:profile")
     else:
-        form = ProfileForm(instance=profile, user=request.user)
+        form = ConsumerProfileForm(instance=profile, user=request.user)
 
     return render(request, "accounts/profile.html", {"form": form, "profile": profile})
+
+
+@login_required
+def store_profile_view(request):
+    profile = request.user.profile
+    if not bool(getattr(profile, "is_seller", False)):
+        messages.info(request, "Become a seller first to access the store profile.")
+        return redirect("dashboards:consumer")
+
+    if request.method == "POST":
+        before_zip = (profile.zip_code or "").strip()
+        form = StoreProfileForm(request.POST, request.FILES, instance=profile, user=request.user)
+        if form.is_valid():
+            try:
+                form.save()
+            except (BotoCoreError, ClientError, OSError):
+                logger.exception("Store profile upload failed", extra={"user_id": request.user.id})
+                messages.error(request, "Image upload failed. Please try again in a moment.")
+                return redirect("accounts:store_profile")
+
+            try:
+                after_zip = (profile.zip_code or "").strip()
+                if not after_zip:
+                    profile.private_latitude = None
+                    profile.private_longitude = None
+                    profile.private_geo_updated_at = timezone.now()
+                    profile.save(update_fields=["private_latitude", "private_longitude", "private_geo_updated_at", "updated_at"])
+                elif after_zip != before_zip or profile.private_latitude is None or profile.private_longitude is None:
+                    centroid = lookup_zip_centroid(after_zip)
+                    if centroid:
+                        lat, lng = centroid
+                        profile.private_latitude = lat
+                        profile.private_longitude = lng
+                        profile.private_geo_updated_at = timezone.now()
+                        profile.save(
+                            update_fields=[
+                                "private_latitude",
+                                "private_longitude",
+                                "private_geo_updated_at",
+                                "updated_at",
+                            ]
+                        )
+            except Exception:
+                logger.info("Store profile geo centroid lookup skipped/failed", extra={"user_id": request.user.id})
+
+            messages.success(request, "Store profile updated.")
+            return redirect("accounts:store_profile")
+    else:
+        form = StoreProfileForm(instance=profile, user=request.user)
+
+    return render(request, "accounts/store_profile.html", {"form": form, "profile": profile})
 
 
 @login_required

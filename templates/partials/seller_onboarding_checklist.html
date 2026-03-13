@@ -7,7 +7,7 @@
         <div class="h6 mb-0">Finish setting up your seller account</div>
         <div class="text-secondary small">Complete these steps to start getting sales and payouts.</div>
       </div>
-      <a class="btn btn-sm btn-outline-secondary" href="{% url 'accounts:profile' %}">Seller profile</a>
+      <a class="btn btn-sm btn-secondary" href="{% url 'accounts:store_profile' %}">Seller profile</a>
     </div>
 
     <div class="lm-checklist mt-3">
@@ -27,7 +27,7 @@
             </div>
           </div>
           {% if not s.done and s.url %}
-            <a class="btn btn-sm btn-outline-secondary" href="{{ s.url }}">Fix</a>
+            <a class="btn btn-sm btn-secondary" href="{{ s.url }}">Fix</a>
           {% else %}
             <span class="badge text-bg-light">Done</span>
           {% endif %}

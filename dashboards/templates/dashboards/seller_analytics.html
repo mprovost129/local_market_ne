@@ -15,11 +15,11 @@
 
     <div class="lm-page-actions align-items-center">
       <div class="btn-group" role="group" aria-label="Time range">
-        <a class="btn btn-outline-secondary {% if days == 7 %}active{% endif %}" href="?days=7">7d</a>
-        <a class="btn btn-outline-secondary {% if days == 30 %}active{% endif %}" href="?days=30">30d</a>
-        <a class="btn btn-outline-secondary {% if days == 90 %}active{% endif %}" href="?days=90">90d</a>
+        <a class="btn btn-secondary {% if days == 7 %}active{% endif %}" href="?days=7">7d</a>
+        <a class="btn btn-secondary {% if days == 30 %}active{% endif %}" href="?days=30">30d</a>
+        <a class="btn btn-secondary {% if days == 90 %}active{% endif %}" href="?days=90">90d</a>
       </div>
-      <a class="btn btn-outline-secondary" href="{% url 'dashboards:seller' %}">
+      <a class="btn btn-secondary" href="{% url 'dashboards:seller' %}">
         <i class="bi bi-arrow-left me-1"></i>Back to Overview
       </a>
     </div>

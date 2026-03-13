@@ -29,7 +29,7 @@
               <td class="text-secondary">{{ o.created_at|date:"M j, Y" }}</td>
               <td class="text-end fw-semibold">${{ o.total_cents|cents_to_dollars }}</td>
               <td class="text-end">
-                <a class="btn btn-sm btn-outline-secondary" href="{% url 'orders:detail' o.id %}">View</a>
+                <a class="btn btn-sm btn-secondary" href="{% url 'orders:detail' o.id %}">View</a>
               </td>
             </tr>
           {% empty %}

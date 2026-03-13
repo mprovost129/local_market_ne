@@ -109,7 +109,7 @@
               <td class="text-end">
                 <div class="d-flex justify-content-end gap-2 flex-wrap">
                   {# Always allow opening the full order #}
-                  <a class="btn btn-sm btn-outline-secondary" href="{% url 'orders:seller_order_detail' it.order_id %}">View</a>
+                  <a class="btn btn-sm btn-secondary" href="{% url 'orders:seller_order_detail' it.order_id %}">View</a>
 
                   {# Pickup flow: Pending -> Ready -> Picked up #}
                   {% if it.fulfillment_method == 'pickup' %}

@@ -192,13 +192,10 @@ def start_selling(request):
         profile.save(update_fields=["is_seller", "updated_at"])
 
     if not bool(getattr(profile, "email_verified", False)):
-        messages.warning(request, "Verify your email to start Stripe onboarding.")
-        verify_url = reverse("accounts:verify_email_status")
-        next_url = reverse("payments:connect_status")
-        return redirect(f"{verify_url}?next={next_url}")
-
-    messages.info(request, "Seller mode enabled. Continue with Stripe onboarding.")
-    return redirect("payments:connect_status")
+        messages.warning(request, "Seller mode enabled. Verify your email before starting payout onboarding.")
+    else:
+        messages.info(request, "Seller mode enabled. Complete your store profile to continue onboarding.")
+    return redirect("accounts:store_profile")
 
 
 @login_required
@@ -243,11 +240,11 @@ def seller_dashboard(request):
 
     onboarding_steps = [
         {"key": "email", "label": "Verify your email", "done": email_verified, "url": reverse("accounts:verify_email_status")},
-        {"key": "age", "label": "Confirm you're 18+", "done": age_ok, "url": reverse("accounts:profile")},
-        {"key": "policy", "label": "Acknowledge prohibited items policy", "done": policy_ack, "url": reverse("accounts:profile")},
+        {"key": "age", "label": "Confirm you're 18+", "done": age_ok, "url": reverse("payments:connect_status")},
+        {"key": "policy", "label": "Acknowledge prohibited items policy", "done": policy_ack, "url": reverse("payments:connect_status")},
         {"key": "stripe", "label": "Connect Stripe payouts", "done": bool(getattr(stripe_obj, "is_ready", False)), "url": reverse("payments:connect_start")},
-        {"key": "shop", "label": "Add your shop name", "done": has_shop_name, "url": reverse("accounts:profile")},
-        {"key": "location", "label": "Set your ZIP code", "done": has_public_location, "url": reverse("accounts:profile")},
+        {"key": "shop", "label": "Add your shop name", "done": has_shop_name, "url": reverse("accounts:store_profile")},
+        {"key": "location", "label": "Set your ZIP code", "done": has_public_location, "url": reverse("accounts:store_profile")},
         {"key": "listing", "label": "Create your first listing", "done": has_listing, "url": reverse("products:seller_create")},
     ]
     onboarding_done = all(s.get("done") for s in onboarding_steps)

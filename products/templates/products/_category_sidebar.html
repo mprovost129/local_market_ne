@@ -6,7 +6,7 @@
     <div class="card-body">
       <div class="d-flex align-items-center justify-content-between mb-2">
         <div class="fw-semibold">{{ base_label }}</div>
-        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#catFilterDesk-{{ offcanvas_id }}" aria-expanded="false" aria-controls="catFilterDesk-{{ offcanvas_id }}">
+        <button class="btn btn-sm btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#catFilterDesk-{{ offcanvas_id }}" aria-expanded="false" aria-controls="catFilterDesk-{{ offcanvas_id }}">
           <i class="bi bi-search"></i>
         </button>
       </div>
@@ -65,7 +65,7 @@
         </div>
 
         {% if categories|length > 8 %}
-          <button class="btn btn-sm btn-outline-secondary mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#moreCatsDesktop-{{ offcanvas_id }}">
+          <button class="btn btn-sm btn-secondary mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#moreCatsDesktop-{{ offcanvas_id }}">
             More
           </button>
         {% endif %}
@@ -76,7 +76,7 @@
 
 {# Mobile offcanvas filters #}
 <div class="d-lg-none">
-  <button class="btn btn-outline-secondary mb-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#{{ offcanvas_id }}" aria-controls="{{ offcanvas_id }}">
+  <button class="btn btn-secondary mb-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#{{ offcanvas_id }}" aria-controls="{{ offcanvas_id }}">
     <i class="bi bi-funnel me-1"></i>Filters
   </button>
 
@@ -88,7 +88,7 @@
     <div class="offcanvas-body">
       <div class="d-flex align-items-center justify-content-between mb-2">
         <div class="fw-semibold">{{ base_label }}</div>
-        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#catFilterMob-{{ offcanvas_id }}" aria-expanded="false" aria-controls="catFilterMob-{{ offcanvas_id }}">
+        <button class="btn btn-sm btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#catFilterMob-{{ offcanvas_id }}" aria-expanded="false" aria-controls="catFilterMob-{{ offcanvas_id }}">
           <i class="bi bi-search"></i>
         </button>
       </div>
@@ -147,7 +147,7 @@
         </div>
 
         {% if categories|length > 8 %}
-          <button class="btn btn-sm btn-outline-secondary mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#moreCatsMobile-{{ offcanvas_id }}">
+          <button class="btn btn-sm btn-secondary mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#moreCatsMobile-{{ offcanvas_id }}">
             More
           </button>
         {% endif %}

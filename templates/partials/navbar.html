@@ -12,7 +12,7 @@
              class="lm-logo lm-brand-word" style="width:auto;">
       </a>
 
-      <button class="btn btn-sm btn-outline-secondary d-lg-none" type="button"
+      <button class="btn btn-sm btn-secondary d-lg-none" type="button"
           data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas"
           aria-controls="sidebarOffcanvas" aria-label="Open sidebar menu">
         <i class="bi bi-list" aria-hidden="true"></i>
@@ -153,7 +153,7 @@
             {% if not user_is_seller and not user_is_owner %}
               <form method="post" action="{% url 'dashboards:start_selling' %}" class="d-inline">
                 {% csrf_token %}
-                <button class="btn btn-sm btn-primary" type="submit">Start Seller Onboarding</button>
+                <button class="btn btn-sm btn-primary" type="submit">Become a Seller</button>
               </form>
             {% endif %}
           {% endif %}
@@ -196,6 +196,13 @@
                     <i class="bi bi-person me-1"></i>Profile
                   </a>
                 </li>
+                {% if user_is_seller or user_is_owner %}
+                <li>
+                  <a class="dropdown-item" href="{% url 'accounts:store_profile' %}">
+                    <i class="bi bi-shop me-1"></i>Store Profile
+                  </a>
+                </li>
+                {% endif %}
                 <li>
                   <a class="dropdown-item" href="{% url 'dashboards:consumer' %}">
                     <i class="bi bi-person-badge me-1"></i>Account
@@ -244,7 +251,7 @@
             <a class="btn btn-primary btn-sm" href="{% url 'accounts:register' %}">Sign up</a>
           {% endif %}
 
-          <button id="hcThemeToggle" class="btn btn-sm btn-outline-secondary" type="button"
+          <button id="hcThemeToggle" class="btn btn-sm btn-secondary" type="button"
                   aria-pressed="false" aria-label="Toggle dark/light theme" title="Toggle theme">
             <i class="bi bi-moon-stars" aria-hidden="true"></i>
           </button>

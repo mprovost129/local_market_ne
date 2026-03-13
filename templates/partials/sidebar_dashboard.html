@@ -37,13 +37,13 @@ Keep this template conservative: only reference public attributes and valid url 
         <span>My Orders</span>
       </a>
     </li>
-    <li class="mb-1">
-      <a class="d-flex align-items-center gap-2 py-2 px-2 rounded text-decoration-none text-dark hc3-tree-row"
-         href="{% url 'accounts:profile' %}">
-        <i class="bi bi-person-circle"></i>
-        <span>Profile</span>
-      </a>
-    </li>
+      <li class="mb-1">
+        <a class="d-flex align-items-center gap-2 py-2 px-2 rounded text-decoration-none text-dark hc3-tree-row"
+           href="{% url 'accounts:profile' %}">
+          <i class="bi bi-person-circle"></i>
+          <span>Update Profile</span>
+        </a>
+      </li>
   </ul>
 
   {% if user_is_seller %}
@@ -94,9 +94,17 @@ Keep this template conservative: only reference public attributes and valid url 
 
       <li class="mb-1">
         <a class="d-flex align-items-center gap-2 py-2 px-2 rounded text-decoration-none text-dark hc3-tree-row"
-           href="{% url 'accounts:profile' %}#offplatform-payments">
+           href="{% url 'accounts:store_profile' %}#offplatform-payments">
           <i class="bi bi-wallet2"></i>
           <span>Off-Platform Handles (Optional)</span>
+        </a>
+      </li>
+
+      <li class="mb-1">
+        <a class="d-flex align-items-center gap-2 py-2 px-2 rounded text-decoration-none text-dark hc3-tree-row"
+           href="{% url 'accounts:store_profile' %}">
+          <i class="bi bi-shop"></i>
+          <span>Store Profile</span>
         </a>
       </li>
 

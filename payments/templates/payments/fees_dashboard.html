@@ -9,7 +9,7 @@
       <h1 class="h4 mb-1">Marketplace Fees Due</h1>
       <div class="text-secondary small">Fees from off-platform payments awaiting settlement.</div>
     </div>
-    <a class="btn btn-outline-secondary btn-sm" href="{% url 'dashboards:seller' %}">Back to Seller Dashboard</a>
+    <a class="btn btn-secondary btn-sm" href="{% url 'dashboards:seller' %}">Back to Seller Dashboard</a>
   </div>
 
   <div class="row g-3 mb-3">
@@ -81,7 +81,7 @@
               </td>
               <td>
                 {% if row.contact_link %}
-                  <a class="btn btn-sm btn-outline-secondary" href="{{ row.contact_link }}">Contact</a>
+                  <a class="btn btn-sm btn-secondary" href="{{ row.contact_link }}">Contact</a>
                 {% else %}
                   <span class="small text-secondary">N/A</span>
                 {% endif %}

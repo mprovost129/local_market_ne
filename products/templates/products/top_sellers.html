@@ -16,13 +16,13 @@
       <input class="form-control lm-browse-q" name="q" value="{{ q|default:'' }}" placeholder="Search sellers or town...">
       <input class="form-control lm-browse-zip" name="zip" value="{{ zip|default:'' }}" placeholder="ZIP code" inputmode="numeric" pattern="[0-9]{5}(-[0-9]{4})?">
       {% if user.is_authenticated and user.profile.zip_code %}
-        <a class="btn btn-outline-secondary lm-browse-zip-me" href="?{% if q %}q={{ q|urlencode }}&{% endif %}zip={{ user.profile.zip_code|urlencode }}">
+        <a class="btn btn-secondary lm-browse-zip-me" href="?{% if q %}q={{ q|urlencode }}&{% endif %}zip={{ user.profile.zip_code|urlencode }}">
           Use my ZIP ({{ user.profile.zip_code }})
         </a>
       {% endif %}
       <button class="btn btn-primary lm-browse-submit" type="submit"><i class="bi bi-search me-1"></i>Search</button>
       {% if q or zip %}
-        <a class="btn btn-outline-secondary lm-browse-clear" href="{% url 'products:top_sellers' %}">Clear</a>
+        <a class="btn btn-secondary lm-browse-clear" href="{% url 'products:top_sellers' %}">Clear</a>
       {% endif %}
     </form>
 

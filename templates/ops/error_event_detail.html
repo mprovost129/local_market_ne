@@ -8,7 +8,7 @@
     <div class="text-muted small">{{ ev.created_at|date:"Y-m-d H:i:s" }} * {{ ev.exception_type }} * {{ ev.status_code }}</div>
   </div>
   <div>
-    <a class="btn btn-outline-secondary" href="{% url 'ops:error_events' %}">Back</a>
+    <a class="btn btn-secondary" href="{% url 'ops:error_events' %}">Back</a>
   </div>
 </div>
 

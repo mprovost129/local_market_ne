@@ -30,7 +30,7 @@
           </a>
 
           {% if user.is_authenticated %}
-            <a class="btn btn-outline-secondary ms-2" href="{% url 'orders:purchases' %}">
+            <a class="btn btn-secondary ms-2" href="{% url 'orders:purchases' %}">
               Go to purchases
             </a>
           {% endif %}
@@ -43,7 +43,7 @@
     {% endif %}
 
     <div class="mt-4">
-      <a href="{% url 'products:list' %}" class="btn btn-outline-secondary">Continue shopping</a>
+      <a href="{% url 'products:list' %}" class="btn btn-secondary">Continue shopping</a>
     </div>
   </div>
 </div>

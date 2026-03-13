@@ -47,7 +47,7 @@
                   {% endif %}
 
                   {% if r.status == 'SCHEDULED' %}
-                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'appointments:ics' r.pk %}">Add to calendar</a>
+                    <a class="btn btn-sm btn-secondary" href="{% url 'appointments:ics' r.pk %}">Add to calendar</a>
                   {% endif %}
 
                   {% if r.status == 'REQUESTED' or r.status == 'DEPOSIT_PENDING' or r.status == 'DEPOSIT_PAID' or r.status == 'SCHEDULED' or r.status == 'AWAITING_BUYER_CONFIRMATION' %}

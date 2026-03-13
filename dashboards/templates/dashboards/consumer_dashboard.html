@@ -13,17 +13,17 @@
     </div>
 
     <div class="lm-page-actions">
-      <a class="btn btn-outline-secondary" href="{% url 'orders:my_orders' %}">
+      <a class="btn btn-secondary" href="{% url 'orders:my_orders' %}">
         <i class="bi bi-bag-check me-1"></i>My Orders
       </a>
-      <a class="btn btn-outline-secondary" href="{% url 'favorites:library' %}">
+      <a class="btn btn-secondary" href="{% url 'favorites:library' %}">
         <i class="bi bi-heart me-1"></i>Favorites &amp; Wishlist
       </a>
-      <a class="btn btn-outline-secondary" href="{% url 'products:saved_search_list' %}">
+      <a class="btn btn-secondary" href="{% url 'products:saved_search_list' %}">
         <i class="bi bi-bell me-1"></i>Saved Searches
       </a>
-      <a class="btn btn-outline-secondary" href="{% url 'accounts:profile' %}">
-        <i class="bi bi-person-circle me-1"></i>Profile
+      <a class="btn btn-secondary" href="{% url 'accounts:profile' %}">
+        <i class="bi bi-person-circle me-1"></i>Update Profile
       </a>
       <a class="btn btn-primary" href="{% url 'products:list' %}">
         <i class="bi bi-shop me-1"></i>Browse Store
@@ -67,8 +67,8 @@
             <div>
               <div class="text-secondary small">Quick links</div>
               <div class="d-flex flex-wrap gap-2 mt-2">
-                <a class="btn btn-sm btn-outline-secondary" href="{% url 'products:list' %}">Goods</a>
-                <a class="btn btn-sm btn-outline-secondary" href="{% url 'products:services' %}">Services</a>
+                <a class="btn btn-sm btn-secondary" href="{% url 'products:list' %}">Goods</a>
+                <a class="btn btn-sm btn-secondary" href="{% url 'products:services' %}">Services</a>
               </div>
             </div>
             <i class="bi bi-link-45deg fs-2 text-secondary"></i>
@@ -109,7 +109,7 @@
           <form method="post" action="{% url 'dashboards:start_selling' %}" class="d-inline">
             {% csrf_token %}
             <button type="submit" class="btn btn-primary btn-sm">
-              <i class="bi bi-shop me-1"></i>Start Seller Onboarding
+              <i class="bi bi-shop me-1"></i>Become a Seller
             </button>
           </form>
         </div>
@@ -156,7 +156,7 @@
               </td>
               <td class="text-end"><strong>${{ o.total_cents|cents_to_dollars }}</strong></td>
               <td class="text-end">
-                <a class="btn btn-sm btn-outline-secondary" href="{% url 'orders:detail' o.id %}">View</a>
+                <a class="btn btn-sm btn-secondary" href="{% url 'orders:detail' o.id %}">View</a>
               </td>
             </tr>
           {% empty %}

@@ -37,7 +37,7 @@
           <div class="fw-semibold">Want to ask a question?</div>
           <div class="small text-secondary">Log in to post. Only the buyer and seller can reply.</div>
         </div>
-        <a class="btn btn-outline-secondary" href="{% url 'accounts:login' %}?next={{ request.path }}#qa">Login</a>
+        <a class="btn btn-secondary" href="{% url 'accounts:login' %}?next={{ request.path }}#qa">Login</a>
       </div>
     </div>
   {% endif %}
@@ -54,7 +54,7 @@
               Started by <strong>{{ thread.buyer.username }}</strong>  - {{ thread.created_at|naturaltime }}
             </div>
           </div>
-          <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#thread{{ thread.id }}">
+          <button class="btn btn-sm btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#thread{{ thread.id }}">
             View
           </button>
         </div>
@@ -94,12 +94,12 @@
                     {% if user.id == m.author_id and m.can_author_delete_now %}
                       <form method="post" action="{% url 'qa:message_delete' m.id %}">
                         {% csrf_token %}
-                        <button class="btn btn-sm btn-outline-secondary" type="submit">Delete</button>
+                        <button class="btn btn-sm btn-secondary" type="submit">Delete</button>
                       </form>
                     {% elif user.is_staff or user.is_superuser %}
                       <form method="post" action="{% url 'qa:message_delete' m.id %}">
                         {% csrf_token %}
-                        <button class="btn btn-sm btn-outline-secondary" type="submit">Staff delete</button>
+                        <button class="btn btn-sm btn-secondary" type="submit">Staff delete</button>
                       </form>
                     {% endif %}
                   {% endif %}

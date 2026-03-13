@@ -52,7 +52,7 @@
               <div class="text-muted small">Open Support Messages</div>
               <div class="fs-3 fw-semibold">{{ support_open|intcomma }}</div>
             </div>
-            <a class="btn btn-sm btn-outline-secondary" href="{% url 'staff_console:contact_messages_list' %}">Inbox</a>
+            <a class="btn btn-sm btn-secondary" href="{% url 'staff_console:contact_messages_list' %}">Inbox</a>
           </div>
         </div>
       </div>
@@ -65,7 +65,7 @@
               <div class="text-muted small">Open Q&amp;A Reports</div>
               <div class="fs-3 fw-semibold">{{ qa_reports_open|intcomma }}</div>
             </div>
-            <a class="btn btn-sm btn-outline-secondary" href="{% url 'staff_console:qa_reports_queue' %}">Queue</a>
+            <a class="btn btn-sm btn-secondary" href="{% url 'staff_console:qa_reports_queue' %}">Queue</a>
           </div>
         </div>
       </div>
@@ -160,7 +160,7 @@
                     <td>{{ rep.get_status_display }}</td>
                     <td class="text-muted small">{{ rep.created_at }}</td>
                     <td class="text-end">
-                      <a class="btn btn-sm btn-outline-secondary" href="{% url 'staff_console:qa_reports_queue' %}">Queue</a>
+                      <a class="btn btn-sm btn-secondary" href="{% url 'staff_console:qa_reports_queue' %}">Queue</a>
                     </td>
                   </tr>
                 {% empty %}
@@ -177,7 +177,7 @@
         <div class="card-header bg-body-tertiary lm-card">
           <div class="d-flex align-items-center justify-content-between">
             <div class="fw-semibold">Recent Support Messages</div>
-            <a class="btn btn-sm btn-outline-secondary" href="{% url 'staff_console:contact_messages_list' %}">Inbox</a>
+            <a class="btn btn-sm btn-secondary" href="{% url 'staff_console:contact_messages_list' %}">Inbox</a>
           </div>
         </div>
         <div class="card-body p-0 lm-card">

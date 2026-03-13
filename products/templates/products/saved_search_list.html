@@ -9,7 +9,7 @@
       <p class="small lm-page-subtitle">Get alerts when new matching listings are published.</p>
     </div>
     <div class="lm-page-actions">
-      <a class="btn btn-outline-secondary" href="{% url 'dashboards:consumer' %}">Dashboard</a>
+      <a class="btn btn-secondary" href="{% url 'dashboards:consumer' %}">Dashboard</a>
       <a class="btn btn-primary" href="{% url 'products:list' %}">Browse</a>
     </div>
   </div>
@@ -48,7 +48,7 @@
                     <input class="form-check-input" type="checkbox" name="email_enabled" value="1" {% if s.email_enabled %}checked{% endif %}>
                     <span class="form-check-label">Email alerts</span>
                   </label>
-                  <button class="btn btn-sm btn-outline-secondary lm-saved-searches-save-btn" type="submit">Save</button>
+                  <button class="btn btn-sm btn-secondary lm-saved-searches-save-btn" type="submit">Save</button>
                 </form>
               </td>
               <td class="small" data-label="Last alert">{% if s.last_notified_at %}{{ s.last_notified_at|date:"Y-m-d H:i" }}{% else %}-{% endif %}</td>

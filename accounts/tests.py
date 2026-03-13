@@ -78,11 +78,28 @@ class ProfileAvatarUploadFailureTests(TestCase):
         )
 
         err = ClientError({"Error": {"Code": "AccessDenied", "Message": "Denied"}}, "PutObject")
-        with patch("accounts.views.ProfileForm.save", side_effect=err):
+        with patch("accounts.views.ConsumerProfileForm.save", side_effect=err):
             resp = self.client.post(
                 reverse("accounts:profile"),
-                data={"email": "avataruser@example.com", "avatar": avatar},
+                data={"first_name": "Avatar", "avatar": avatar},
             )
 
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp["Location"], reverse("accounts:profile"))
+
+
+class RegisterFlowTests(TestCase):
+    def test_register_redirects_to_consumer_dashboard(self):
+        resp = self.client.post(
+            reverse("accounts:register"),
+            data={
+                "username": "newconsumer",
+                "email": "newconsumer@example.com",
+                "password1": "SuperStrongPass123!",
+                "password2": "SuperStrongPass123!",
+                "confirm_age_18": "on",
+                "recaptcha_token": "test-token",
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["Location"], reverse("dashboards:consumer"))

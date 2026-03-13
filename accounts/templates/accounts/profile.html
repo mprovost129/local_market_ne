@@ -5,7 +5,6 @@
 {% block content %}
   <div class="card">
     <h2 class="mt-0">Profile</h2>
-    <div class="help">Username (public): <strong>{{ request.user.username }}</strong></div>
 
     <form method="post" enctype="multipart/form-data" novalidate class="profile-form mt-3">
       {% csrf_token %}
@@ -15,177 +14,23 @@
       {% endif %}
 
       <div class="form-row">
-        <div class="profile-full">
-          <div class="help" ><strong>Storefront</strong></div>
-        </div>
-
-        <div>
-          <label for="{{ form.shop_name.id_for_label }}">Shop name (public)</label>
-          {{ form.shop_name }}
-          {% for e in form.shop_name.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
-          <div class="help">If blank, your username is shown publicly.</div>
-        </div>
-
-        <div class="profile-full">
-          <label for="{{ form.bio.id_for_label }}">Shop bio</label>
-          {{ form.bio }}
-          {% for e in form.bio.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
-        </div>
-
-        <div>
-          <label for="{{ form.website.id_for_label }}">Website</label>
-          {{ form.website }}
-          {% for e in form.website.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
-        </div>
-
-        <div>
-          <label for="{{ form.social_instagram.id_for_label }}">Instagram</label>
-          {{ form.social_instagram }}
-          {% for e in form.social_instagram.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
-        </div>
-
-        <div>
-          <label for="{{ form.social_twitter.id_for_label }}">Twitter/X</label>
-          {{ form.social_twitter }}
-          {% for e in form.social_twitter.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
-        </div>
-
-        <div>
-          <label for="{{ form.social_facebook.id_for_label }}">Facebook</label>
-          {{ form.social_facebook }}
-          {% for e in form.social_facebook.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
-        </div>
-
-        <div>
-          <label for="{{ form.social_youtube.id_for_label }}">YouTube</label>
-          {{ form.social_youtube }}
-          {% for e in form.social_youtube.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
-        </div>
-
         <div class="profile-full profile-section">
-          <div class="help"><strong>Storefront branding (optional)</strong></div>
-          <div class="help">Customize your seller storefront header without changing marketplace-wide product page styling.</div>
+          <div class="help"><strong>Basic account info</strong></div>
         </div>
 
         <div>
-          <label for="{{ form.storefront_theme_enabled.id_for_label }}">Enable custom storefront color</label>
-          {{ form.storefront_theme_enabled }}
-          {% for e in form.storefront_theme_enabled.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
+          <label>Username</label>
+          <input type="text" class="form-control" value="{{ request.user.username }}" readonly>
         </div>
 
         <div>
-          <label for="{{ form.storefront_layout.id_for_label }}">Storefront layout</label>
-          {{ form.storefront_layout }}
-          {% for e in form.storefront_layout.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
-        </div>
-
-        <div>
-          <label for="{{ form.storefront_primary_color.id_for_label }}">Storefront accent color</label>
-          {{ form.storefront_primary_color }}
-          {% for e in form.storefront_primary_color.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
-        </div>
-
-        <div>
-          <label for="{{ form.storefront_logo.id_for_label }}">Storefront logo</label>
-          {{ form.storefront_logo }}
-          {% for e in form.storefront_logo.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
-        </div>
-
-        <div>
-          <label for="{{ form.storefront_banner.id_for_label }}">Storefront banner</label>
-          {{ form.storefront_banner }}
-          {% for e in form.storefront_banner.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
-        </div>
-
-        <div class="profile-full profile-section">
-          <div class="help" ><strong>Public seller location (approximate)</strong></div>
-        </div>
-
-        <div>
-          <label for="{{ form.public_city.id_for_label }}">Public city</label>
-          {{ form.public_city }}
-          {% for e in form.public_city.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
-          <div class="help">Shown on your storefront. Do not enter exact address.</div>
-        </div>
-
-        <div>
-          <label for="{{ form.public_state.id_for_label }}">Public state</label>
-          {{ form.public_state }}
-          {% for e in form.public_state.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
-        </div>
-
-        <div class="profile-full">
-          <label for="{{ form.show_business_address_public.id_for_label }}">Show business address publicly (optional)</label>
-          <div>{{ form.show_business_address_public }}</div>
-          {% for e in form.show_business_address_public.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
-          <div class="help">Off by default. If enabled, your profile address is visible to buyers.</div>
-        </div>
-
-        <div>
-          <label for="{{ form.service_radius_miles.id_for_label }}">Service radius (miles)</label>
-          {{ form.service_radius_miles }}
-          {% for e in form.service_radius_miles.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
-          <div class="help">Optional. Used for ZIP-based service matching.</div>
-        </div>
-
-        <div class="profile-full profile-section" id="offplatform-payments">
-          <div class="help" ><strong>Off-platform payment handles (optional)</strong></div>
-        </div>
-
-        <div>
-          <label for="{{ form.venmo_handle.id_for_label }}">Venmo handle</label>
-          {{ form.venmo_handle }}
-          {% for e in form.venmo_handle.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
-        </div>
-
-        <div>
-          <label for="{{ form.paypal_me_url.id_for_label }}">PayPal.me URL</label>
-          {{ form.paypal_me_url }}
-          {% for e in form.paypal_me_url.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
-        </div>
-
-        <div>
-          <label for="{{ form.zelle_contact.id_for_label }}">Zelle contact</label>
-          {{ form.zelle_contact }}
-          {% for e in form.zelle_contact.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
-        </div>
-
-        <div>
-          <label for="{{ form.cashapp_handle.id_for_label }}">Cash App handle</label>
-          {{ form.cashapp_handle }}
-          {% for e in form.cashapp_handle.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
-        </div>
-
-        <div class="profile-full profile-section">
-          <div class="help" ><strong>QR code display settings (optional)</strong></div>
-          <div class="help">Turn on QR codes per app to show on your storefront and/or during off-platform checkout. To avoid clutter, defaults are off.</div>
-        </div>
-
-        <div class="profile-full">
-          <div class="border rounded p-3 bg-light">
-            <div class="fw-semibold mb-2">Show QR codes on storefront</div>
-            <div class="d-flex flex-wrap gap-3">
-              <label class="form-check">{{ form.show_venmo_qr_storefront }} <span class="ms-1">Venmo</span></label>
-              <label class="form-check">{{ form.show_paypal_qr_storefront }} <span class="ms-1">PayPal</span></label>
-              <label class="form-check">{{ form.show_zelle_qr_storefront }} <span class="ms-1">Zelle</span></label>
-              <label class="form-check">{{ form.show_cashapp_qr_storefront }} <span class="ms-1">Cash App</span></label>
-            </div>
-
-            <hr class="my-3">
-
-            <div class="fw-semibold mb-2">Show QR codes during off-platform checkout</div>
-            <div class="help">These appear only when a buyer chooses Venmo/PayPal/Zelle/Cash App checkout (not during Stripe checkout).</div>
-            <div class="d-flex flex-wrap gap-3 mt-2">
-              <label class="form-check">{{ form.show_venmo_qr_checkout }} <span class="ms-1">Venmo</span></label>
-              <label class="form-check">{{ form.show_paypal_qr_checkout }} <span class="ms-1">PayPal</span></label>
-              <label class="form-check">{{ form.show_zelle_qr_checkout }} <span class="ms-1">Zelle</span></label>
-              <label class="form-check">{{ form.show_cashapp_qr_checkout }} <span class="ms-1">Cash App</span></label>
-            </div>
-          </div>
-        </div>
-
-        <div class="profile-full profile-section">
-          <div class="help" ><strong>Account & shipping (private)</strong></div>
+          <label>Email</label>
+          <input type="email" class="form-control" value="{{ request.user.email|default:profile.email }}" readonly>
+          {% if profile.email_verified %}
+            <div class="help profile-verified"><strong>Email verified</strong></div>
+          {% else %}
+            <div class="help profile-unverified">Email not verified. <a href="{% url 'accounts:verify_email_status' %}">Verify now</a>.</div>
+          {% endif %}
         </div>
 
         <div>
@@ -201,27 +46,9 @@
         </div>
 
         <div>
-          <label for="{{ form.email.id_for_label }}">Email</label>
-          {{ form.email }}
-          {% for e in form.email.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
-        </div>
-
-        {% if profile.email_verified %}
-          <div class="help profile-verified"><strong>Email verified</strong></div>
-        {% else %}
-          <div class="help profile-unverified">Email not verified. <a href="{% url 'accounts:verify_email_status' %}">Verify now</a>.</div>
-        {% endif %}
-
-        <div>
-          <label for="{{ form.phone_1.id_for_label }}">Phone 1</label>
+          <label for="{{ form.phone_1.id_for_label }}">Phone</label>
           {{ form.phone_1 }}
           {% for e in form.phone_1.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
-        </div>
-
-        <div>
-          <label for="{{ form.phone_2.id_for_label }}">Phone 2</label>
-          {{ form.phone_2 }}
-          {% for e in form.phone_2.errors %}<div class="help profile-error">{{ e }}</div>{% endfor %}
         </div>
 
         <div>
@@ -258,7 +85,7 @@
           <label for="{{ form.avatar.id_for_label }}">Profile picture</label>
           {% if form.avatar.value %}
             <div class="d-flex align-items-center gap-3 profile-avatar-preview">
-              <img src="{{ form.avatar.value.url }}" alt="Current profile picture" class="rounded border" >
+              <img src="{{ form.avatar.value.url }}" alt="Current profile picture" class="rounded border">
               <div class="small text-secondary">Current image</div>
             </div>
           {% endif %}
@@ -269,10 +96,7 @@
 
       <div class="actions">
         <button class="btn btn-primary" type="submit">Save</button>
-        <button class="btn btn-secondary" type="reset">Clear Changes</button>
       </div>
     </form>
   </div>
 {% endblock %}
-
-

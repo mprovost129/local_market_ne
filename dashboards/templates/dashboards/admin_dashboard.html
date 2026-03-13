@@ -17,7 +17,7 @@
       <a class="btn btn-outline-primary" href="{% url 'dashboards:admin_ops' %}">
         <i class="bi bi-wrench-adjustable me-1"></i>Ops
       </a>
-      <a class="btn btn-outline-secondary" href="{% url 'admin:index' %}">
+      <a class="btn btn-secondary" href="{% url 'admin:index' %}">
         <i class="bi bi-gear me-1"></i>Django Admin
       </a>
       <a class="btn btn-primary" href="{% url 'products:list' %}">
@@ -25,7 +25,7 @@
       </a>
 
       {% if analytics_dashboard_url %}
-        <a class="btn btn-outline-secondary" href="{{ analytics_dashboard_url }}" target="_blank" rel="noopener">
+        <a class="btn btn-secondary" href="{{ analytics_dashboard_url }}" target="_blank" rel="noopener">
           <i class="bi bi-box-arrow-up-right me-1"></i>Google Analytics
         </a>
       {% endif %}
@@ -151,11 +151,11 @@
           <div class="fw-semibold">Analytics (Native)</div>
           <div class="d-flex flex-wrap align-items-center gap-2">
             {% if analytics_dashboard_url %}
-              <a class="btn btn-sm btn-outline-secondary" href="{{ analytics_dashboard_url }}" target="_blank" rel="noopener">
+              <a class="btn btn-sm btn-secondary" href="{{ analytics_dashboard_url }}" target="_blank" rel="noopener">
                 <i class="bi bi-box-arrow-up-right me-1"></i>Open Google Analytics
               </a>
             {% else %}
-              <a class="btn btn-sm btn-outline-secondary" href="{% url 'dashboards:admin_settings' %}#id_google_analytics_dashboard_url">
+              <a class="btn btn-sm btn-secondary" href="{% url 'dashboards:admin_settings' %}#id_google_analytics_dashboard_url">
                 <i class="bi bi-link-45deg me-1"></i>Set Google Analytics link
               </a>
             {% endif %}
@@ -170,9 +170,9 @@
           {% if analytics_enabled %}
             <div class="d-flex flex-wrap align-items-end justify-content-between gap-2 mb-3">
               <div class="btn-group btn-group-sm" role="group" aria-label="Analytics range">
-                <a class="btn btn-outline-secondary {% if analytics_range_key == 'today' %}active{% endif %}" href="?a_range=today">Today</a>
-                <a class="btn btn-outline-secondary {% if analytics_range_key == '7d' %}active{% endif %}" href="?a_range=7d">7 days</a>
-                <a class="btn btn-outline-secondary {% if analytics_range_key == '30d' %}active{% endif %}" href="?a_range=30d">30 days</a>
+                <a class="btn btn-secondary {% if analytics_range_key == 'today' %}active{% endif %}" href="?a_range=today">Today</a>
+                <a class="btn btn-secondary {% if analytics_range_key == '7d' %}active{% endif %}" href="?a_range=7d">7 days</a>
+                <a class="btn btn-secondary {% if analytics_range_key == '30d' %}active{% endif %}" href="?a_range=30d">30 days</a>
               </div>
 
               <form method="get" class="d-flex flex-wrap align-items-end gap-2">
@@ -186,7 +186,7 @@
                   <input type="date" name="a_end" value="{{ analytics_end_date|date:'Y-m-d' }}" class="form-control form-control-sm">
                 </div>
                 <div>
-                  <button class="btn btn-sm btn-outline-secondary" type="submit">Apply</button>
+                  <button class="btn btn-sm btn-secondary" type="submit">Apply</button>
                 </div>
               </form>
             </div>

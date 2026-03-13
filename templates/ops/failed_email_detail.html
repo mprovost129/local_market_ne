@@ -9,7 +9,7 @@
       <h1 class="h4 mb-1">Failed Email Detail</h1>
       <div class="text-muted small">Attempt #{{ attempt.id }} * {{ attempt.created_at|date:"Y-m-d H:i" }}</div>
     </div>
-    <a class="btn btn-sm btn-outline-secondary" href="{% url 'ops:failed_emails' %}">Back</a>
+    <a class="btn btn-sm btn-secondary" href="{% url 'ops:failed_emails' %}">Back</a>
   </div>
 
   <div class="row g-3">

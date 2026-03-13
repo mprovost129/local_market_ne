@@ -36,7 +36,7 @@
           <strong>Stripe onboarding not complete.</strong>
           You wont be able to receive payouts until Stripe is fully enabled.
         </div>
-        <a class="btn btn-sm btn-outline-secondary" href="{% url 'payments:connect_status' %}">Finish Stripe setup</a>
+        <a class="btn btn-sm btn-secondary" href="{% url 'payments:connect_status' %}">Finish Stripe setup</a>
       </div>
     </div>
   {% endif %}
@@ -61,7 +61,7 @@
 
         <div class="col-12 col-md-3 d-flex gap-2">
           <button class="btn btn-primary w-100" type="submit">Filter</button>
-          <a class="btn btn-outline-secondary w-100" href="{% url 'payments:payouts_dashboard' %}">Reset</a>
+          <a class="btn btn-secondary w-100" href="{% url 'payments:payouts_dashboard' %}">Reset</a>
         </div>
       </form>
     </div>

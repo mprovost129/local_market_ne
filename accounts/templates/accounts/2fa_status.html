@@ -29,7 +29,7 @@
                             <a href="{% url 'accounts:show_recovery_codes' %}" class="btn btn-outline-primary">
                                 <i class="bi bi-key"></i> View Recovery Codes
                             </a>
-                            <a href="{% url 'accounts:regenerate_recovery_codes' %}" class="btn btn-outline-secondary">
+                            <a href="{% url 'accounts:regenerate_recovery_codes' %}" class="btn btn-secondary">
                                 <i class="bi bi-arrow-clockwise"></i> Regenerate Recovery Codes
                             </a>
                             <form method="post" action="{% url 'accounts:disable_2fa' %}" style="display: inline;">
